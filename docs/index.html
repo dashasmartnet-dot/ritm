@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015210556';</script>
-<script src="supabase.js?v=20261015210556"></script>
-<script src="config.js?v=20261015210556"></script>
-<script src="backend.js?v=20261015210556"></script>
+<script>window.RITM_BUILD='20261015210856';</script>
+<script src="supabase.js?v=20261015210856"></script>
+<script src="config.js?v=20261015210856"></script>
+<script src="backend.js?v=20261015210856"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -860,6 +860,7 @@ function merge(saved){
   o.rhythm=Object.assign(DEFAULT().rhythm, obj(s.rhythm));
   o.groups=arr(s.groups).length?arr(s.groups).filter(g=>g&&g.id):DEFAULT().groups;
   ['spheres','goals','habits','tasks'].forEach(k=>o[k]=arr(s[k]).filter(Boolean));
+  o.tasks.forEach(x=>{ if(x.kind==='wait'&&!String(x.who||'').trim()) x.kind='main'; });
   o.calendars=arr(s.calendars).filter(x=>typeof x==='string'); if(!o.calendars.length) o.calendars=['primary'];
   if(typeof o.remindCal!=='string') o.remindCal='primary';
   ['habitLog','days','affirm','life'].forEach(k=>o[k]=obj(s[k]));
@@ -1006,12 +1007,12 @@ function dateCtx(){ const d=new Date(); return 'Сегодня '+today()+' ('+WD
 function ctxBlock(){
   return dateCtx()+'\nСферы (id: название, вкладка):\n'+S.spheres.map(s=>'- '+s.id+': '+s.name+' ('+groupName(s.group)+')').join('\n');
 }
-const TASK_RULES='time — время "HH:MM", если названо конкретное время (встреча, звонок, «напомни в 15:00»), иначе null. kind: main — важное дело; small — мелочь до 15 минут (оплатить, ответить, отправить, записаться); wait — кто-то другой должен что-то пользователю (who = кто). priority: 1 высокий, 2 средний, 3 низкий. est — оценка в минутах. Даты вроде «завтра», «в пятницу», «до конца месяца» переведи в YYYY-MM-DD. Если срок не назван — null. Название задачи начинай с глагола. Ничего не склеивай, не теряй и не выдумывай.';
+const TASK_RULES='time — время "HH:MM", если названо конкретное время (встреча, звонок, «напомни в 15:00»), иначе null. kind: main — важное дело; small — мелочь до 15 минут (оплатить, ответить, отправить, записаться); wait — ТОЛЬКО если другой человек должен что-то пользователю и назван по имени (who = кто). Если действие делает сам пользователь (съездить, получить, забрать, позвонить) — это main или small, не wait. priority: 1 высокий, 2 средний, 3 низкий. est — оценка в минутах. Даты вроде «завтра», «в пятницу», «до конца месяца» переведи в YYYY-MM-DD. Если срок не назван — null. Название задачи начинай с глагола. Ничего не склеивай, не теряй и не выдумывай.';
 function normTask(x, sphId){
   return { id:uid(), title:String(x.title).slice(0,200), sphere:sphId,
     due: /^\d{4}-\d{2}-\d{2}$/.test(x.due||'')?x.due:null,
     time: isHM(x.time)?x.time:null,
-    kind: ['main','small','wait'].includes(x.kind)?x.kind:'main',
+    kind: ['main','small','wait'].includes(x.kind)&&!(x.kind==='wait'&&!String(x.who||'').trim())?x.kind:'main',
     who: x.who?String(x.who).slice(0,60):null,
     note: x.note?String(x.note).slice(0,1000):null,
     priority: [1,2,3].includes(Number(x.priority))?Number(x.priority):2,
@@ -2753,7 +2754,7 @@ function viewHome(){
   const todays=open.filter(x=>x.due===t);
   const timed=todays.filter(x=>x.time);
   const untimed=todays.filter(x=>!x.time).sort((a,b)=>(a.kind==='main'?0:1)-(b.kind==='main'?0:1)||rank(a,b));
-  const waits=S.tasks.filter(x=>!x.done&&x.kind==='wait'&&(!x.due||x.due<=addDays(t,1))).sort(rank);
+  const waits=S.tasks.filter(x=>!x.done&&x.kind==='wait'&&x.due&&x.due<=addDays(t,1)).sort(rank);
   const doneT=S.tasks.filter(x=>x.done&&x.doneAt&&dstr(new Date(x.doneAt))===t);
   const total=todays.length+overdue.length+doneT.length;
   const rv=toMin(S.rhythm.review); const isEve=rv!=null&&nowM>=rv;
@@ -2792,7 +2793,7 @@ function viewPlan(){
   const [y1,m1,d1]=st.split('-').map(Number); const en=addDays(st,6); const [y2,m2,d2]=en.split('-').map(Number);
   h+=seg;
   h+='<div class="wk-nav"><button class="icon-btn" data-act="wk" data-v="-1" aria-label="Прошлая неделя">'+IC.back+'</button><div class="wk-title"><span>'+d1+(m1!==m2?' '+MONTHS[m1-1]:'')+' – '+d2+' '+MONTHS[m2-1]+'</span>'+(ui.week?'<button class="link" data-act="wk-now">к этой неделе</button>':'')+'</div><button class="icon-btn flip" data-act="wk" data-v="1" aria-label="Следующая неделя">'+IC.back+'</button></div>';
-  const inbox=S.tasks.filter(x=>!x.done&&!x.due&&x.kind!=='wait').sort(rank);
+  const inbox=S.tasks.filter(x=>!x.done&&!x.due).sort(rank);
   h+='<section class="inbox-box dbox nodate" data-dropday="none"><button class="ib-h" data-act="inbox-toggle" aria-expanded="'+!ui.inboxClosed+'">'+IC.inbox+'<span class="ib-t">Входящие</span><span class="ib-s">'+(inbox.length?plural(inbox.length,'дело','дела','дел')+' без даты':'пусто')+'</span>'+IC.chev+'</button>'+(ui.inboxClosed?'':'<ul class="wlist">'+(inbox.length?inbox.map(x=>wItem(x,'none')).join(''):'<li class="w-empty">Сюда падают дела без даты. Перетащи их на день, когда решишь.</li>')+'</ul>')+'</section>';
   const L=[0,1,2,3].map(i=>dayBox(addDays(st,i),false)).join('');
   const R=[4,5,6].map(i=>dayBox(addDays(st,i),false)).join('');
