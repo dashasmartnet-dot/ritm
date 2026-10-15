@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015210856';</script>
-<script src="supabase.js?v=20261015210856"></script>
-<script src="config.js?v=20261015210856"></script>
-<script src="backend.js?v=20261015210856"></script>
+<script>window.RITM_BUILD='20261015223016';</script>
+<script src="supabase.js?v=20261015223016"></script>
+<script src="config.js?v=20261015223016"></script>
+<script src="backend.js?v=20261015223016"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -778,6 +778,62 @@ section.now{background:var(--surface);border-radius:var(--r-card);padding:14px 1
 .d-item.task{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}
 .d-item .check.sm{width:22px;height:22px;flex:none;border-radius:50%;border:1.5px solid #C9BFB8;background:transparent;display:grid;place-items:center;padding:0;margin-top:1px}
 @media (prefers-reduced-motion:reduce){.check[aria-pressed="true"]{animation:none}}
+/* ===== Сегодня: одна карточка дня ===== */
+.daycard{background:var(--surface);border-radius:20px;padding:16px 16px 8px;box-shadow:0 1px 0 var(--line)}
+.dc-top{display:flex;align-items:center;gap:10px;padding:2px 2px 12px;border-bottom:.5px solid var(--line)}
+.dc-n{font-family:var(--serif,Georgia,serif);font-size:40px;line-height:1;color:var(--ink)}
+.dc-of{color:var(--muted);font-size:15px}
+.dc-bar{flex:1;height:6px;border-radius:3px;background:var(--soft);overflow:hidden}
+.dc-bar i{display:block;height:100%;background:var(--done);border-radius:3px;transition:width .4s ease}
+.dc-l{color:var(--muted);font-size:13px}
+.dc-g{padding-top:12px}
+.dc-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 2px 4px}
+.dc-h .link,.dc-h .cnt{text-transform:none;letter-spacing:0;font-weight:500;font-size:12.5px}
+.dc-empty{width:100%;border:0;background:none;color:var(--muted);font-size:16px;text-align:left;padding:16px 2px}
+.daycard .ag-it{min-height:46px;border-bottom:.5px solid var(--line)}
+.daycard .ag-b .ag-it:last-child{border-bottom:0}
+.sdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin:0 7px 2px 0;vertical-align:middle;flex:none}
+/* сжатая шкала */
+.diary-compact .diary{list-style:none;margin:0;padding:0}
+.diary-compact .d-row.hide-h{display:none}
+body.dragging .diary-compact .d-row.hide-h{display:grid}
+body.dragging .diary-compact .d-gap{display:none}
+.diary-compact .d-gap{font-size:12.5px;color:var(--muted);padding:6px 0 6px 64px;border-left:0;position:relative}
+.diary-compact .d-gap::before{content:"";position:absolute;left:52px;right:0;top:50%;border-top:1px dashed var(--line)}
+.diary-compact .d-gap{background:transparent}
+.diary-compact .d-gap{z-index:0}
+.diary-compact .d-h{font-family:var(--body)!important;font-style:normal!important;font-size:13px;color:var(--muted)}
+.diary-compact .d-row.now{background:none;box-shadow:inset 0 2px 0 var(--accent)}
+.diary-compact .d-allday{display:none}
+/* вечером — тихая строка */
+.close-quiet{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;border:0;background:none;color:var(--accent);font-size:15px;font-weight:500;padding:14px 0}
+.close-quiet svg{width:16px;height:16px}
+/* ничего не прячется под панелью */
+#app{padding-bottom:calc(130px + env(safe-area-inset-bottom,0px))!important}
+.diary-compact .d-gap::before{display:none}
+.diary-compact .d-gap{padding:5px 0 5px 64px;font-size:12px;opacity:.85}
+.diary-compact .d-row{min-height:0}
+.diary-compact .d-item.task{display:flex;align-items:center;flex-wrap:nowrap;gap:10px;border-left:0!important;padding:8px 0;background:none;box-shadow:none}
+.diary-compact .d-item .d-t{min-width:42px;font-size:14px;font-weight:600;color:var(--accent)}
+.diary-compact .d-item.done .d-t{color:var(--muted)}
+.diary-compact .d-item .d-title{flex:1;min-width:0;font-size:16px;font-weight:400;color:var(--ink)}
+.diary-compact .d-item .d-sub{display:none}
+.diary-compact .d-item.event .d-t{color:var(--muted)}
+.diary-compact .d-row.now .d-cell{min-height:22px}
+.diary-compact .d-row:not(.now) .d-h{display:none}
+body.dragging .diary-compact .d-h{display:block!important}
+.diary-compact .d-row:not(.now) .d-cell{border-left:0;padding-left:0}
+.diary-compact .d-gap{padding-left:2px}
+.diary-compact .d-row:not(.now){grid-template-columns:minmax(0,1fr);gap:0}
+body.dragging .diary-compact .d-row{grid-template-columns:48px minmax(0,1fr)!important;gap:10px!important}
+/* ===== Шрифт: ровный, дружелюбный, как в Finch / iOS (SF Pro Rounded → Nunito) ===== */
+:root{--display:ui-rounded,'SF Pro Rounded','Nunito',-apple-system,system-ui,sans-serif;--serif:ui-rounded,'SF Pro Rounded','Nunito',-apple-system,system-ui,sans-serif;--body:-apple-system,'SF Pro Text','Nunito',system-ui,sans-serif}
+h1,h2,h3,.pg-h,.hd h1{font-family:var(--display)!important;font-weight:700!important;letter-spacing:-.01em}
+.hd h1{font-size:30px;line-height:1.1}
+.hd-line,.affirm p{font-family:var(--body)!important;font-style:normal!important;font-size:15px!important;color:var(--muted)}
+.dc-n,.ag-n,.db-n,.pg-n,.wk-title,.plan .wk-title,.week-title,.mc-n,.dc-n{font-family:var(--display)!important;font-style:normal!important;font-weight:700}
+.d-h,.d-t,.event time,.stat b{font-family:var(--body)!important;font-style:normal!important}
+.ob h1,.ob h2,[class*=ob-] h1{font-family:var(--display)!important;font-weight:700!important}
 
 </style>
 <style>html,body{margin:0}body{padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}</style>
@@ -904,6 +960,9 @@ const groupName = g => (S.groups.find(x=>x.id===g)||{}).name || 'Другое';
 const dotClass = g => g==='work'?'work':g==='personal'?'personal':'custom';
 const PALETTE=[['#F2C94C','Жёлтый'],['#E5534B','Красный'],['#4A90E2','Синий'],['#3FB57A','Зелёный'],['#9B6BDF','Фиолетовый'],['#F2994A','Оранжевый'],['#EC6FA8','Розовый'],['#8D99AE','Серый']];
 const sphColor = t => { const s=sphere(t&&t.sphere); return s&&s.color||''; };
+const DOTS=['#C0785A','#6E8FB5','#7E9C86','#B59A5B','#9A7FB0','#C27D93'];
+const dotColor = t => { const s=sphere(t&&t.sphere); if(!s) return ''; return s.color||DOTS[Math.max(0,arr(S.spheres).indexOf(s))%DOTS.length]; };
+const dotOf = t => { const c=dotColor(t); const s=sphere(t&&t.sphere); return c?'<i class="sdot" style="background:'+esc(c)+'" title="'+esc(s&&s.name||'')+'" aria-hidden="true"></i>':''; };
 const dotHtml = (t,g) => { const c=sphColor(t); return '<span class="dot '+dotClass(g)+'"'+(c?' style="background:'+esc(c)+'"':'')+'></span>'; };
 const cStyle = t => { const c=sphColor(t); return c?' style="--c:'+esc(c)+'"':''; };
 /* лёгкая вибрация: Android — vibrate, iPhone — системный переключатель */
@@ -1473,6 +1532,14 @@ function moveSheetOld(id){
   document.addEventListener('pointerup', stop); document.addEventListener('pointercancel', stop);
   document.addEventListener('contextmenu', e=>{ if(e.target.closest&&e.target.closest('.sw,[data-drag]')) e.preventDefault(); });
 })();
+/* «+»: короткое нажатие — написать, долгое — сразу диктовать */
+(function(){ let t=null, long=false;
+  document.addEventListener('pointerdown', e=>{ const b=e.target.closest&&e.target.closest('.mic-fab'); if(!b) return; long=false; clearTimeout(t); t=setTimeout(()=>{ long=true; haptic(); capSheet(true); }, 420); }, {passive:true});
+  const stop=()=>{ clearTimeout(t); t=null; };
+  document.addEventListener('pointerup', stop); document.addEventListener('pointercancel', stop);
+  document.addEventListener('click', e=>{ const b=e.target.closest&&e.target.closest('.mic-fab'); if(b&&long){ e.stopPropagation(); e.preventDefault(); long=false; } }, true);
+  document.addEventListener('contextmenu', e=>{ if(e.target.closest&&e.target.closest('.mic-fab')) e.preventDefault(); });
+})();
 /* перетаскивание долгим нажатием */
 (function(){
   let drag=null, timer=null, sx=0, sy=0;
@@ -1586,7 +1653,7 @@ function viewToday(mode){
   if(home && M.evening && rv!=null && nowM>=rv && !(S.days[t]&&S.days[t].closed)) h+='<div class="banner" style="border-color:var(--accent)"><b>Пора подвести итоги дня</b><span class="muted" style="font-size:14px">Минута голосом: что сделано, что переносим, как настроение.</span><div><button class="btn primary" data-act="evening">Подвести итоги</button></div></div>';
   return h+'</div>';
 }
-function diary(day, wa){
+function diary(day, wa, compact){
   const c=calDays[day]||(cap.mcp?{status:'loading',events:[]}:{status:'off',events:[]});
   const t=today(); const isToday=day===t;
   const from=Math.max(0,Math.floor((toMin(S.rhythm.wake)??420)/60)); let to=Math.min(24,Math.ceil((toMin(S.rhythm.sleep)??1380)/60)); if(to<=from) to=24;
@@ -1594,18 +1661,21 @@ function diary(day, wa){
   (c.events||[]).forEach(e=>{ if(e.time==='весь день') return; const m=toMin(e.time); items.push({m, end:toMin(e.end)||m+60, kind:'event', title:e.title, sub:e.cal||''}); });
   S.tasks.filter(x=>(!x.done||isToday)&&x.due===day&&x.time&&(!wa||groupOf(x)==='work')).forEach(x=>{ const m=toMin(x.time); items.push({m, end:m+(x.est||30), kind:'task', title:x.title, id:x.id, done:!!x.done, sub:(sphere(x.sphere)||{}).name||'', c:sphColor(x)}); });
   const allDay=(c.events||[]).filter(e=>e.time==='весь день');
-  const markers=[[toMin(S.rhythm.brief),'Утренний план'],[toMin(S.rhythm.workStart),'Начало работы'],[toMin(S.rhythm.workEnd),'Конец работы'],[toMin(S.rhythm.review),'Итоги дня']].filter(x=>x[0]!=null);
+  const markers=compact?[]:[[toMin(S.rhythm.brief),'Утренний план'],[toMin(S.rhythm.workStart),'Начало работы'],[toMin(S.rhythm.workEnd),'Конец работы'],[toMin(S.rhythm.review),'Итоги дня']].filter(x=>x[0]!=null);
   const nowM=new Date().getHours()*60+new Date().getMinutes();
   let rows='';
+  let gap=[]; const flushGap=()=>{ if(!compact||!gap.length) return ''; const a=gap[0], z=gap[gap.length-1]+1; gap=[]; return '<li class="d-gap" aria-hidden="true">свободно '+pad(a)+':00–'+pad(z)+':00</li>'; };
   for(let hr=from; hr<to; hr++){
     const inHour=items.filter(i=>Math.floor(i.m/60)===hr).sort((a,b)=>a.m-b.m);
     const mk=markers.filter(x=>Math.floor(x[0]/60)===hr);
     const busy=items.some(i=>i.m<(hr+1)*60 && i.end>hr*60);
     const isNow=isToday && Math.floor(nowM/60)===hr;
-    let cell=inHour.map(i=>'<div class="d-item '+i.kind+(i.done?' done':'')+(i.c?' has-c':'')+'"'+(i.c?' style="--c:'+esc(i.c)+'"':'')+(i.id?' data-act="mv-open" data-id="'+esc(i.id)+'"'+(i.done?'':' data-drag="'+esc(i.id)+'"')+' role="button" tabindex="0"':'')+'>'+(i.id?'<button class="check sm" data-act="done" data-id="'+esc(i.id)+'" aria-pressed="'+i.done+'" aria-label="'+(i.done?'Вернуть':'Сделано')+'">'+(i.done?ICON.check:'')+'</button>':'')+'<span class="d-t">'+pad(Math.floor(i.m/60))+':'+pad(i.m%60)+(i.end&&i.kind==='event'?'–'+pad(Math.floor(i.end/60)%24)+':'+pad(i.end%60):'')+'</span><span class="d-title">'+esc(i.title)+'</span>'+(i.sub?'<span class="d-sub">'+esc(i.sub)+'</span>':'')+'</div>').join('');
+    let cell=inHour.map(i=>'<div class="d-item '+i.kind+(i.done?' done':'')+(i.c?' has-c':'')+'"'+(i.c?' style="--c:'+esc(i.c)+'"':'')+(i.id?' data-act="mv-open" data-id="'+esc(i.id)+'"'+(i.done?'':' data-drag="'+esc(i.id)+'"')+' role="button" tabindex="0"':'')+'>'+(i.id?'<button class="check sm" data-act="done" data-id="'+esc(i.id)+'" aria-pressed="'+i.done+'" aria-label="'+(i.done?'Вернуть':'Сделано')+'">'+(i.done?ICON.check:'')+'</button>':'')+'<span class="d-t">'+pad(Math.floor(i.m/60))+':'+pad(i.m%60)+(i.end&&i.kind==='event'?'–'+pad(Math.floor(i.end/60)%24)+':'+pad(i.end%60):'')+'</span><span class="d-title">'+(i.id?dotOf(findTask(i.id)):'')+esc(i.title)+'</span>'+(i.sub?'<span class="d-sub">'+esc(i.sub)+'</span>':'')+'</div>').join('');
     cell+=mk.map(x=>'<div class="d-mark">'+esc(x[1])+'</div>').join('');
-    rows+='<li class="d-row'+(isNow?' now':'')+(busy?' busy':'')+'" data-dropday="'+day+'" data-hour="'+hr+'"><span class="d-h">'+pad(hr)+':00</span><div class="d-cell">'+(cell||'')+(isNow?'<span class="d-now" aria-label="Сейчас">сейчас</span>':'')+(!inHour.length?'<button class="d-slot" data-act="slot" data-v="'+hr+'" data-day="'+day+'" aria-label="Поставить дело на '+pad(hr)+':00">+</button>':'')+'</div></li>';
+    const hideH=compact && !inHour.length && !isNow; if(hideH) gap.push(hr); else rows+=flushGap();
+    rows+='<li class="d-row'+(hideH?' hide-h':'')+(isNow?' now':'')+(busy?' busy':'')+'" data-dropday="'+day+'" data-hour="'+hr+'"><span class="d-h">'+pad(hr)+':00</span><div class="d-cell">'+(cell||'')+(isNow?'<span class="d-now" aria-label="Сейчас">сейчас</span>':'')+(!inHour.length?'<button class="d-slot" data-act="slot" data-v="'+hr+'" data-day="'+day+'" aria-label="Поставить дело на '+pad(hr)+':00">+</button>':'')+'</div></li>';
   }
+  rows+=flushGap();
   let freeTxt='';
   if(c.status==='ok'){
     const busyMin=items.reduce((a,i)=>a+Math.max(0,Math.min(i.end,to*60)-Math.max(i.m,from*60)),0);
@@ -1618,7 +1688,8 @@ function diary(day, wa){
   else if(c.status==='err') body='<div class="empty">'+esc(c.msg)+(c.retry?' <button class="btn ghost" data-act="cal-retry">Обновить</button>':'')+'</div>';
   if(allDay.length) body+='<div class="d-allday">'+allDay.map(e=>'<span class="pill">'+esc(e.title)+'</span>').join('')+'</div>';
   body+='<ol class="diary" aria-label="Расписание на '+esc(dayLabel(day))+'">'+rows+'</ol>';
-  body+='<p class="muted" style="margin:6px 0 0;font-size:12.5px">Зажми дело и перетащи на другой час — время сменится с шагом 15 минут. Нажми «+» в свободном часе — поставь туда дело.</p>';
+  if(!compact) body+='<p class="muted" style="margin:6px 0 0;font-size:12.5px">Зажми дело и перетащи на другой час — время сменится с шагом 15 минут. Нажми «+» в свободном часе — поставь туда дело.</p>';
+  if(compact) return '<div class="diary-compact">'+body+'</div>';
   return '<section class="card block diary-card paper" aria-labelledby="h-cal">'+head+body+'</section>';
 }
 const LIFE = [
@@ -2750,31 +2821,32 @@ function section(title, inner, extra, cls){ return '<section class="grp'+(cls?' 
 function viewHome(){
   const d=new Date(); const t=today(); const nowM=d.getHours()*60+d.getMinutes();
   const open=S.tasks.filter(x=>!x.done&&x.kind!=='wait'&&x.due&&x.due<=t);
-  const overdue=open.filter(x=>x.due<t).sort(rank);
+  const overdue=open.filter(x=>x.due<t);
   const todays=open.filter(x=>x.due===t);
-  const timed=todays.filter(x=>x.time);
-  const untimed=todays.filter(x=>!x.time).sort((a,b)=>(a.kind==='main'?0:1)-(b.kind==='main'?0:1)||rank(a,b));
+  const doneT=S.tasks.filter(x=>x.done&&x.doneAt&&dstr(new Date(x.doneAt))===t&&x.kind!=='wait');
+  const timedAll=S.tasks.filter(x=>x.due===t&&x.time&&x.kind!=='wait'&&(!x.done||doneT.includes(x)));
+  const untimed=overdue.concat(todays.filter(x=>!x.time)).concat(doneT.filter(x=>!(x.time&&x.due===t)&&x.due&&x.due<=t));
+  const ord=(a,b)=>((a.due<t&&!a.done?0:1)-(b.due<t&&!b.done?0:1))||rank(a,b);
+  const mains=untimed.filter(x=>x.kind!=='small').sort(ord), smalls=untimed.filter(x=>x.kind==='small').sort(ord);
   const waits=S.tasks.filter(x=>!x.done&&x.kind==='wait'&&x.due&&x.due<=addDays(t,1)).sort(rank);
-  const doneT=S.tasks.filter(x=>x.done&&x.doneAt&&dstr(new Date(x.doneAt))===t);
-  const total=todays.length+overdue.length+doneT.length;
-  const rv=toMin(S.rhythm.review); const isEve=rv!=null&&nowM>=rv;
+  const total=todays.length+overdue.length+doneT.length; const dn=doneT.length;
+  const rv=toMin(S.rhythm.review); const isEve=nowM>=18*60;
   let h='<div class="home">';
-  h+='<header class="hd"><div class="hd-date">'+WD[d.getDay()]+', '+d.getDate()+' '+MONTHS[d.getMonth()]+(total?' · сделано '+doneT.length+' из '+total:'')+'</div><h1 tabindex="-1" id="page-h">'+greeting()+(S.name?', '+esc(S.name):'')+'</h1>'+
+  h+='<header class="hd"><div class="hd-date">'+WD[d.getDay()]+', '+d.getDate()+' '+MONTHS[d.getMonth()]+'</div><h1 tabindex="-1" id="page-h">'+greeting()+(S.name?', '+esc(S.name):'')+'</h1>'+
      (S.modules.affirm?'<button class="hd-line" data-act="affirm-new" aria-label="Другая фраза дня">'+esc(affirmation())+'</button>':'')+'</header>';
-  if(isEve && S.modules.evening && !(S.days[t]&&S.days[t].closed)){
-    const left=todays.length+overdue.length;
-    h+='<button class="close-day" data-act="evening"><span><b>Закрыть день</b><span class="muted">'+(left?'Осталось '+plural(left,'дело','дела','дел')+' — перенести одним касанием':'Всё сделано. Подведём итог?')+'</span></span>'+IC.chev+'</button>';
-  }
-  const doneHere=doneT.filter(x=>x.due&&x.due<=t&&!(x.time&&x.due===t));
-  const anyday=overdue.concat(untimed).concat(doneHere).sort((a,b)=>((a.due<t?0:1)-(b.due<t?0:1))||((a.kind==='main'?0:1)-(b.kind==='main'?0:1))||rank(a,b));
-  const doneOther=doneT.filter(x=>!doneHere.includes(x)&&!(x.time&&x.due===t));
-  h+=section('В течение дня', anyday.length?'<div class="ag-b">'+anyday.map(x=>agItem(x,t)).join('')+'</div>':'<button class="more" data-act="cap-open">'+(timed.length?'Без времени дел нет. Добавить':'На сегодня пока пусто. Добавить дело')+'</button>', overdue.length?'<button class="link" data-act="od-today">Просроченное на сегодня</button>':'<span class="cnt">зажми и тяни на время</span>', 'anyday');
-  h+=section('По часам', diary(t,false), timed.length?'<span class="cnt">'+plural(timed.length,'дело','дела','дел')+'</span>':'', 'dp-diary today-diary');
+  // карточка дня
+  h+='<section class="daycard">';
+  h+='<div class="dc-top"><span class="dc-n">'+dn+'</span><span class="dc-of">из '+total+'</span><span class="dc-bar" aria-hidden="true"><i style="width:'+(total?Math.round(dn/total*100):0)+'%"></i></span><span class="dc-l">'+(total&&dn===total?'день закрыт ✓':'сделано')+'</span></div>';
+  if(!total) h+='<button class="dc-empty" data-act="cap-open">На сегодня пусто. Нажми, чтобы добавить дело</button>';
+  if(mains.length) h+='<div class="dc-g"><div class="dc-h">Главное'+(overdue.length?'<button class="link" data-act="od-today">просроченное — на сегодня</button>':'')+'</div><div class="ag-b">'+mains.map(x=>agItem(x,t)).join('')+'</div></div>';
+  if(smalls.length) h+='<div class="dc-g"><div class="dc-h">Мелочи</div><div class="ag-b">'+smalls.map(x=>agItem(x,t)).join('')+'</div></div>';
+  if(timedAll.length||mains.length||smalls.length) h+='<div class="dc-g"><div class="dc-h">По времени<span class="cnt">зажми дело и тяни на время</span></div>'+diary(t,false,true)+'</div>';
+  h+='</section>';
   if(waits.length && S.modules.wait) h+=section('Жду ответа', waits.map(x=>row(x)).join(''));
   if(S.modules.habits && S.habits.length){
     h+=section('Каждый день', '<div class="habits">'+S.habits.map(hb=>{ const on=!!(S.habitLog[t]&&S.habitLog[t][hb.id]); return '<button class="hab'+(on?' on':'')+'" data-act="habit" data-id="'+esc(hb.id)+'" aria-pressed="'+on+'"><span class="hab-c">'+(on?ICON.check:'')+'</span>'+esc(hb.name)+'</button>'; }).join('')+'</div>', '<button class="link" data-act="hab-manage">Изменить</button>');
   }
-  if(doneOther.length) h+=section('Сделано', ui.moreDone?doneOther.map(x=>row(x)).join(''):'<button class="more" data-act="more-done">'+plural(doneOther.length,'дело','дела','дел')+' — показать</button>', '', 'done-grp');
+  if(isEve && S.modules.evening && !(S.days[t]&&S.days[t].closed)) h+='<button class="close-quiet" data-act="evening">Закрыть день'+((todays.length+overdue.length)?' · перенести '+plural(todays.length+overdue.length,'дело','дела','дел'):'')+' '+IC.chev+'</button>';
   return h+'</div>';
 }
 
@@ -2815,7 +2887,7 @@ function viewDayPage(d){
 function shortDay(d){ const [y,m,dd]=d.split('-').map(Number); return WDS[new Date(y,m-1,dd).getDay()]+' '+dd; }
 function agItem(x,d){
   const over=!x.done&&d!=='none'&&x.due&&x.due<d;
-  return '<div class="ag-it'+(x.done?' done':'')+'"'+(x.done?'':' data-drag="'+esc(x.id)+'"')+'><button class="check sm" data-act="done" data-id="'+esc(x.id)+'" aria-pressed="'+!!x.done+'" aria-label="'+(x.done?'Вернуть':'Сделано')+': '+esc(x.title)+'">'+(x.done?ICON.check:'')+'</button>'+(x.time?'<span class="t-time">'+esc(x.time)+'</span>':'')+'<button class="ag-t" data-act="mv-open" data-id="'+esc(x.id)+'">'+esc(x.title)+(over?' <span class="over-t">· '+esc(human(x.due))+'</span>':'')+'</button></div>';
+  return '<div class="ag-it'+(x.done?' done':'')+'"'+(x.done?'':' data-drag="'+esc(x.id)+'"')+'><button class="check sm" data-act="done" data-id="'+esc(x.id)+'" aria-pressed="'+!!x.done+'" aria-label="'+(x.done?'Вернуть':'Сделано')+': '+esc(x.title)+'">'+(x.done?ICON.check:'')+'</button>'+(x.time?'<span class="t-time">'+esc(x.time)+'</span>':'')+'<button class="ag-t" data-act="mv-open" data-id="'+esc(x.id)+'">'+dotOf(x)+esc(x.title)+(over?' <span class="over-t">· '+esc(human(x.due))+'</span>':'')+'</button></div>';
 }
 
 /* ---------- ОДНО ОКНО ДЕЛА ---------- */
