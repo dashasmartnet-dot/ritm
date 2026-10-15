@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015185244';</script>
-<script src="supabase.js?v=20261015185244"></script>
-<script src="config.js?v=20261015185244"></script>
-<script src="backend.js?v=20261015185244"></script>
+<script>window.RITM_BUILD='20261015185501';</script>
+<script src="supabase.js?v=20261015185501"></script>
+<script src="config.js?v=20261015185501"></script>
+<script src="backend.js?v=20261015185501"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -1073,8 +1073,8 @@ function moveTask(id, day){
   toast('Перенесла: '+x.title+' — '+(x.due?dayLabel(x.due):'без даты'), ()=>{ const y=findTask(id); if(y){ y.due=prev; save(); render(); } });
   if(x.due && x.time && (cap.push||cap.mcp)) createReminder(x, true);
 }
-const REM_OPTS=[[0,'в момент'],[15,'за 15 мин'],[30,'за 30 мин'],[60,'за час'],[180,'за 3 часа'],[1440,'за день']];
-function remChips(x){ const cur=x.remind!=null?Number(x.remind):(Number(S.rhythm.remind)||60); return '<div class="row wrap" style="gap:6px">'+REM_OPTS.map(([n,l])=>'<button class="chip sm" data-act="rem-set" data-id="'+esc(x.id)+'" data-v="'+n+'" aria-pressed="'+(cur===n)+'">'+l+'</button>').join('')+'</div><p class="muted" style="margin:4px 0 0;font-size:12px">Пуш придёт '+(cur?'заранее и ещё раз в момент дела':'в момент дела')+'.</p>'; }
+const REM_OPTS=[[-1,'не напоминать'],[0,'в момент'],[15,'за 15 мин'],[30,'за 30 мин'],[60,'за час'],[180,'за 3 часа'],[1440,'за день']];
+function remChips(x){ const cur=x.remind!=null?Number(x.remind):(Number(S.rhythm.remind)||60); return '<div class="row wrap" style="gap:6px">'+REM_OPTS.map(([n,l])=>'<button class="chip sm" data-act="rem-set" data-id="'+esc(x.id)+'" data-v="'+n+'" aria-pressed="'+(cur===n)+'">'+l+'</button>').join('')+'</div><p class="muted" style="margin:4px 0 0;font-size:12px">'+(cur===-1?'Напоминания не будет.':'Пуш придёт '+(cur?'заранее и ещё раз в момент дела':'в момент дела')+'.')+'</p>'; }
 function moveSheet(id){
   const x=findTask(id); if(!x) return;
   const st=weekStart(ui.week||0); const t=today();
@@ -1190,7 +1190,7 @@ function viewToday(mode){
   if(!home) h+=weekStrip(wa);
   if(!home && hasWork()) h+='<div class="workbar"><button class="toggle" data-act="workmode" aria-pressed="'+wa+'">'+(wa?'Сейчас работаю':'Показываю всё')+'</button><span class="muted" style="font-size:12.5px;text-align:right">'+(wa&&hiddenPersonal?'Личных скрыто: '+hiddenPersonal:S.workOverride&&S.workOverride.date===t?'Вручную до конца дня':S.workMode==='auto'?'Авто: '+esc(S.rhythm.workStart)+'–'+esc(S.rhythm.workEnd):S.workMode==='on'?'Всегда включён':'Выключен')+'</span></div>';
   const undated=S.tasks.filter(x=>!x.done&&!x.due&&x.kind!=='wait'&&(!wa||groupOf(x)==='work'));
-  if(!home&&isToday&&undated.length){
+  if(!home&&undated.length){
     const T0=today(); const dw=new Date().getDay(); const toMon=(1-dw+7)%7||7;
     const opts=[[T0,'Сегодня'],[addDays(T0,1),'Завтра'],[addDays(T0,2),WDS[(dw+2)%7]],[addDays(T0,toMon),'Пн']];
     h+='<section class="card block undated" aria-labelledby="h-und"><div class="block-head"><h2 id="h-und" style="font-size:20px">Без даты · '+undated.length+'</h2><button class="btn ghost" data-act="ask-all">По одному</button></div><p class="muted" style="margin:0;font-size:13px">Нажми день — дело встанет в план.</p>'+
@@ -1237,8 +1237,8 @@ function viewToday(mode){
     const ed=!!ui.habEdit;
     let hh=S.habits.map(hb=>{ const on=!!(S.habitLog[t]&&S.habitLog[t][hb.id]); const st=streak(hb.id); return '<div class="habit"><div style="min-width:0;flex:1"><div style="font-weight:600">'+esc(hb.name)+'</div><div class="muted" style="font-size:12.5px">'+(st?'серия '+plural(st,'день','дня','дней'):'начни серию сегодня')+'</div></div>'+(ed?'<button class="icon-btn" data-act="hab-del-t" data-id="'+esc(hb.id)+'" aria-label="Убрать: '+esc(hb.name)+'">'+ICON.x+'</button>':'<button class="check" data-act="habit" data-id="'+esc(hb.id)+'" aria-pressed="'+on+'" aria-label="'+esc(hb.name)+'">'+(on?ICON.check:'')+'</button>')+'</div>'; }).join('');
     if(!S.habits.length) hh='<p class="muted" style="margin:0;font-size:14px">Закрепи то, что делаешь каждый день: вода, зарядка, английский 10 минут. Отмечай галочкой — Ритм посчитает серию.</p>';
-    if(ed||!S.habits.length) hh+='<form id="hab-form" class="row" style="gap:8px;margin-top:8px" autocomplete="off"><label for="hab-new" class="srt">Новое ежедневное</label><input id="hab-new" type="text" placeholder="Например: 10 минут английского" style="flex:1;min-width:0"><button class="btn" type="submit" style="flex:none">Добавить</button></form>';
-    h+=block('Каждый день', hh, S.habits.length?'<button class="btn ghost" data-act="hab-edit" style="min-height:36px">'+(ed?'Готово':'Изменить')+'</button>':'');
+    if(false) hh+='<form id="hab-form" class="row" style="gap:8px;margin-top:8px" autocomplete="off"><label for="hab-new" class="srt">Новое ежедневное</label><input id="hab-new" type="text" placeholder="Например: 10 минут английского" style="flex:1;min-width:0"><button class="btn" type="submit" style="flex:none">Добавить</button></form>';
+    h+=block('Каждый день', hh, '<button class="btn ghost" data-act="hab-manage" style="min-height:36px">Изменить</button>');
   }
   if(home) h+='<div class="row wrap"><button class="btn" data-act="meeting">'+ICON.doc+'<span style="margin-left:6px">Разобрать встречу</span></button>'+(M.evening?'<button class="btn" data-act="evening">'+(S.days[t]&&S.days[t].closed?'Итоги дня ✓':'Итоги дня')+'</button>':'')+'</div>';
   const rv=toMin(S.rhythm.review); const nowM=d.getHours()*60+d.getMinutes();
@@ -1398,6 +1398,7 @@ function actLabel(a){
   const t=a.id&&findTask(a.id); const nm=t?t.title:(a.title||'');
   const when=(a.due?dayLabel(a.due):'')+(a.time?' в '+a.time:'');
   if(a.op==='add') return '＋ '+nm+(when?' — '+when:'');
+  if(a.op==='habit') return '📌 Каждый день: '+nm;
   if(a.op==='move') return '→ '+nm+' — '+(when||'без даты');
   if(a.op==='done') return '✓ '+nm;
   if(a.op==='delete') return '✕ Удалить: '+nm;
@@ -1408,6 +1409,7 @@ function applyActions(list){
   let n=0; const added=[];
   list.forEach(a=>{
     const due=/^\d{4}-\d{2}-\d{2}$/.test(a.due||'')?a.due:null, time=isHM(a.time)?a.time:null;
+    if(a.op==='habit'){ if(!S.habits.some(h=>h.name.toLowerCase()===String(a.title).toLowerCase())){ S.habits.push({id:'h-'+uid(),name:String(a.title).slice(0,80)}); n++; } return; }
     if(a.op==='add'){ const t=normTask({title:a.title,note:a.note,due,time,kind:a.kind||'main'}, defaultSphere()); t.source='assistant'; S.tasks.push(t); added.push(t); n++; return; }
     const t=findTask(a.id); if(!t) return;
     if(a.op==='move'){ const prev=t.due; t.due=due; if('time' in a) t.time=time; if(t.recurId&&prev&&prev!==due){ const r=findRecur(t.recurId); if(r) r.skip[prev]=true; t.recurId=null; } t.reminded=false; if(t.time) added.push(t); n++; }
@@ -1523,10 +1525,12 @@ async function scheduleBrief(){
   if(!cap.push || !window.RITM_PUSH || !window.RITM_PUSH.scheduleBrief) return;
   const tm=isHM(S.rhythm.brief)?S.rhythm.brief:'08:45';
   const days=S.briefPush?Array.from({length:7},(_,i)=>addDays(today(),i)).map(d=>({date:d,time:tm})):[];
-  try{ await window.RITM_PUSH.scheduleBrief(days); }catch(e){}
+  const hr=S.habRemind&&S.habRemind.on&&S.habits.length?Array.from({length:7},(_,i)=>addDays(today(),i)).map(d=>({date:d,time:isHM(S.habRemind.time)?S.habRemind.time:'20:00',kind:'habits'})):[];
+  try{ await window.RITM_PUSH.scheduleBrief(days.concat(hr)); }catch(e){}
 }
 async function createReminder(t, quiet){
   if(!t.due||!t.time) return false;
+  if(Number(t.remind)===-1){ try{ if(cap.push&&window.RITM_PUSH&&window.RITM_PUSH.cancel) await window.RITM_PUSH.cancel(t.id); }catch(_){} const x=findTask(t.id); if(x&&x.reminded){ x.reminded=false; save(); } return false; }
   if(cap.push && window.RITM_PUSH){
     try{ const ok=await window.RITM_PUSH.schedule(t, t.remind!=null?Number(t.remind):(Number(S.rhythm.remind)||60)); if(ok){ const x=findTask(t.id); if(x){ x.reminded=true; save(); } } else if(!quiet) toast('Это время уже прошло — напоминание не нужно.'); return ok; }
     catch(e){ if(!quiet) toast('Напоминание не поставилось. Попробуй ещё раз.', null, true); return false; }
@@ -1650,7 +1654,11 @@ function viewProfile(){
   h+='<section class="card block"><h2 style="font-size:22px">Блоки экрана «Сегодня»</h2><div class="row wrap">'+mods.map(([k,n])=>'<button class="chip" data-act="mod" data-k="'+k+'" aria-pressed="'+!!S.modules[k]+'">'+n+'</button>').join('')+'</div></section>';
   h+='<section class="card block"><h2 style="font-size:22px">Мой ритм</h2>'+rhythmFields(S.rhythm,'pf')+'<div class="eyebrow">Режим «Сейчас работаю»</div><div class="seg"><button data-act="wm" data-v="auto" aria-pressed="'+(S.workMode==='auto')+'">По расписанию</button><button data-act="wm" data-v="on" aria-pressed="'+(S.workMode==='on')+'">Всегда</button><button data-act="wm" data-v="off" aria-pressed="'+(S.workMode==='off')+'">Выключен</button></div></section>';
   h+='<section class="card block"><h2 style="font-size:22px">Сферы и цвета</h2><p class="muted" style="margin:0;font-size:13.5px">Нажми на кружок, чтобы выбрать цвет или убрать его. Цвет видно у дел, в неделе и в ежедневнике.</p>'+S.spheres.map((s,i)=>'<div class="sph-row"><button class="color-btn'+(s.color?'':' none')+'" data-act="sph-color" data-i="'+i+'" aria-label="Цвет сферы '+esc(s.name)+'"'+(s.color?' style="background:'+esc(s.color)+'"':'')+'></button><input type="text" data-pf-sph="'+i+'" aria-label="Название сферы" value="'+esc(s.name)+'"><select data-pf-grp="'+i+'" aria-label="Вкладка для '+esc(s.name)+'" style="max-width:40%">'+S.groups.map(g=>'<option value="'+esc(g.id)+'"'+(g.id===s.group?' selected':'')+'>'+esc(g.name)+'</option>').join('')+'</select></div>').join('')+'<button class="btn" data-act="pf-sph-add">+ Сфера</button></section>';
-  h+='<section class="card block"><h2 style="font-size:22px">Каждый день (привычки)</h2>'+(S.habits.length?S.habits.map(hb=>'<div class="habit"><span style="font-weight:600">'+esc(hb.name)+'</span><button class="btn ghost" data-act="hab-del" data-id="'+esc(hb.id)+'">Убрать</button></div>').join(''):'<div class="empty">Пока нет привычек.</div>')+'<div class="row"><input type="text" id="pf-hab" placeholder="Новая привычка" aria-label="Новая привычка"><button class="btn" data-act="hab-add" style="flex:none">Добавить</button></div></section>';
+  h+='<section class="card block" id="pf-daily"><h2 style="font-size:22px">Каждый день</h2><p class="muted" style="margin:0;font-size:13.5px">Дела и привычки без времени, которые хочешь делать ежедневно. На «Сегодня» они появятся списком с галочками.</p>'+(S.habits.length?S.habits.map(hb=>'<div class="habit"><span style="font-weight:600;flex:1;min-width:0">'+esc(hb.name)+'</span><button class="icon-btn" data-act="hab-del" data-id="'+esc(hb.id)+'" aria-label="Убрать: '+esc(hb.name)+'">'+ICON.x+'</button></div>').join(''):'')+
+    '<form id="hab-form" class="row" style="gap:8px" autocomplete="off"><label for="hab-new" class="srt">Добавить ежедневное</label><input id="hab-new" type="text" placeholder="Вода, зарядка, английский 10 минут" style="flex:1;min-width:0"><button class="btn" type="submit" style="flex:none">Добавить</button></form>'+
+    '<p class="muted" style="margin:0;font-size:12.5px">Можно сразу списком через запятую или голосом: «вода, зарядка, витамины».</p>'+
+    '<div class="row between" style="margin-top:6px"><span><b>Напоминать каждый день</b><span class="muted" style="display:block;font-size:13px">Пуш, если что-то не отмечено</span></span><button class="toggle" data-act="hab-rem" aria-pressed="'+!!(S.habRemind&&S.habRemind.on)+'">'+(S.habRemind&&S.habRemind.on?'Вкл':'Выкл')+'</button></div>'+
+    (S.habRemind&&S.habRemind.on?'<label class="f" for="hab-time">Во сколько<input id="hab-time" type="time" value="'+esc(S.habRemind.time||'20:00')+'"></label>':'')+'</section>';
   h+='<button class="btn primary block-btn" data-act="pf-save">Сохранить профиль</button>';
   h+='<section class="card block"><h2 style="font-size:22px">Иконка на iPhone</h2><ol style="margin:0;padding-left:20px;line-height:1.7"><li>Открой сайт Ритма в Safari.</li><li>Нажми «Поделиться» внизу экрана.</li><li>Выбери «На экран Домой» → «Добавить».</li></ol><p class="muted" style="font-size:13px;margin:0">Данные хранятся в твоём аккаунте: на телефоне и компьютере одни и те же дела.</p><button class="btn" data-act="sign-out">Выйти из аккаунта</button></section>';
   h+='<section class="card block"><h2 style="font-size:22px">Как пользоваться Ритмом</h2><p class="muted" style="margin:0">Короткое знакомство: что умеет приложение и куда нажимать.</p><button class="btn" data-act="tour" data-v="0">Показать знакомство</button></section>';
@@ -1659,6 +1667,7 @@ function viewProfile(){
 }
 function pfCollect(){
   if(!$('#pf-name')) return;
+  const ht=$('#hab-time'); if(ht&&ht.value&&S.habRemind) S.habRemind.time=ht.value;
   S.name=$('#pf-name').value.trim();
   readRhythm(S.rhythm);
   document.querySelectorAll('[data-pf-sph]').forEach(el=>{ const s=S.spheres[Number(el.getAttribute('data-pf-sph'))]; if(s&&el.value.trim()) s.name=el.value.trim(); });
@@ -1842,9 +1851,9 @@ async function ctlRun(text){
       const T=today();
       const list=S.tasks.filter(x=>!x.done||(x.doneAt&&x.doneAt>Date.now()-7*86400000)).slice(-200).map(x=>'#'+x.id+' '+(x.done?'[сделано] ':'')+x.title+' ['+((sphere(x.sphere)||{}).name||'—')+(x.due?', '+x.due+(x.time?' '+x.time:''):', без даты')+(x.recurId?', повтор':'')+']').join('\n');
       const ev=Object.keys(calDays).filter(d=>d>=T&&d<=addDays(T,7)).sort().map(d=>(calDays[d].events||[]).map(e=>'- '+d+' '+e.time+' '+e.title).join('\n')).filter(Boolean).join('\n');
-      const r=await cap.sample.json(dateCtx()+'\nДела человека:\n'+(list||'—')+'\nВстречи в календаре (7 дней):\n'+(ev||'—')+'\n\nЧеловек сказал голосом: «'+text.slice(0,3000)+'»\n\nЕсли это команда — верни действия над делами. Ищи дела по смыслу, а не дословно. «Несрочное» — дела не с высокой важностью и без времени. Если это вопрос — ответь коротко в reply (по-русски, 1–5 строк) и actions пустой. Можно и то и другое. Ответь ТОЛЬКО JSON {"reply":"текст или пусто","actions":[{"op":"add|move|done|delete|repeat","id":"… (для существующих)","title":"… (для add)","due":"YYYY-MM-DD|null","time":"HH:MM|null",days":[1,3],"rule":{"freq":"week|month|year","days":[1,3],"dom":10,"every":1,"md":"MM-DD","before":3}}]} (для повтора — либо days для дней недели, либо rule для месяца/года)',{modelTier:'default',cache:false});
+      const r=await cap.sample.json(dateCtx()+'\nДела человека:\n'+(list||'—')+'\nВстречи в календаре (7 дней):\n'+(ev||'—')+'\n\nЧеловек сказал голосом: «'+text.slice(0,3000)+'»\n\nЕсли это команда — верни действия над делами. Если просят добавить что-то в «каждый день» / ежедневные привычки — op "habit" с title.  Ищи дела по смыслу, а не дословно. «Несрочное» — дела не с высокой важностью и без времени. Если это вопрос — ответь коротко в reply (по-русски, 1–5 строк) и actions пустой. Можно и то и другое. Ответь ТОЛЬКО JSON {"reply":"текст или пусто","actions":[{"op":"add|move|done|delete|repeat","id":"… (для существующих)","title":"… (для add)","due":"YYYY-MM-DD|null","time":"HH:MM|null",days":[1,3],"rule":{"freq":"week|month|year","days":[1,3],"dom":10,"every":1,"md":"MM-DD","before":3}}]} (для повтора — либо days для дней недели, либо rule для месяца/года)',{modelTier:'default',cache:false});
       ctl.reply=String(r&&r.reply||'').trim();
-      ctl.actions=arr(r&&r.actions).map(a=>Object.assign({},a,{id:a.id?String(a.id).replace(/^#/,''):undefined})).filter(a=>['add','move','done','delete','repeat'].includes(a.op)&&(a.op==='add'?!!a.title:!!findTask(a.id))).slice(0,40);
+      ctl.actions=arr(r&&r.actions).map(a=>Object.assign({},a,{id:a.id?String(a.id).replace(/^#/,''):undefined})).filter(a=>['add','move','done','delete','repeat','habit'].includes(a.op)&&(a.op==='add'||a.op==='habit'?!!a.title:!!findTask(a.id))).slice(0,40);
       if(!ctl.reply && !ctl.actions.length) ctl.err='Не нашла, что поменять. Скажи точнее, какое дело.';
     }catch(e){ ctl.err=aiError(e); }
   }
@@ -1854,6 +1863,13 @@ async function ctlRun(text){
   }
   if(!cap.sample && !ctl.actions.length) ctl.err='Ассистент сейчас недоступен. Удалить и перенести можно зажав дело.';
   ctl.busy=false; if(sheetOpen) ctlSheet();
+}
+function addHabits(text){
+  const items=String(text||'').split(/[,;\n]|\sи\s(?=[а-яё])/i).map(s=>s.replace(/^(и|ещё|еще|а также)\s+/i,'').trim()).filter(s=>s.length>1).map(s=>s.charAt(0).toUpperCase()+s.slice(1));
+  const have=new Set(S.habits.map(h=>h.name.toLowerCase()));
+  const add=items.filter(n=>!have.has(n.toLowerCase())).slice(0,15);
+  add.forEach(n=>S.habits.push({id:'h-'+uid(),name:n.slice(0,80)}));
+  if(add.length){ haptic(); save(); render(); scheduleBrief(); toast('Каждый день: '+add.join(', ')); const x=$('#hab-new'); if(x) x.focus(); }
 }
 function ctlBtn(){
   let el=document.getElementById('ctl-fab');
@@ -1995,7 +2011,7 @@ function editSheet(id){
     '<div class="grid2"><label class="f" for="e-sph">Сфера<select id="e-sph">'+sphOpts+'</select></label>'+
     '<label class="f" for="e-due">Срок<input id="e-due" type="date" value="'+esc(t.due||'')+'"></label>'+
     '<label class="f" for="e-time">Время<input id="e-time" type="time" value="'+esc(t.time||'')+'"></label>'+
-    '<label class="f" for="e-rem" style="justify-content:flex-end"><span class="row" style="gap:8px;min-height:46px"><input id="e-rem" type="checkbox" '+(t.reminded&&!cap.push?'disabled checked':'checked')+' style="width:22px;height:22px">'+(t.reminded?'Напоминание стоит':'Напомнить на телефон')+'</span></label>'+
+    '<span></span>'+
     '<label class="f" for="e-kind">Тип<select id="e-kind"><option value="main"'+(t.kind==='main'?' selected':'')+'>Главное</option><option value="small"'+(t.kind==='small'?' selected':'')+'>Мелочь</option><option value="wait"'+(t.kind==='wait'?' selected':'')+'>Жду от другого</option></select></label>'+
     '<label class="f" for="e-pr">Важность<select id="e-pr"><option value="1"'+(t.priority===1?' selected':'')+'>Высокая</option><option value="2"'+(t.priority===2?' selected':'')+'>Средняя</option><option value="3"'+(t.priority===3?' selected':'')+'>Низкая</option></select></label>'+
     '<label class="f" for="e-est">Минут на дело<input id="e-est" type="number" inputmode="numeric" min="5" max="480" value="'+esc(t.est||30)+'"></label>'+
@@ -2030,7 +2046,7 @@ function applyRepeat(t, rule){
 }
 function saveEdit(id,isNew){
   const title=$('#e-title').value.trim(); if(!title){ $('#e-title').focus(); return; }
-  const time=($('#e-time')||{}).value||null; const wantRem=!!($('#e-rem')&&$('#e-rem').checked&&!$('#e-rem').disabled);
+  const time=($('#e-time')||{}).value||null; const wantRem=!($('#e-remind')&&Number($('#e-remind').value)===-1);
   const remSel=$('#e-remind'); const data={remind:remSel?Number(remSel.value):undefined, title, time, note:(($('#e-note')||{}).value||'').trim()||null, sphere:$('#e-sph').value, due:$('#e-due').value||null, kind:$('#e-kind').value, priority:Number($('#e-pr').value), est:Math.max(5,Math.min(480,Number($('#e-est').value)||30)), who:$('#e-who').value.trim()||null};
   if(isNew) S.tasks.push({id,done:false,created:Date.now(),postponed:0,source:'manual',...data});
   else { const t=findTask(id); if(!t){ closeSheet(); toast('Это дело уже удалено'); render(); return; } Object.assign(t,data); }
@@ -2106,7 +2122,7 @@ async function closeDay(){
 
 /* ---------- events ---------- */
 document.addEventListener('change', e=>{ const el=e.target; if(el && el.id==='conn-remind'){ S.remindCal=el.value; save(); toast('Напоминания будут в: '+el.options[el.selectedIndex].text); } });
-document.addEventListener('submit', e=>{ if(e.target.id==='slot-form'){ e.preventDefault(); const ti=(($('#slot-new')||{}).value||'').trim(); if(!ti) return; const f=e.target; const t=normTask({title:ti.slice(0,200), due:f.getAttribute('data-day'), time:f.getAttribute('data-v')}, defaultSphere()); t.source='manual'; S.tasks.push(t); closeSheet(); haptic(); save(); render(); afterAdd([t]); toast('Добавила: '+t.title+' — '+t.time); return; } if(e.target.id==='date-form'){ e.preventDefault(); const ti=(($('#date-title')||{}).value||'').trim(), dv=($('#date-d')||{}).value; if(!ti){ $('#date-title').focus(); return; } if(!dv){ $('#date-d').focus(); return; } const t=normTask({title:ti.slice(0,120),kind:'small'}, defaultSphere()); makeRecur(t,{freq:'year',md:dv.slice(5),before:3}); ensureRecur(); haptic(); save(); render(); toast('Запомнила: '+ti+' — '+repText({freq:'year',md:dv.slice(5)})); return; } if(e.target.id==='hab-form'){ e.preventDefault(); const n=($('#hab-new')||{}).value||''; if(n.trim()){ S.habits.push({id:'h-'+uid(),name:n.trim().slice(0,80)}); haptic(); save(); render(); const x=$('#hab-new'); if(x) x.focus(); } return; } if(e.target.id==='cap-form'){ e.preventDefault(); quickAdd($('#cap-in').value); } if(e.target.id==='chat-form'){ e.preventDefault(); askAssistant($('#chat-in').value); } });
+document.addEventListener('submit', e=>{ if(e.target.id==='slot-form'){ e.preventDefault(); const ti=(($('#slot-new')||{}).value||'').trim(); if(!ti) return; const f=e.target; const t=normTask({title:ti.slice(0,200), due:f.getAttribute('data-day'), time:f.getAttribute('data-v')}, defaultSphere()); t.source='manual'; S.tasks.push(t); closeSheet(); haptic(); save(); render(); afterAdd([t]); toast('Добавила: '+t.title+' — '+t.time); return; } if(e.target.id==='date-form'){ e.preventDefault(); const ti=(($('#date-title')||{}).value||'').trim(), dv=($('#date-d')||{}).value; if(!ti){ $('#date-title').focus(); return; } if(!dv){ $('#date-d').focus(); return; } const t=normTask({title:ti.slice(0,120),kind:'small'}, defaultSphere()); makeRecur(t,{freq:'year',md:dv.slice(5),before:3}); ensureRecur(); haptic(); save(); render(); toast('Запомнила: '+ti+' — '+repText({freq:'year',md:dv.slice(5)})); return; } if(e.target.id==='hab-form'){ e.preventDefault(); addHabits(($('#hab-new')||{}).value||''); return; } if(e.target.id==='cap-form'){ e.preventDefault(); quickAdd($('#cap-in').value); } if(e.target.id==='chat-form'){ e.preventDefault(); askAssistant($('#chat-in').value); } });
 document.addEventListener('input', e=>{ if(e.target.id==='chat-in') assist.draft=e.target.value; });
 document.addEventListener('click', async e=>{
   const b=e.target.closest('[data-act]'); if(!b || b.disabled) return;
@@ -2203,7 +2219,7 @@ document.addEventListener('click', async e=>{
     case 'mv-open': if(window.__ritmDragEnd && Date.now()-window.__ritmDragEnd<400) break; moveSheet(id); break;
     case 'sw-del': case 'mv-del': closeSheet(); deleteWithUndo(id); break;
     case 'mv-done': closeSheet(); toggleDone(id); break;
-    case 'rem-set': { const x=findTask(id); if(!x) break; x.remind=Number(v); x.reminded=false; save(); const z=document.querySelector('.sheet [data-act=rem-set]'); if(z){ const wrap=z.closest('.row'); if(wrap&&wrap.parentNode){ const tmp=document.createElement('div'); tmp.innerHTML=remChips(x); wrap.nextElementSibling&&wrap.nextElementSibling.tagName==='P'&&wrap.nextElementSibling.remove(); wrap.replaceWith(...tmp.childNodes); } } if(cap.push||cap.mcp){ const ok=await createReminder(x,true); toast(ok?'Напомню '+REM_OPTS.find(o=>o[0]===x.remind)[1]:'Время уже прошло — напоминание не нужно'); } else toast('Включи напоминания в Профиле — и пуш придёт'); break; }
+    case 'rem-set': { const x=findTask(id); if(!x) break; x.remind=Number(v); x.reminded=false; save(); const z=document.querySelector('.sheet [data-act=rem-set]'); if(z){ const wrap=z.closest('.row'); if(wrap&&wrap.parentNode){ const tmp=document.createElement('div'); tmp.innerHTML=remChips(x); wrap.nextElementSibling&&wrap.nextElementSibling.tagName==='P'&&wrap.nextElementSibling.remove(); wrap.replaceWith(...tmp.childNodes); } } if(cap.push||cap.mcp){ const ok=await createReminder(x,true); toast(x.remind===-1?'Напоминать не буду':ok?'Напомню '+REM_OPTS.find(o=>o[0]===x.remind)[1]:'Время уже прошло — напоминание не нужно'); } else toast('Включи напоминания в Профиле — и пуш придёт'); break; }
     case 'slot': slotSheet(b.getAttribute('data-day'), Number(v)); break;
     case 'slot-set': { const x=findTask(id); closeSheet(); if(x) setTaskTime(x, b.getAttribute('data-day'), v); break; }
     case 'mv-tstep': { const inp=$('#mv-time'); if(!inp) break; const cur=toMin(inp.value)??(new Date().getHours()*60); let m=Math.max(0,Math.min(23*60+45,cur+Number(v))); inp.value=pad(Math.floor(m/60))+':'+pad(m%60); haptic(); break; }
@@ -2236,8 +2252,10 @@ document.addEventListener('click', async e=>{
     case 'pf-sph-add': pfCollect(); S.spheres.push({id:'s-'+uid(),name:'Новая сфера',group:'personal'}); save(); render(); break;
     case 'hab-add': { pfCollect(); const n=$('#pf-hab').value.trim(); if(!n) return; S.habits.push({id:'h-'+uid(),name:n}); save(); render(); break; }
     case 'hab-edit': ui.habEdit=!ui.habEdit; render(); break;
+    case 'hab-manage': ui.tab='me'; render(); setTimeout(()=>{ const s=$('#pf-daily'); if(s) s.scrollIntoView({block:'start'}); },50); break;
     case 'hab-del-t': { const hb=S.habits.find(x=>x.id===id); S.habits=S.habits.filter(x=>x.id!==id); save(); render(); if(hb) toast('Убрала: '+hb.name, ()=>{ S.habits.push(hb); save(); render(); }); break; }
     case 'mv-pin': { const x=findTask(id); if(!x) break; closeSheet(); S.habits.push({id:'h-'+uid(),name:x.title.slice(0,80)}); const snap=x; removeTask(x); haptic(); save(); render(); toast('Закрепила в «Каждый день»: '+snap.title, ()=>{ S.habits=S.habits.filter(h=>h.name!==snap.title.slice(0,80)); S.tasks.push(snap); save(); render(); }); break; }
+    case 'hab-rem': { pfCollect(); S.habRemind=S.habRemind||{on:false,time:'20:00'}; S.habRemind.on=!S.habRemind.on; save(); render(); scheduleBrief(); toast(S.habRemind.on?'Напомню в '+S.habRemind.time+', если что-то не отмечено'+(cap.push?'':'. Включи напоминания на телефон выше'):'Напоминание выключено'); break; }
     case 'hab-del': pfCollect(); S.habits=S.habits.filter(x=>x.id!==id); save(); render(); break;
     case 'clean-done': { pfCollect(); const lim=Date.now()-30*86400000; const before=S.tasks.length; S.tasks=S.tasks.filter(x=>!(x.done&&(x.doneAt||0)<lim)); save(); render(); toast('Убрано: '+(before-S.tasks.length)); break; }
     case 'reonboard': pfCollect(); save(); ui.D=null; ui.ob=1; ui.reob=true; S.onboarded=false; render(); window.scrollTo(0,0); break;
@@ -2324,6 +2342,7 @@ function voiceDone(){
   const id=voice.id; voice.id=null; voice.rec=null; voice.media=null; setMicUI();
   const el=document.getElementById(id);
   if(id==='ctl-in' && el && el.value.trim()){ ctlRun(el.value); return; }
+  if(id==='hab-new' && el && el.value.trim()){ addHabits(el.value); el.value=''; return; }
   if(id==='chat-in' && S.voiceMode && el && el.value.trim()){ const f=$('#chat-form'); if(f) f.requestSubmit?f.requestSubmit():f.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})); return; }
   if(id==='dump-reply' && el && el.value.trim()){ dump.reply=el.value; dumpReply(); return; }
   if(id==='cap-in' && el && el.value.trim()){ const f=$('#cap-form'); if(f) f.requestSubmit?f.requestSubmit():f.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})); }

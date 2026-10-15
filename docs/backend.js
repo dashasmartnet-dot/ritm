@@ -245,13 +245,15 @@ window.RITM_PUSH = {
   },
   scheduleBrief: async function(days){
     await sb.from('reminders').delete().like('task_id', 'brief:%').is('sent_at', null);
+    await sb.from('reminders').delete().like('task_id', 'habits:%').is('sent_at', null);
     var now = new Date();
-    var rows = (days||[]).map(function(d){ var at = new Date(d.date+'T'+d.time+':00'); return { user_id: session.user.id, task_id: 'brief:'+d.date, title: 'План на день', due: d.date, at_time: d.time, fire_at: at.toISOString() }; }).filter(function(r){ return new Date(r.fire_at) > now; });
+    var rows = (days||[]).map(function(d){ var k = d.kind==='habits' ? 'habits' : 'brief'; var at = new Date(d.date+'T'+d.time+':00'); return { user_id: session.user.id, task_id: k+':'+d.date, title: k==='habits' ? 'Каждый день' : 'План на день', due: d.date, at_time: d.time, fire_at: at.toISOString() }; }).filter(function(r){ return new Date(r.fire_at) > now; });
     if(!rows.length) return true;
     var q = await sb.from('reminders').insert(rows);
     if(q.error) throw err('db_error', q.error.message);
     return true;
   },
+  cancel: async function(taskId){ await sb.from('reminders').delete().eq('task_id', taskId).is('sent_at', null); return true; },
   schedule: async function(task, minutes){
     if(!task.due || !task.time) return false;
     var at = new Date(task.due+'T'+task.time+':00');

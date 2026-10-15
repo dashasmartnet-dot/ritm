@@ -51,6 +51,14 @@ Deno.serve(async (req) => {
     for (const r of due || []) {
       if (!(r.user_id in states)) { const { data } = await admin.from("states").select("data").eq("user_id", r.user_id).maybeSingle(); states[r.user_id] = data?.data || null; }
       const tasks = (states[r.user_id]?.tasks || []) as any[];
+      if (String(r.task_id).startsWith("habits:")) {
+        const st = states[r.user_id] || {};
+        const log = (st.habitLog || {})[r.due] || {};
+        const left = ((st.habits || []) as any[]).filter((h) => !log[h.id]).map((h) => h.name);
+        if (st.habRemind?.on && left.length) sent += await sendTo(r.user_id, { title: "Каждый день", body: "Ещё не отмечено: " + left.slice(0, 6).join(", "), tag: "habits" }, keys);
+        await admin.from("reminders").update({ sent_at: now.toISOString() }).eq("id", r.id);
+        continue;
+      }
       if (String(r.task_id).startsWith("brief:")) {
         const st = states[r.user_id] || {};
         if (st.briefPush !== false) {
