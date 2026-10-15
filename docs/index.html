@@ -447,7 +447,7 @@ const DEF_SPHERES = () => [
 const HABIT_IDEAS=['Вода 2 л','Движение 30 минут','Чтение 20 минут','Лечь до полуночи','Утро без телефона'];
 function draft(){
   if(!ui.D){
-    ui.D={ name:S.name||'', skin:S.skin||'clean', story:'', fix:'',
+    ui.D={ name:S.name||(cap.profile&&cap.profile.name)||'', skin:S.skin||'clean', story:'', fix:'',
       spheres:S.spheres.length?S.spheres.map(s=>({...s})):DEF_SPHERES(),
       modules:{...S.modules}, rhythm:{...S.rhythm}, habits:S.habits.map(h=>h.name), goals:S.goals.slice(),
       tasks:[], built:false, busy:false, err:'', token:0 };
@@ -1286,6 +1286,7 @@ new MutationObserver(()=>ensureMics()).observe(document.body,{childList:true,sub
   const [db,user,sample,mcp]=got.map(r=>r.status==='fulfilled'?r.value:null);
   cap.sample=sample||null; cap.mcp=mcp||null;
   let id=null; try{ id = user ? await user.id() : null; }catch(e){}
+  try{ cap.profile = user && user.profile ? user.profile() : null; if(cap.profile && cap.profile.name && ui.D && !ui.D.name) ui.D.name=cap.profile.name; }catch(e){}
   if(db && id){
     try{ cap.ref=db.doc('data/users/'+id+'/state'); await pull(); }
     catch(e){ toast('Не удалось загрузить данные из аккаунта. Показываю сохранённые на этом устройстве.', null, true); }
