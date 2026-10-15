@@ -30,9 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script src="supabase.js"></script>
-<script src="config.js"></script>
-<script src="backend.js"></script>
+<script>window.RITM_BUILD='20261015161516';</script>
+<script src="supabase.js?v=20261015161516"></script>
+<script src="config.js?v=20261015161516"></script>
+<script src="backend.js?v=20261015161516"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -276,7 +277,7 @@ input::-webkit-date-and-time-value{text-align:left}
 .wp-wd{font-family:var(--display);font-style:italic;font-size:20px}
 .wp-c{margin-left:auto;font-size:12.5px;color:var(--muted)}
 .wlist{list-style:none;margin:0;padding:0}
-.w-item{display:flex;align-items:center;gap:10px;min-height:44px;border-bottom:1px solid var(--line);border-radius:10px;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.w-item{display:flex;align-items:center;gap:10px;min-height:44px;border-bottom:1px solid var(--line);touch-action:pan-y;-webkit-user-select:none;user-select:none}
 .w-item .w-time{flex:none;min-width:44px;font-variant-numeric:tabular-nums;font-weight:700;font-size:13.5px;color:var(--accent)}
 .w-item .w-title{flex:1;min-width:0;text-align:left;background:none;border:0;padding:6px 0;font:inherit;font-weight:600;color:inherit;overflow-wrap:anywhere}
 .w-item.ev .w-title{font-weight:500;color:var(--muted)}
@@ -789,7 +790,7 @@ function moveSheet(id){
     const zone=el&&el.closest&&el.closest('[data-dropday]');
     if(drag.over&&drag.over!==zone) drag.over.classList.remove('drop');
     if(zone){ zone.classList.add('drop'); drag.over=zone; }
-    if(e.clientY<80) window.scrollBy(0,-12); else if(e.clientY>innerHeight-120) window.scrollBy(0,12);
+    if(e.clientY<90) window.scrollBy(0,-14); else if(e.clientY>innerHeight-210) window.scrollBy(0,14);
   }, {passive:false});
   function end(){
     clear(); if(!drag) return;

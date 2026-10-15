@@ -293,5 +293,20 @@ function start(){
 }
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 
-if('serviceWorker' in navigator) window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+/* обновления: новая версия подхватывается сама */
+var RITM_VERSION = window.RITM_BUILD || '';
+async function checkVersion(){
+  try{
+    var r = await fetch('version.txt?t='+Date.now(), { cache:'no-store' }); if(!r.ok) return;
+    var v = (await r.text()).trim();
+    if(v && RITM_VERSION && v !== RITM_VERSION){
+      var k = 'ritm-reloaded-'+v; if(sessionStorage.getItem(k)) return; sessionStorage.setItem(k,'1');
+      if('serviceWorker' in navigator){ var reg = await navigator.serviceWorker.getRegistration(); if(reg) try{ await reg.update(); }catch(_){} }
+      location.reload();
+    }
+  }catch(_){}
+}
+if('serviceWorker' in navigator) window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js', { updateViaCache:'none' }).catch(function(){}); });
+window.addEventListener('load', checkVersion);
+document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible') checkVersion(); });
 })();

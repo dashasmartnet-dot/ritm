@@ -20,6 +20,8 @@ body = re.sub(r'claude\.ai → Настройки → Коннекторы', 'П
 body = body.replace('в claude.ai', '').replace(' claude.ai', '')
 SPL = [(1320,2868,440,956,3),(1206,2622,402,874,3),(1290,2796,430,932,3),(1179,2556,393,852,3),(1284,2778,428,926,3),(1170,2532,390,844,3),(1125,2436,375,812,3),(1242,2688,414,896,3),(828,1792,414,896,2),(1080,2340,360,780,3),(750,1334,375,667,2),(640,1136,320,568,2)]
 splash = '\n'.join(f'<link rel="apple-touch-startup-image" media="screen and (device-width: {w}px) and (device-height: {h}px) and (-webkit-device-pixel-ratio: {r}) and (orientation: portrait)" href="splash/splash-{pw}x{ph}.png">' for pw,ph,w,h,r in SPL)
+import time
+BUILD = time.strftime('%Y%m%d%H%M%S')
 head = f'''<!doctype html>
 <html lang="ru">
 <head>
@@ -41,13 +43,15 @@ head = f'''<!doctype html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script src="supabase.js"></script>
-<script src="config.js"></script>
-<script src="backend.js"></script>
+<script>window.RITM_BUILD='{BUILD}';</script>
+<script src="supabase.js?v={BUILD}"></script>
+<script src="config.js?v={BUILD}"></script>
+<script src="backend.js?v={BUILD}"></script>
 '''
 pwa_css = '<style>html,body{margin:0}body{padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}</style>\n'
 html = head + css + '\n' + extra + '\n' + pwa_css + '</head>\n<body>\n' + body + '\n</body>\n</html>\n'
 low = html.replace('window.claude', '').lower()
 assert 'claude' not in low, [m.start() for m in re.finditer('claude', low)][:5]
 OUT.write_text(html)
+(OUT.parent / 'version.txt').write_text(BUILD)
 print('ok', len(html))
