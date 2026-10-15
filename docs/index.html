@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015171150';</script>
-<script src="supabase.js?v=20261015171150"></script>
-<script src="config.js?v=20261015171150"></script>
-<script src="backend.js?v=20261015171150"></script>
+<script>window.RITM_BUILD='20261015171238';</script>
+<script src="supabase.js?v=20261015171238"></script>
+<script src="config.js?v=20261015171238"></script>
+<script src="backend.js?v=20261015171238"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -343,6 +343,8 @@ body.dragging{overflow:hidden;touch-action:none}
 .und-title{display:flex;align-items:center;gap:8px;text-align:left;font-weight:600;font-size:15.5px;background:none;border:0;padding:0;color:var(--ink)}
 .dump-card input.dump-date,.dump-card input.dump-time{width:auto;flex:0 0 auto;min-height:34px;height:34px;padding:0 10px;border-radius:999px;font-size:13px}
 .dump-card input.dump-time{width:96px}
+#drop-del{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;height:84px;border-radius:18px;border:2px dashed var(--warn);background:color-mix(in srgb,var(--warn) 12%,var(--surface));color:var(--warn);font-weight:700;display:grid;place-items:center;font-size:15px}
+#drop-del.drop{background:var(--warn);color:#fff;border-style:solid}
 </style>
 
 <style>html,body{margin:0}body{padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}</style>
@@ -821,7 +823,7 @@ function viewWeek(wa){
   const [y1,m1,d1]=st.split('-').map(Number); const en=addDays(st,6); const [y2,m2,d2]=en.split('-').map(Number);
   const title=d1+(m1!==m2?' '+MONTHS[m1-1]:'')+' — '+d2+' '+MONTHS[m2-1];
   let h='<div class="week-nav"><button class="btn ghost" data-act="wk" data-v="-1" aria-label="Прошлая неделя">‹</button><h2 class="week-title">'+esc(title)+'</h2><button class="btn ghost" data-act="wk" data-v="1" aria-label="Следующая неделя">›</button></div>';
-  h+='<p class="muted week-hint">Зажми дело и перетащи на другой день. Или нажми на него — и выбери день.</p>';
+  h+='<p class="muted week-hint">Зажми дело и перетащи на другой день или вниз — в корзину. Нажми на дело — выбери день, время или удали.</p>';
   for(let i=0;i<7;i++){
     const d=addDays(st,i); const [y,m,dd]=d.split('-').map(Number); const wd=new Date(y,m-1,dd).getDay();
     const isT=d===t, past=d<t;
@@ -919,6 +921,7 @@ function moveSheet(id){
       drag={id:li.getAttribute('data-drag'), g, dx:sx-r.left, dy:sy-r.top, over:null}; li.classList.add('lifted');
       haptic();
       document.body.classList.add('dragging');
+      if(!document.getElementById('drop-del')){ const z=document.createElement('div'); z.id='drop-del'; z.setAttribute('data-dropday','delete'); z.innerHTML='Перетащи сюда — удалить'; document.body.appendChild(z); }
     }, 350);
   }, {passive:true});
   document.addEventListener('pointermove', e=>{
@@ -929,13 +932,14 @@ function moveSheet(id){
     const zone=el&&el.closest&&el.closest('[data-dropday]');
     if(drag.over&&drag.over!==zone) drag.over.classList.remove('drop');
     if(zone){ zone.classList.add('drop'); drag.over=zone; }
-    if(e.clientY<90) window.scrollBy(0,-14); else if(e.clientY>innerHeight-210) window.scrollBy(0,14);
+    if(zone&&zone.id==='drop-del'){} else if(e.clientY<90) window.scrollBy(0,-14); else if(e.clientY>innerHeight-210&&e.clientY<innerHeight-110) window.scrollBy(0,14);
   }, {passive:false});
   function end(){
     clear(); if(!drag) return;
     const d=drag; drag=null; d.g.remove(); document.body.classList.remove('dragging');
     document.querySelectorAll('.lifted').forEach(x=>x.classList.remove('lifted'));
-    if(d.over){ d.over.classList.remove('drop'); const day=d.over.getAttribute('data-dropday'); const x=findTask(d.id); if(x && (x.due||'none')!==day) moveTask(d.id, day); }
+    const dz=document.getElementById('drop-del'); if(dz) dz.remove();
+    if(d.over){ d.over.classList.remove('drop'); const day=d.over.getAttribute('data-dropday'); const x=findTask(d.id); if(day==='delete'){ if(x) deleteWithUndo(d.id); } else if(x && (x.due||'none')!==day) moveTask(d.id, day); }
     window.__ritmDragEnd=Date.now();
   }
   document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end);
