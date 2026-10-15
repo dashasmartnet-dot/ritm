@@ -183,7 +183,7 @@ function parseJson(t){
 function makeSample(){
   var sample = function(input, opts){
     opts = opts || {};
-    var body = { messages: toMessages(input), tier: opts.modelTier || 'default', stream: !!opts.onText };
+    var body = { messages: toMessages(input), tier: opts.modelTier || 'default', stream: false };
     return callAi(body, opts).catch(function(e){
       if(!body.stream || e.code==='cancelled' || e.code==='session_expired' || e.code==='rate_limited') throw e;
       body.stream = false; return callAi(body, opts);
