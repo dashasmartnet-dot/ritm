@@ -2,9 +2,10 @@
 import re, sys, pathlib
 SRC = pathlib.Path(sys.argv[1]); OUT = pathlib.Path(__file__).parent / 'docs' / 'index.html'
 css = (SRC/'css.part').read_text(); extra = (SRC/'extra.css').read_text(); body = (SRC/'body.part').read_text()
+design = (SRC/'design.css').read_text() if (SRC/'design.css').exists() else ''
 REPL = [
   ('Разбор голосом сейчас недоступен — разреши приложению доступ к Claude.', 'Помощник ИИ сейчас недоступен. Попробуй через минуту.'),
-  ('Ассистент сейчас недоступен — разреши приложению доступ к Claude.', 'Ассистент сейчас недоступен. Проверь интернет и попробуй ещё раз.'),
+  ('Ассистент сейчас недоступен — войди в аккаунт.', 'Ассистент сейчас недоступен. Проверь интернет и попробуй ещё раз.'),
   ('Нужно заново войти в Claude.', 'Нужно заново войти: открой Профиль → Выйти и войди по коду.'),
   ("'Календарь сейчас недоступен.'", "'Google Календарь подключим следующим шагом.'"),
   ("(cap.mcp?'подключён':'недоступен')", "(cap.mcp?'подключён':'скоро')"),
@@ -48,7 +49,7 @@ head = f'''<!doctype html>
 <script src="backend.js?v={BUILD}"></script>
 '''
 pwa_css = '<style>html,body{margin:0}body{padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}</style>\n'
-html = head + css + '\n' + extra + '\n' + pwa_css + '</head>\n<body>\n' + body + '\n</body>\n</html>\n'
+html = head + css + '\n' + extra + '\n' + ('<style>\n'+design+'\n</style>\n' if design else '') + pwa_css + '</head>\n<body>\n' + body + '\n</body>\n</html>\n'
 low = html.replace('window.claude', '').lower()
 assert 'claude' not in low, [m.start() for m in re.finditer('claude', low)][:5]
 OUT.write_text(html)

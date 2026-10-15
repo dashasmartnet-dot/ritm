@@ -216,6 +216,16 @@ window.RITM_TRANSCRIBE = async function(blob){
   var j = await r.json(); return j.text || '';
 };
 
+/* живой голос (Gemini TTS через функцию tts) */
+window.RITM_TTS = async function(text, signal){
+  var t = await token();
+  var r = await fetch(CFG.supabaseUrl.replace(/\/$/,'') + '/functions/v1/tts', { method:'POST', signal: signal, headers:{ 'Authorization':'Bearer '+t, 'apikey':CFG.supabaseAnonKey, 'Content-Type':'application/json' }, body: JSON.stringify({ text: text }) });
+  if(!r.ok){ var e = err(r.status===503?'no_key':'tts_error'); e.status=r.status; throw e; }
+  var j = await r.json(); if(!j.audio) throw err('tts_error');
+  var bin = atob(j.audio), u = new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+  return URL.createObjectURL(new Blob([u], { type: j.mime || 'audio/wav' }));
+};
+
 /* пуш-напоминания на телефон */
 function b64u(s){ var p='='.repeat((4-s.length%4)%4); var b=atob((s+p).replace(/-/g,'+').replace(/_/g,'/')); var a=new Uint8Array(b.length); for(var i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a; }
 var FN = function(name){ return CFG.supabaseUrl.replace(/\/$/,'')+'/functions/v1/'+name; };
