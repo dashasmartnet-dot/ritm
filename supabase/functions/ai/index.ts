@@ -80,6 +80,7 @@ async function callOpenAICompat(p: Provider, system: string, messages: Msg[], o:
     stream: o.stream,
   };
   if (o.json && p.name !== "openrouter") body.response_format = { type: "json_object" };
+  if (/gpt-oss/.test(String(body.model))) { body.reasoning_effort = "low"; body.max_tokens = 8000; }
   const r = await fetch(p.url, {
     method: "POST",
     headers: { Authorization: "Bearer " + p.key, "content-type": "application/json", ...(p.headers || {}) },
