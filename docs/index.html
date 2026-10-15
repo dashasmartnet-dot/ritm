@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015203116';</script>
-<script src="supabase.js?v=20261015203116"></script>
-<script src="config.js?v=20261015203116"></script>
-<script src="backend.js?v=20261015203116"></script>
+<script>window.RITM_BUILD='20261015203418';</script>
+<script src="supabase.js?v=20261015203418"></script>
+<script src="config.js?v=20261015203418"></script>
+<script src="backend.js?v=20261015203418"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -1049,7 +1049,7 @@ function renderOnboarding(){
     foot='<span></span><button class="btn primary" data-act="ob-go1" style="min-width:60%">Дальше</button>';
   } else if(st===1){
     body='<div class="eyebrow">Ритм · голосовой ежедневник</div><h1 style="font-size:34px">Надиктуй всё, что сейчас в голове</h1>'+
-    '<p class="muted" style="font-size:16px;margin:0">Дела, планы, кто что обещал, как устроен твой день — хоть кашей. Я разложу всё по дням и запомню, что для тебя важно.</p>'+
+    '<p class="muted" style="font-size:16px;margin:0">Дела, планы, кто что обещал, как устроен твой день — в любом порядке, как придёт в голову. Я разложу всё по дням и запомню, что для тебя важно.</p>'+
     '<label for="ob-story" class="srt">Что в голове</label><textarea id="ob-story" style="min-height:170px" placeholder="Например: завтра в 11 созвон с Ершовым, до пятницы отправить КП, каждый понедельник планёрка, записаться к стоматологу, хочу 3 раза в неделю спорт…">'+esc(D.story||'')+'</textarea>'+
     (D.err?'<p role="alert" style="margin:0;color:var(--warn);font-weight:600">'+esc(D.err)+'</p>':'')+
     (D.busy?'<div class="thinking ob-progress" role="status"><span class="spin"></span><span id="ob-step">Слушаю…</span></div>':'');
