@@ -1,12 +1,13 @@
 // Ритм — озвучка ответов живым голосом (Gemini TTS). Ключ GEMINI_API_KEY хранится в секретах Supabase.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { decodeBase64 } from "jsr:@std/encoding@1/base64";
 
 const ORIGIN = Deno.env.get("ALLOWED_ORIGIN") || "https://dashasmartnet-dot.github.io";
-const CORS = { "Access-Control-Allow-Origin": ORIGIN, "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info", "Access-Control-Allow-Methods": "POST, OPTIONS", "Vary": "Origin" };
+const CORS = { "Access-Control-Allow-Origin": ORIGIN, "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Expose-Headers": "X-Model", "Vary": "Origin" };
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...CORS, "Content-Type": "application/json" } });
 const env = (k: string) => Deno.env.get(k) || "";
 
-function b64ToBytes(b64: string) { const bin = atob(b64); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+function b64ToBytes(b64: string) { return decodeBase64(b64); }
 function bytesToB64(u: Uint8Array) { let s = ""; const CH = 0x8000; for (let i = 0; i < u.length; i += CH) s += String.fromCharCode(...u.subarray(i, i + CH)); return btoa(s); }
 function wav(pcm: Uint8Array, rate = 24000) {
   const h = new ArrayBuffer(44); const v = new DataView(h);
@@ -63,8 +64,8 @@ Deno.serve(async (req) => {
   ];
   const errs: string[] = [];
   for (const [, fn, model] of tries) {
-    try { const audio = await fn(prompt, voice, model); return json({ audio: bytesToB64(audio), mime: "audio/wav", model }); }
-    catch (e) { errs.push(model + ": " + String(e).slice(0, 200)); }
+    try { const audio = await fn(prompt, voice, model); return new Response(audio, { headers: { ...CORS, "Content-Type": "audio/wav", "X-Model": model, "Access-Control-Expose-Headers": "X-Model" } }); }
+    catch (e) { errs.push(model + ": " + String(e).slice(0, 200)); console.error("tts try failed", model, String(e).slice(0, 300)); }
   }
   console.error("tts failed", errs);
   return json({ code: "tts_error", errs }, 502);

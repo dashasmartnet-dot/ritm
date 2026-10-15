@@ -221,9 +221,8 @@ window.RITM_TTS = async function(text, signal){
   var t = await token();
   var r = await fetch(CFG.supabaseUrl.replace(/\/$/,'') + '/functions/v1/tts', { method:'POST', signal: signal, headers:{ 'Authorization':'Bearer '+t, 'apikey':CFG.supabaseAnonKey, 'Content-Type':'application/json' }, body: JSON.stringify({ text: text }) });
   if(!r.ok){ var e = err(r.status===503?'no_key':'tts_error'); e.status=r.status; throw e; }
-  var j = await r.json(); if(!j.audio) throw err('tts_error');
-  var bin = atob(j.audio), u = new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
-  return URL.createObjectURL(new Blob([u], { type: j.mime || 'audio/wav' }));
+  var b = await r.blob(); if(!b.size || !/audio/.test(b.type)) throw err('tts_error');
+  return URL.createObjectURL(b);
 };
 
 /* пуш-напоминания на телефон */
