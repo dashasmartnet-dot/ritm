@@ -863,6 +863,10 @@ async function loadCalList(){
 function addMin(date,time,mins){ const [y,mo,d]=date.split('-').map(Number); const [h,mi]=time.split(':').map(Number); const x=new Date(y,mo-1,d,h,mi+mins); return dstr(x)+'T'+pad(x.getHours())+':'+pad(x.getMinutes())+':00'; }
 async function createReminder(t, quiet){
   if(!t.due||!t.time) return false;
+  if(cap.push && window.RITM_PUSH){
+    try{ const ok=await window.RITM_PUSH.schedule(t, Number(S.rhythm.remind)||60); if(ok){ const x=findTask(t.id); if(x){ x.reminded=true; save(); } } else if(!quiet) toast('Это время уже прошло — напоминание не нужно.'); return ok; }
+    catch(e){ if(!quiet) toast('Напоминание не поставилось. Попробуй ещё раз.', null, true); return false; }
+  }
   if(!cap.mcp){ if(!quiet) toast('Напоминание не поставлено: Google Календарь ещё не подключён.', null, true); return false; }
   const input={summary:'‼️ '+t.title, startTime:t.due+'T'+t.time+':00', endTime:addMin(t.due,t.time,30), description:'Напоминание из Ритма', overrideReminders:[{method:'popup',minutes:Number(S.rhythm.remind)||60},{method:'popup',minutes:0}]};
   if(S.remindCal && S.remindCal!=='primary') input.calendarId=S.remindCal;
@@ -887,9 +891,15 @@ function connView(){
     h+='<label class="f" for="conn-remind">Куда ставить напоминания<select id="conn-remind" data-act-change="conn-remind"><option value="primary"'+(S.remindCal==='primary'?' selected':'')+'>Основной календарь</option>'+calList.items.map(c=>'<option value="'+esc(c.id)+'"'+(S.remindCal===c.id?' selected':'')+'>'+esc(c.name)+'</option>').join('')+'</select></label>';
   } else if(calList.status==='loading') h+='<div class="thinking"><span class="spin"></span>Загружаю список календарей…</div>';
   else { if(calList.status==='err') h+='<p role="alert" style="margin:0;color:var(--warn);font-weight:600">'+esc(calList.msg)+'</p>'; h+='<div class="muted" style="font-size:13.5px">Сейчас: '+esc(S.calendars.map(remindName).join(', '))+'. Напоминания → '+esc(remindName(S.remindCal))+'.</div><button class="btn" data-act="conn-load">Выбрать календари</button>'; }
-  h+='<button class="btn" data-act="conn-test">Проверить напоминание через 2 минуты</button></div>';
+  h+=(cap.mcp?'<button class="btn" data-act="conn-test">Проверить напоминание через 2 минуты</button>':'')+'</div>';
+  if(window.RITM_PUSH){
+    const st=cap.pushState||'off';
+    const msg={on:'Включены ✓ Напомню за '+esc(S.rhythm.remind)+' мин до дела и в момент дела — даже если Ритм закрыт.',off:'Пуш от Ритма прямо на экран телефона, даже когда приложение закрыто.','need-install':'Сначала установи Ритм на экран «Домой»: Safari → «Поделиться» → «На экран Домой». Потом открой Ритм с иконки и вернись сюда — iPhone присылает уведомления только так.',denied:'Уведомления запрещены. Включи: Настройки iPhone → Уведомления → Ритм → Допуск уведомлений.',unsupported:'Нужен iOS 16.4 или новее: обнови iPhone в Настройках.'}[st]||'';
+    h+='<div class="block" style="gap:8px;border-top:1px solid var(--line);padding-top:12px"><div class="row between"><b>Напоминания на телефон</b><span class="pill">'+(st==='on'?'включены':'выключены')+'</span></div><p class="muted" style="margin:0;font-size:13.5px">'+msg+'</p>'+(st==='off'?'<button class="btn primary" data-act="push-on">Включить напоминания</button>':'')+(st==='on'?'<button class="btn" data-act="push-test">Прислать проверочное</button>':'')+'</div>';
+  } else {
   h+='<div class="block" style="gap:6px;border-top:1px solid var(--line);padding-top:12px"><b>Уведомления на iPhone</b><p class="muted" style="margin:0;font-size:13.5px">Напоминания приходят пушем из календаря. Включи один из вариантов (один раз):</p><ol style="margin:0;padding-left:20px;font-size:14px;line-height:1.6"><li>Установи приложение «Google Календарь» и разреши уведомления, <b>или</b></li><li>Настройки iPhone → Календарь → Учётные записи → Добавить → Google, затем Настройки → Уведомления → Календарь → Разрешить.</li></ol></div>';
-  h+='<div class="block" style="gap:6px;border-top:1px solid var(--line);padding-top:12px"><div class="row between"><b>Напоминания и Заметки iPhone</b><span class="pill">позже</span></div><p class="muted" style="margin:0;font-size:13.5px">iPhone не даёт веб-приложениям доступ к Напоминаниям и Заметкам. Поэтому напоминания я ставлю через календарь — уведомление придёт так же.</p></div>';
+  }
+  h+='<div class="block" style="gap:6px;border-top:1px solid var(--line);padding-top:12px"><div class="row between"><b>Напоминания и Заметки iPhone</b><span class="pill">позже</span></div><p class="muted" style="margin:0;font-size:13.5px">iPhone не даёт веб-приложениям доступ к Напоминаниям и Заметкам. Поэтому напоминаю сама — пушем от Ритма'+(cap.mcp?' или через календарь':'')+'.</p></div>';
   h+='<div class="block" style="gap:6px;border-top:1px solid var(--line);padding-top:12px"><div class="row between"><b>Telegram</b><span class="pill">скоро</span></div><p class="muted" style="margin:0;font-size:13.5px">Бриф, напоминания и итоги в Telegram подключим следующим шагом.</p></div>';
   return h+'</section>';
 }
@@ -963,23 +973,91 @@ function pfCollect(){
   document.querySelectorAll('[data-pf-grp]').forEach(el=>{ const s=S.spheres[Number(el.getAttribute('data-pf-grp'))]; if(s) s.group=el.value; });
 }
 
+/* ---------- быстрый разбор русских дат и времени без ИИ ---------- */
+const RU_MON={'янв':1,'фев':2,'мар':3,'апр':4,'мая':5,'май':5,'июн':6,'июл':7,'авг':8,'сен':9,'окт':10,'ноя':11,'дек':12};
+const RU_DOW=[['воскресен','вс'],['понедельн','пн'],['вторник','вт'],['сред','ср'],['четверг','чт'],['пятниц','пт'],['суббот','сб']];
+const RU_NUM={'один':1,'одну':1,'два':2,'две':2,'три':3,'четыре':4,'пять':5,'шесть':6,'семь':7,'восемь':8,'девять':9,'десять':10,'одиннадцать':11,'двенадцать':12};
+function parseRu(src, now){
+  now=now||new Date();
+  let s=' '+String(src||'').replace(/([,!?;])/g,' $1 ').replace(/\.(?!\d)/g,' . ').replace(/\s+/g,' ').trim()+' ';
+  const T=dstr(now); let due=null, time=null;
+  const cut=re=>{ s=s.replace(re,' '); };
+  // относительные дни
+  let m;
+  if(/\s(?:на\s)?послезавтра\s/i.test(s)){ due=addDays(T,2); cut(/\s(?:на\s)?послезавтра\s/i); }
+  else if((m=s.match(/\s(?:на\s)?завтра\s/i))){ due=addDays(T,1); cut(/\s(?:на\s)?завтра\s/i); }
+  else if((m=s.match(/\s(?:на\s)?сегодня\s/i))){ due=T; cut(/\s(?:на\s)?сегодня\s/i); }
+  // через N дней/недель
+  if(!due && (m=s.match(/\sчерез\s(\d+|[а-яё]+)?\s?(день|дня|дней|неделю|недели|недель)\s/i))){
+    const n=m[1]?(Number(m[1])||RU_NUM[m[1].toLowerCase()]||1):1; due=addDays(T,/нед/i.test(m[2])?7*n:n); cut(m[0]);
+  }
+  // день недели
+  if(!due){ for(let i=0;i<7;i++){ const re=new RegExp('\\s(?:в|во|на|к)?\\s?(?:'+RU_DOW[i][0]+'[а-яё]*|'+RU_DOW[i][1]+')\\s','i'); if(re.test(s)){ const dow=now.getDay(); let d=(i-dow+7)%7; if(d===0) d=7; due=addDays(T,d); cut(re); break; } } }
+  // 15 октября / 15.10 / 15/10
+  if(!due && (m=s.match(/\s(\d{1,2})\s(янв|фев|мар|апр|мая|май|июн|июл|авг|сен|окт|ноя|дек)[а-яё]*\s/i))){
+    due=futureDate(now, Number(m[1]), RU_MON[m[2].toLowerCase()]); cut(m[0]);
+  }
+  if(!due && (m=s.match(/\s(?:на\s|к\s)?(\d{1,2})[./](\d{1,2})(?:[./](\d{2,4}))?\s/))){
+    const d=Number(m[1]), mo=Number(m[2]); if(d>=1&&d<=31&&mo>=1&&mo<=12){ due=m[3]?(String(m[3]).length===2?'20'+m[3]:m[3])+'-'+pad(mo)+'-'+pad(d):futureDate(now,d,mo); cut(m[0]); }
+  }
+  // время
+  if((m=s.match(/\s(?:в|к|на)\s(\d{1,2})[:.](\d{2})\s/i))||(m=s.match(/\s(\d{1,2}):(\d{2})\s/))){ const h=Number(m[1]),mi=Number(m[2]); if(h<24&&mi<60){ time=pad(h)+':'+pad(mi); cut(m[0]); } }
+  if(!time && (m=s.match(/\s(?:в|к)\s(\d{1,2}|[а-яё]+)\s?(?:час(?:а|ов)?\s?)?(утра|дня|вечера|ночи)?\s/i))){
+    let h=/^\d+$/.test(m[1])?Number(m[1]):RU_NUM[m[1].toLowerCase()];
+    if(h!=null && h<24){ const p=(m[2]||'').toLowerCase(); if((p==='дня'||p==='вечера')&&h<12) h+=12; if(p==='ночи'&&h===12) h=0;
+      if(!p && h>=1 && h<=7) h+=12; time=pad(h)+':00'; cut(m[0]); }
+  }
+  if(!time && /\sв\sполдень\s/i.test(s)){ time='12:00'; cut(/\sв\sполдень\s/i); }
+  if(!time && (m=s.match(/\s(утром|днём|днем|вечером)\s/i))){ time={'утром':'09:00','днём':'13:00','днем':'13:00','вечером':'19:00'}[m[1].toLowerCase()]; cut(m[0]); }
+  if(time && !due){ due=T; if(toMin(time) < now.getHours()*60+now.getMinutes()-30) due=addDays(T,1); }
+  let title=s.replace(/\s+([,.!?;])/g,'$1').replace(/\s+/g,' ').trim().replace(/^[,.;\s]+/,'').replace(/^(надо|нужно|мне нужно|мне надо|не забыть|напомни(?:ть)?(?: мне)?|запиши|добавь)\s+/i,'').replace(/[,.;\s]+$/,'');
+  if(title) title=title.charAt(0).toUpperCase()+title.slice(1);
+  const words=title.split(' ').filter(Boolean).length;
+  const multi=/[;\n]|\s(?:потом|а также|и ещё|и еще|ещё надо|еще надо)\s/i.test(' '+src+' ') || words>14;
+  return { title: title||String(src).trim(), due, time, multi, found: !!(due||time) };
+}
+function futureDate(now, d, mo){ let y=now.getFullYear(); let s=y+'-'+pad(mo)+'-'+pad(d); if(s<dstr(now)) s=(y+1)+'-'+pad(mo)+'-'+pad(d); return s; }
+
 /* ---------- actions ---------- */
 async function quickAdd(text){
   text=text.trim(); if(!text) return;
-  const inp=$('#cap-in'); if(inp){ inp.value=''; inp.disabled=true; inp.placeholder='Разбираю…'; }
-  let list=[];
-  if(cap.sample){ try{ list=await aiTasks(text); }catch(e){ toast(aiError(e)+' Сохранила текст как есть.'); } }
-  if(!list.length) list=[normTask({title:text.length>90?text.slice(0,90)+'…':text,priority:2},defaultSphere())];
-  list.forEach(t=>{ t.source='voice'; if(!t.note && text.length>t.title.length+20) t.note=text.slice(0,1000); });
+  const inp=$('#cap-in');
+  const p=parseRu(text);
+  let list=[], refine=false;
+  if(!p.multi){
+    // мгновенно: разбор на телефоне, ИИ потом уточнит формулировку и сферу
+    list=[normTask({title:p.title.length>90?p.title.slice(0,90)+'…':p.title, due:p.due, time:p.time, priority:2}, defaultSphere())];
+    refine=!!cap.sample;
+  } else {
+    if(inp){ inp.value=''; inp.disabled=true; inp.placeholder='Разбираю…'; }
+    if(cap.sample){ try{ list=await aiTasks(text); }catch(e){ toast(aiError(e)+' Сохранила текст как есть.'); } }
+    if(!list.length) list=[normTask({title:p.title.length>90?p.title.slice(0,90)+'…':p.title, due:p.due, time:p.time, priority:2},defaultSphere())];
+  }
+  if(inp){ inp.value=''; }
+  list.forEach(t=>{ t.source='voice'; if(!t.note && text.length>t.title.length+40) t.note=text.slice(0,1000); });
   S.tasks.push(...list); save(); render();
   const ids=list.map(x=>x.id);
-  const noDate=list.filter(x=>!x.due && x.kind!=='wait');
-  const where=list.map(x=>x.title+' — '+(x.due?dayLabel(x.due):'без срока')+(groupOf(x)!=='work'&&workActive()?' (личное, скрыто в рабочем режиме)':'')).slice(0,2).join('; ');
+  const where=list.map(x=>x.title+' — '+(x.due?dayLabel(x.due)+(x.time?' '+x.time:''):'без срока')+(groupOf(x)!=='work'&&workActive()?' (личное, скрыто в рабочем режиме)':'')).slice(0,2).join('; ');
   toast('Добавила: '+where, ()=>{ S.tasks=S.tasks.filter(x=>!ids.includes(x.id)); save(); render(); closeSheet(); });
-  const dated=list.find(x=>x.due); if(dated && dated.due>=today() && dated.due<=addDays(today(),13)){ ui.day=dated.due<today()?today():dated.due; render(); }
+  const dated=list.find(x=>x.due); if(dated && dated.due>=today() && dated.due<=addDays(today(),13)){ ui.day=dated.due; render(); }
+  if(refine){
+    const t0=list[0]; const snap=JSON.stringify({title:t0.title,due:t0.due,time:t0.time,sphere:t0.sphere});
+    aiTasks(text).then(r=>{
+      const t=findTask(t0.id); if(!t || !r.length) return;
+      if(JSON.stringify({title:t.title,due:t.due,time:t.time,sphere:t.sphere})!==snap) return; // уже поправила вручную
+      const a=r[0];
+      t.title=a.title||t.title; t.sphere=a.sphere||t.sphere; t.kind=a.kind||t.kind; t.priority=a.priority||t.priority; t.est=a.est||t.est; t.who=a.who||t.who; if(a.note&&!t.note) t.note=a.note;
+      if(!t.due && a.due) t.due=a.due; if(!t.time && a.time) t.time=a.time;
+      if(r.length>1){ r.slice(1).forEach(x=>x.source='voice'); S.tasks.push(...r.slice(1)); }
+      save(); render(); afterAdd(S.tasks.filter(x=>[t.id].concat(r.slice(1).map(y=>y.id)).includes(x.id)));
+    }).catch(()=>afterAdd(list));
+  } else afterAdd(list);
+}
+async function afterAdd(list){
+  const noDate=list.filter(x=>!x.due && x.kind!=='wait' && !x.done);
   if(noDate.length) askDate(noDate.map(x=>x.id));
-  const timed=list.filter(x=>x.due&&x.time);
-  if(timed.length && cap.mcp){ let n=0; for(const t of timed){ if(await createReminder(t, true)) n++; } if(n){ render(); toast('Поставила напоминаний в календарь: '+n+' — за '+S.rhythm.remind+' мин и в момент события'); } }
+  const timed=list.filter(x=>x.due&&x.time&&!x.reminded);
+  if(timed.length && (cap.mcp||cap.push)){ let n=0; for(const t of timed){ if(await createReminder(t, true)) n++; } if(n){ render(); toast('Напомню '+(cap.push?'пушем':'через календарь')+': за '+S.rhythm.remind+' мин и в момент дела'); } }
 }
 let dateAsk=[];
 function askDate(ids){
@@ -1017,7 +1095,7 @@ function editSheet(id){
     '<div class="grid2"><label class="f" for="e-sph">Сфера<select id="e-sph">'+sphOpts+'</select></label>'+
     '<label class="f" for="e-due">Срок<input id="e-due" type="date" value="'+esc(t.due||'')+'"></label>'+
     '<label class="f" for="e-time">Время<input id="e-time" type="time" value="'+esc(t.time||'')+'"></label>'+
-    '<label class="f" for="e-rem" style="justify-content:flex-end"><span class="row" style="gap:8px;min-height:46px"><input id="e-rem" type="checkbox" '+(t.reminded?'disabled checked':'checked')+' style="width:22px;height:22px">'+(t.reminded?'Напоминание стоит':'Напомнить на телефон')+'</span></label>'+
+    '<label class="f" for="e-rem" style="justify-content:flex-end"><span class="row" style="gap:8px;min-height:46px"><input id="e-rem" type="checkbox" '+(t.reminded&&!cap.push?'disabled checked':'checked')+' style="width:22px;height:22px">'+(t.reminded?'Напоминание стоит':'Напомнить на телефон')+'</span></label>'+
     '<label class="f" for="e-kind">Тип<select id="e-kind"><option value="main"'+(t.kind==='main'?' selected':'')+'>Главное</option><option value="small"'+(t.kind==='small'?' selected':'')+'>Мелочь</option><option value="wait"'+(t.kind==='wait'?' selected':'')+'>Жду от другого</option></select></label>'+
     '<label class="f" for="e-pr">Важность<select id="e-pr"><option value="1"'+(t.priority===1?' selected':'')+'>Высокая</option><option value="2"'+(t.priority===2?' selected':'')+'>Средняя</option><option value="3"'+(t.priority===3?' selected':'')+'>Низкая</option></select></label>'+
     '<label class="f" for="e-est">Минут на дело<input id="e-est" type="number" inputmode="numeric" min="5" max="480" value="'+esc(t.est||30)+'"></label>'+
@@ -1156,6 +1234,8 @@ document.addEventListener('click', async e=>{
     case 'ask-all': askDate(S.tasks.filter(x=>!x.done&&!x.due&&x.kind!=='wait').map(x=>x.id)); break;
     case 'conn-load': if(ui.tab==='me') pfCollect(); else obCollect(); loadCalList(); break;
     case 'conn-cal': { if(ui.tab==='me') pfCollect(); else obCollect(); const i=S.calendars.indexOf(v); if(i>=0){ if(S.calendars.length>1) S.calendars.splice(i,1); else { toast('Оставь хотя бы один календарь'); break; } } else S.calendars.push(v); save(); render(); loadCalendar(true); break; }
+    case 'push-on': { b.disabled=true; b.textContent='Секунду…'; try{ await window.RITM_PUSH.enable(); cap.pushState='on'; cap.push=true; toast('Напоминания включены ✓'); const fut=S.tasks.filter(x=>!x.done&&x.due&&x.time&&x.due>=today()); for(const x of fut) await createReminder(x,true); }catch(e){ cap.pushState=(e&&e.code==='denied')?'denied':'off'; toast(cap.pushState==='denied'?'Уведомления не разрешены. Настройки iPhone → Уведомления → Ритм.':'Не получилось включить. Открой Ритм с иконки на экране «Домой» и попробуй ещё раз.', null, true); } render(); break; }
+    case 'push-test': { b.disabled=true; try{ const n=await window.RITM_PUSH.test(); toast(n?'Отправила — уведомление придёт через пару секунд':'Не нашла телефон для уведомлений. Нажми «Включить напоминания» ещё раз.', null, !n); if(!n){ cap.pushState='off'; cap.push=false; render(); } }catch(e){ toast('Не получилось отправить. Попробуй ещё раз.', null, true); } b.disabled=false; break; }
     case 'conn-test': { const d=new Date(Date.now()+3*60000); const t={id:'test',title:'Проверка напоминания из Ритма',due:dstr(d),time:pad(d.getHours())+':'+pad(d.getMinutes())}; b.disabled=true; const prev=S.rhythm.remind; const input={summary:'‼️ '+t.title,startTime:t.due+'T'+t.time+':00',endTime:addMin(t.due,t.time,15),description:'Тест из Ритма. Можно удалить.',overrideReminders:[{method:'popup',minutes:1}]}; if(S.remindCal&&S.remindCal!=='primary') input.calendarId=S.remindCal; if(!cap.mcp){ toast('Google Календарь подключим следующим шагом.'); b.disabled=false; break; } try{ await cap.mcp.callTool('Google Calendar','create_event',input,{cache:false}); toast('Тестовое событие на '+t.time+' создано. Уведомление придёт через ~2 минуты.', null, true); }catch(err){ toast('Не получилось создать тест. Проверь подключение календаря.', null, true); } b.disabled=false; break; }
     case 'meeting': meetingSheet(); break;
     case 'm-go': meetingGo(); break;
@@ -1285,6 +1365,7 @@ new MutationObserver(()=>ensureMics()).observe(document.body,{childList:true,sub
   const got=await Promise.allSettled(['db','user','sample','mcp'].map(n=>C.use(n)));
   const [db,user,sample,mcp]=got.map(r=>r.status==='fulfilled'?r.value:null);
   cap.sample=sample||null; cap.mcp=mcp||null;
+  if(window.RITM_PUSH){ try{ cap.pushState=await window.RITM_PUSH.state(); cap.push=cap.pushState==='on'; }catch(e){ cap.pushState='off'; } }
   let id=null; try{ id = user ? await user.id() : null; }catch(e){}
   try{ cap.profile = user && user.profile ? user.profile() : null; if(cap.profile && cap.profile.name && ui.D && !ui.D.name) ui.D.name=cap.profile.name; }catch(e){}
   if(db && id){

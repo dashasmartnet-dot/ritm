@@ -212,6 +212,48 @@ window.RITM_TRANSCRIBE = async function(blob){
   var j = await r.json(); return j.text || '';
 };
 
+/* пуш-напоминания на телефон */
+function b64u(s){ var p='='.repeat((4-s.length%4)%4); var b=atob((s+p).replace(/-/g,'+').replace(/_/g,'/')); var a=new Uint8Array(b.length); for(var i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a; }
+var FN = function(name){ return CFG.supabaseUrl.replace(/\/$/,'')+'/functions/v1/'+name; };
+window.RITM_PUSH = {
+  standalone: function(){ return (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true; },
+  supported: function(){ return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window; },
+  state: async function(){
+    if(!this.supported()) return this.standalone() ? 'unsupported' : 'need-install';
+    if(Notification.permission === 'denied') return 'denied';
+    try{ var reg = await navigator.serviceWorker.ready; var sub = await reg.pushManager.getSubscription(); return sub && Notification.permission==='granted' ? 'on' : 'off'; }catch(_){ return 'off'; }
+  },
+  enable: async function(){
+    var perm = await Notification.requestPermission();
+    if(perm !== 'granted') throw err('denied');
+    var r = await fetch(FN('push'), { headers:{ apikey: CFG.supabaseAnonKey } }); var j = await r.json();
+    var reg = await navigator.serviceWorker.ready;
+    var sub = await reg.pushManager.getSubscription() || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64u(j.publicKey) });
+    var js = sub.toJSON();
+    var q = await sb.from('push_subs').upsert({ endpoint: js.endpoint, user_id: session.user.id, sub: js });
+    if(q.error) throw err('db_error', q.error.message);
+    return true;
+  },
+  test: async function(){
+    var t = await token();
+    var r = await fetch(FN('push'), { method:'POST', headers:{ 'Content-Type':'application/json', Authorization:'Bearer '+t, apikey: CFG.supabaseAnonKey }, body: JSON.stringify({ test:true }) });
+    var j = await r.json(); return j.sent || 0;
+  },
+  schedule: async function(task, minutes){
+    if(!task.due || !task.time) return false;
+    var at = new Date(task.due+'T'+task.time+':00');
+    var rows = [];
+    var before = new Date(at.getTime() - (Number(minutes)||0)*60000);
+    if(minutes && before > new Date()) rows.push({ user_id: session.user.id, task_id: task.id, title: task.title, due: task.due, at_time: task.time, fire_at: before.toISOString() });
+    if(at > new Date()) rows.push({ user_id: session.user.id, task_id: task.id, title: task.title, due: task.due, at_time: task.time, fire_at: at.toISOString() });
+    if(!rows.length) return false;
+    await sb.from('reminders').delete().eq('task_id', task.id).is('sent_at', null);
+    var q = await sb.from('reminders').insert(rows);
+    if(q.error) throw err('db_error', q.error.message);
+    return true;
+  }
+};
+
 window.claude = {
   use: async function(name){
     await ready;
