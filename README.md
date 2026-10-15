@@ -27,8 +27,11 @@ build.py    сборка web/index.html из исходников приложе
    - тема: `Код входа в Ритм`
    - текст: `Твой код: {{ .Token }}`
 4. Edge Functions → Deploy a new function → Via Editor, имя `ai`. Вставь `supabase/functions/ai/index.ts` → Deploy.
-5. Edge Functions → Secrets → добавь секрет `ANTHROPIC_API_KEY` с ключом из console.anthropic.com.
-   Если там не проходит оплата, используй `OPENROUTER_API_KEY` с ключом с openrouter.ai.
+5. Edge Functions → Secrets — ключи бесплатных ИИ (вводит только владелец):
+   - `GROQ_API_KEY` — console.groq.com → API Keys (бесплатно, основной);
+   - `GEMINI_API_KEY` — aistudio.google.com → Get API key (бесплатный тариф Flash, запасной);
+   - `OPENROUTER_API_KEY` — openrouter.ai → Keys (бесплатные модели, второй запасной, необязательно).
+   Функция сама переключается на следующий сервис, если первый не ответил. Лимит — 150 запросов к ИИ в день на человека (`AI_DAILY_LIMIT`).
 6. Project Settings → API: пришли мне **Project URL** и ключ **anon public**. Они не секретные.
 
 ## Как поставить на iPhone
