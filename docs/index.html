@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015180540';</script>
-<script src="supabase.js?v=20261015180540"></script>
-<script src="config.js?v=20261015180540"></script>
-<script src="backend.js?v=20261015180540"></script>
+<script>window.RITM_BUILD='20261015182810';</script>
+<script src="supabase.js?v=20261015182810"></script>
+<script src="config.js?v=20261015182810"></script>
+<script src="backend.js?v=20261015182810"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -394,6 +394,34 @@ body.dragging{overflow:hidden;touch-action:none}
 #ctl-fab svg{width:17px;height:17px}
 body.has-ctl .app{padding-top:68px}
 :root[data-skin="oldmoney"] #ctl-fab{border-radius:6px}
+.view-seg button{flex:1}
+.month{background:var(--surface);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.08);overflow:hidden}
+.month-wd{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-bottom:1.5px solid var(--ink);padding:8px 0 6px}
+.month-wd span{text-align:center;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.mc{min-height:92px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:3px 2px 4px;display:flex;flex-direction:column;gap:2px;min-width:0;transition:background-color .15s}
+.mc:nth-child(7n){border-right:0}
+.mc.empty{background:color-mix(in srgb,var(--soft) 35%,transparent)}
+.mc.wknd{background:color-mix(in srgb,var(--soft) 22%,transparent)}
+.mc.past{opacity:.6}
+.mc.today{background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
+.mc.drop{background:var(--soft);box-shadow:inset 0 0 0 2px var(--accent)}
+.mc-n{background:none;border:0;padding:2px 3px;font:inherit;font-family:var(--display);font-size:17px;font-weight:600;color:var(--ink);text-align:left;display:flex;align-items:baseline;gap:3px;min-height:26px}
+.mc.today .mc-n{color:var(--accent)}
+.mc-n i{font-style:normal;font-family:var(--body);font-size:9.5px;color:var(--good);font-weight:800}
+.mc-t{display:block;width:100%;text-align:left;background:var(--soft);border:0;border-radius:5px;padding:2px 3px;font:inherit;font-size:10.5px;line-height:1.2;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:pan-y}
+.mc-t b{font-weight:800;color:var(--accent)}
+.mc-t.has-c{background:color-mix(in srgb,var(--c) 22%,var(--surface));box-shadow:inset 2px 0 0 var(--c)}
+.mc-t.lifted{opacity:.3}
+.mc-t.ghost{position:fixed;z-index:80;width:auto!important;max-width:60vw;font-size:13px;padding:6px 10px;box-shadow:0 12px 30px rgba(0,0,0,.2);pointer-events:none}
+.mc-more{background:none;border:0;padding:0 3px;font:inherit;font-size:10px;color:var(--muted);font-weight:700;text-align:left}
+.mc-ev{font-size:9.5px;color:var(--muted);padding:0 3px}
+.month-nodate{background:var(--surface);border-radius:14px;margin-top:4px;min-height:80px}
+.nudge{border:1.5px dashed var(--accent);background:color-mix(in srgb,var(--accent) 5%,var(--surface))}
+#coach{position:fixed;inset:0;z-index:90}
+.coach-hole{position:fixed;border-radius:16px;box-shadow:0 0 0 9999px rgba(20,16,14,.66),0 0 0 3px var(--accent);pointer-events:none;transition:all .25s ease}
+.coach-card{position:fixed;left:14px;right:14px;max-width:520px;margin:0 auto;background:var(--bg);border-radius:18px;padding:14px 16px 16px;display:grid;gap:10px;box-shadow:0 18px 40px rgba(0,0,0,.25)}
+@media (prefers-reduced-motion:reduce){.coach-hole{transition:none}}
 </style>
 
 <style>html,body{margin:0}body{padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}</style>
@@ -782,6 +810,34 @@ const TOUR=[
   ['Повторы и цвета','Скажи «каждый понедельник в 9 планёрка» или «по будням зарядка» — дело само встанет на нужные дни. В Профиле → «Сферы и цвета» выбери цвет: например, жёлтый — Реактор, красный — Контур.'],
   ['Ассистент действует','Спроси: «перенеси несрочное на завтра», «есть ли у меня записи на завтра». Ассистент предложит изменения — нажми «Сделать». Каждое утро пришлю пуш «План на день».']
 ];
+const COACH=[
+  ['#cap-form','Говори сюда','Нажми на микрофон и надиктуй дела как есть. Длинный рассказ разберу на отдельные дела, а если не назовёшь день — спрошу.'],
+  ['#ctl-fab','Управление','Голосом меняй план: «удали…», «перенеси… на пятницу», «сделала…». Или спроси: «что у меня завтра?»'],
+  ['.view-seg','День · Неделя · Месяц','Переключай вид. Неделя и месяц — как бумажный ежедневник: зажми дело и перетащи на другой день.'],
+  ['#h-tasks','Твои дела','Кружок — сделано. Нажми на дело — изменить. Зажми или смахни влево — перенести и удалить.'],
+  ['[data-act=tab][data-v=ai]','Ассистент','Знает твои дела и жизнь. Спроси совета — он сам предложит изменения, ты нажмёшь «Сделать».'],
+  ['[data-act=tab][data-v=me]','Профиль','Цвета сфер, ритм дня, напоминания на телефон, «Начать заново». Здесь же можно снова посмотреть это знакомство.']
+];
+function coachEnd(){ const c=document.getElementById('coach'); if(c) c.remove(); S.tourDone=true; S.tourV=3; save(); }
+function coach(i){
+  if(i>=COACH.length){ coachEnd(); return; }
+  if(ui.tab!=='today'||ui.view==='week'||ui.view==='month'){ ui.tab='today'; ui.view='day'; ui.day=today(); render(); }
+  closeSheet();
+  const [sel,title,text]=COACH[i];
+  let el=document.querySelector(sel); if(el&&sel==='#h-tasks') el=el.closest('section')||el;
+  if(!el){ coach(i+1); return; }
+  const fixed=getComputedStyle(el.closest('#dock,#ctl-fab')||el).position==='fixed'||!!el.closest('#dock');
+  if(!fixed) el.scrollIntoView({block:'center'});
+  setTimeout(()=>{
+    const r=el.getBoundingClientRect(); const pad=8;
+    let c=document.getElementById('coach'); if(!c){ c=document.createElement('div'); c.id='coach'; document.body.appendChild(c); }
+    const below=r.top+r.height/2<innerHeight/2;
+    const hole='left:'+(r.left-pad)+'px;top:'+(r.top-pad)+'px;width:'+(r.width+pad*2)+'px;height:'+(Math.min(r.height,innerHeight*0.5)+pad*2)+'px';
+    c.innerHTML='<div class="coach-hole" style="'+hole+'"></div><div class="coach-card" role="dialog" aria-modal="true" aria-labelledby="coach-h" style="'+(below?'top:'+Math.min(innerHeight-240,r.top+Math.min(r.height,innerHeight*0.5)+pad+14)+'px':'bottom:'+Math.max(12,innerHeight-r.top+pad+14)+'px')+'"><div class="row between"><span class="muted" style="font-size:12.5px">'+(i+1)+' из '+COACH.length+'</span><button class="btn ghost" data-act="coach-end" style="min-height:36px">Пропустить</button></div><h2 id="coach-h" style="font-size:24px">'+esc(title)+'</h2><p style="margin:0;font-size:15.5px;line-height:1.45">'+esc(text)+'</p><div class="row wrap">'+(i>0?'<button class="btn" data-act="coach" data-v="'+(i-1)+'">Назад</button>':'')+'<button class="btn primary" data-act="coach" data-v="'+(i+1)+'">'+(i===COACH.length-1?'Понятно, начинаю':'Дальше')+'</button></div></div>';
+    const btn=c.querySelector('.btn.primary'); if(btn) btn.focus();
+  }, fixed?30:260);
+}
+window.addEventListener('resize', ()=>{ const c=document.getElementById('coach'); if(c){ const h=c.querySelector('[data-act=coach].primary'); if(h) coach(Number(h.getAttribute('data-v'))-1); } });
 function tourSheet(i){
   ui.tour=i; const [h,p]=TOUR[i]; const last=i===TOUR.length-1;
   openSheet('<div class="row between"><span class="muted" style="font-size:13px">'+(i+1)+' из '+TOUR.length+'</span><button class="btn ghost" data-act="tour-end">Пропустить</button></div>'+
@@ -801,7 +857,7 @@ function obFinish(){
   S.habits=D.habits.map(n=>({id:keepH.get(n)||'h-'+uid(),name:n}));
   S.tasks.forEach(t=>{ if(!sphere(t.sphere)) t.sphere=fb; });
   S.tasks.push(...D.tasks.filter(t=>!t._skip).map(t=>{ const c={...t}; delete c._skip; if(!ids.has(c.sphere)) c.sphere=fb; return c; }));
-  const firstTime=!S.tourDone; S.onboarded=true; ui.D=null; ui.reob=false; ui.tab='today'; save(true); render(); loadCalendar(); window.scrollTo(0,0); if(firstTime) setTimeout(()=>tourSheet(0),400);
+  const firstTime=!S.tourDone; S.onboarded=true; ui.D=null; ui.reob=false; ui.tab='today'; save(true); render(); loadCalendar(); window.scrollTo(0,0); if(firstTime||(S.tourV||0)<3) setTimeout(()=>coach(0),500);
   toast('Готово! Добавь иконку: Поделиться → На экран Домой', null, true);
 }
 
@@ -864,7 +920,7 @@ function weekStrip(wa){
     const n=dayTasks(d,wa).length; const ev=(calDays[d]&&calDays[d].events)?calDays[d].events.length:0;
     h+='<button class="day" data-act="day" data-v="'+d+'" aria-pressed="'+(d===sel)+'" aria-label="'+esc(dayLabel(d))+': дел '+n+(ev?', встреч '+ev:'')+'"><span class="d-wd">'+(i===0?'сег':WDS[wd])+'</span><span class="d-n">'+dd+'</span><span class="d-c">'+(n||ev?(n?n:'')+(ev?(n?'·':'')+ev:''):'—')+'</span></button>';
   }
-  return h+'</div><p class="muted" style="margin:0;font-size:12.5px">Цифра под датой — дела, после точки — встречи в календаре.</p>';
+  return h+'</div><p class="muted" style="margin:0;font-size:12.5px">Цифра под датой — сколько дел на этот день.</p>';
 }
 function weekStart(off){ const d=new Date(); const dow=(d.getDay()+6)%7; return addDays(today(), -dow+7*(off||0)); }
 function monthGrid(){
@@ -899,6 +955,30 @@ function dayBox(d, wa, label){
 function wItem(x,d){
   const over=d!=='none'&&x.due&&x.due<d;
   return '<li class="w-item task'+(over?' over':'')+(sphColor(x)?' has-c':'')+'"'+cStyle(x)+' data-drag="'+esc(x.id)+'"><button class="check sm" data-act="done" data-id="'+esc(x.id)+'" aria-label="Сделано: '+esc(x.title)+'"></button><button class="w-title" data-act="mv-open" data-id="'+esc(x.id)+'">'+(x.time?'<span class="w-time">'+esc(x.time)+'</span> ':'')+esc(x.title)+(over?' <em>просрочено</em>':'')+(x.recurId?' <span class="w-rep">↻</span>':'')+'</button></li>';
+}
+const MONTHS_N=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+function viewMonth(wa){
+  const t=today(); const base=ui.mon||t.slice(0,7); const [y,m]=base.split('-').map(Number);
+  const first=new Date(y,m-1,1); const lead=(first.getDay()+6)%7; const dim=new Date(y,m,0).getDate();
+  const by={}; S.tasks.forEach(x=>{ if(x.done||!x.due||x.kind==='wait') return; if(wa&&groupOf(x)!=='work') return; (by[x.due]=by[x.due]||[]).push(x); });
+  const doneBy={}; S.tasks.forEach(x=>{ if(x.done&&x.due) doneBy[x.due]=(doneBy[x.due]||0)+1; });
+  let h='<div class="week-nav"><button class="btn ghost" data-act="mon" data-v="-1" aria-label="Прошлый месяц">‹</button><h2 class="week-title" style="cursor:default">'+MONTHS_N[m-1]+' '+y+'</h2><button class="btn ghost" data-act="mon" data-v="1" aria-label="Следующий месяц">›</button></div>';
+  if(base!==t.slice(0,7)) h+='<div style="text-align:center"><button class="btn ghost" data-act="mon-now">К этому месяцу</button></div>';
+  h+='<div class="month" role="grid" aria-label="'+MONTHS_N[m-1]+'"><div class="month-wd">'+['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(w=>'<span>'+w+'</span>').join('')+'</div><div class="month-grid">';
+  for(let i=0;i<lead;i++) h+='<div class="mc empty"></div>';
+  for(let d=1;d<=dim;d++){
+    const ds=y+'-'+pad(m)+'-'+pad(d); const L=(by[ds]||[]).sort((a,b)=>(a.time||'99').localeCompare(b.time||'99')||rank(a,b));
+    const ev=((calDays[ds]&&calDays[ds].events)||[]).length; const wd=(lead+d-1)%7;
+    h+='<div class="mc'+(ds===t?' today':'')+(ds<t?' past':'')+(wd>=5?' wknd':'')+'" data-dropday="'+ds+'"><button class="mc-n" data-act="day-open" data-v="'+ds+'" aria-label="'+d+' '+MONTHS[m-1]+(L.length?', дел: '+L.length:'')+'">'+d+(doneBy[ds]?'<i>✓'+doneBy[ds]+'</i>':'')+'</button>'+
+      L.slice(0,3).map(x=>'<button class="mc-t'+(sphColor(x)?' has-c':'')+'"'+cStyle(x)+' data-drag="'+esc(x.id)+'" data-act="mv-open" data-id="'+esc(x.id)+'">'+esc(x.title)+'</button>').join('')+
+      (L.length>3?'<button class="mc-more" data-act="day-open" data-v="'+ds+'">ещё '+(L.length-3)+'</button>':'')+(ev?'<span class="mc-ev">'+ev+' встр.</span>':'')+'</div>';
+  }
+  h+='</div></div>';
+  const nodate=S.tasks.filter(x=>!x.done&&!x.due&&x.kind!=='wait'&&(!wa||groupOf(x)==='work'));
+  h+='<section class="dbox nodate month-nodate" data-dropday="none"><div class="dbox-head"><span class="db-wd">Без даты · перетащи на день</span><span class="db-c">'+(nodate.length||'')+'</span></div><ul class="wlist">'+(nodate.length?nodate.map(x=>wItem(x,'none')).join(''):'<li class="w-empty">пусто</li>')+'</ul></section>';
+  h+='<div class="row wrap"><button class="btn" data-act="plan-month" data-v="'+MONTHS_N[m-1].toLowerCase()+'">'+ICON.mic+'<span style="margin-left:6px">Спланировать '+MONTHS_N[m-1].toLowerCase()+' голосом</span></button></div>';
+  h+='<p class="muted week-hint">Нажми на число — откроется день. Зажми дело и перетащи на другую дату или вниз — в корзину.</p>';
+  return h;
 }
 function viewWeek(wa){
   const st=weekStart(ui.week||0);
@@ -1026,8 +1106,9 @@ function viewToday(){
   let h='<div class="stack" style="gap:16px">';
   h+='<div class="hello"><div class="eyebrow">'+WD[d.getDay()]+', '+d.getDate()+' '+MONTHS[d.getMonth()]+'</div><h1 tabindex="-1" id="page-h">'+greeting()+(S.name?', '+esc(S.name):'')+'</h1>'+
      (M.affirm?'<div class="affirm-line"><p>'+esc(affirmation())+'</p>'+'<button class="btn ghost" data-act="affirm-new" aria-label="Другая фраза дня">Другая</button>'+'</div>':'')+'</div>';
-  h+='<div class="seg view-seg" role="group" aria-label="Вид"><button data-act="view" data-v="day" aria-pressed="'+(ui.view!=='week')+'">День</button><button data-act="view" data-v="week" aria-pressed="'+(ui.view==='week')+'">Неделя</button></div>';
+  h+='<div class="seg view-seg" role="group" aria-label="Вид"><button data-act="view" data-v="day" aria-pressed="'+(ui.view!=='week'&&ui.view!=='month')+'">День</button><button data-act="view" data-v="week" aria-pressed="'+(ui.view==='week')+'">Неделя</button><button data-act="view" data-v="month" aria-pressed="'+(ui.view==='month')+'">Месяц</button></div>';
   if(ui.view==='week'){ h+=viewWeek(wa); return h+'</div>'; }
+  if(ui.view==='month'){ h+=viewMonth(wa); return h+'</div>'; }
   h+=weekStrip(wa);
   if(hasWork()) h+='<div class="workbar"><button class="toggle" data-act="workmode" aria-pressed="'+wa+'">'+(wa?'Сейчас работаю':'Показываю всё')+'</button><span class="muted" style="font-size:12.5px;text-align:right">'+(wa&&hiddenPersonal?'Личных скрыто: '+hiddenPersonal:S.workOverride&&S.workOverride.date===t?'Вручную до конца дня':S.workMode==='auto'?'Авто: '+esc(S.rhythm.workStart)+'–'+esc(S.rhythm.workEnd):S.workMode==='on'?'Всегда включён':'Выключен')+'</span></div>';
   const undated=S.tasks.filter(x=>!x.done&&!x.due&&x.kind!=='wait'&&(!wa||groupOf(x)==='work'));
@@ -1068,6 +1149,10 @@ function viewToday(){
   const totalDay=mains.length+smalls.length+doneDay;
   if(totalDay) plan='<div class="counter" role="img" aria-label="Сделано '+doneDay+' из '+totalDay+'"><div class="counter-n"><b>'+doneDay+'</b><span>из '+totalDay+'</span></div><div class="counter-bar"><i style="width:'+Math.round(doneDay/totalDay*100)+'%"></i></div><span class="counter-t">'+(doneDay===totalDay?'всё сделано ✓':'сделано')+'</span></div>'+plan;
   h+='<section class="card block" aria-labelledby="h-tasks"><div class="block-head"><h2 id="h-tasks" style="font-size:24px">Дела на '+esc(dayLabel(sel))+'</h2><span class="muted" style="font-size:13px">'+(mains.length+smalls.length?plural(mains.length+smalls.length,'дело','дела','дел'):'')+(overdue?' · просрочено '+overdue:'')+(isToday&&doneToday?' · сделано '+doneToday:'')+'</span></div><div>'+plan+'</div>'+(isToday?'':'<button class="btn" data-act="day" data-v="'+t+'">Вернуться к сегодня</button>')+'</section>';
+  if(isToday && lifeFilled()<LIFE.length && !(S.days[t]&&S.days[t].nudgeOff)){
+    const left=LIFE.filter(([k])=>!(S.life[k]&&arr(S.life[k].facts).length)); const n=Math.floor(Date.now()/86400000); const L=left[n%left.length];
+    h+='<section class="card block nudge"><div class="eyebrow">Ритм узнаёт тебя · '+lifeFilled()+' из '+LIFE.length+'</div><h2 style="font-size:20px">'+esc(L[1])+'</h2><p class="muted" style="margin:0;font-size:14px">'+esc(L[2])+'. Минута голосом — и советы станут точнее.</p><div class="row wrap"><button class="btn primary" data-act="life-open" data-v="'+L[0]+'">Рассказать</button><button class="btn ghost" data-act="nudge-skip">Не сегодня</button></div></section>';
+  }
   /* 2. Календарь-ежедневник */
   if(M.calendar) h+=diary(sel, wa);
   if(isToday && M.habits && S.habits.length) h+=block('Привычки', S.habits.map(hb=>{ const on=!!(S.habitLog[t]&&S.habitLog[t][hb.id]); const st=streak(hb.id); return '<div class="habit"><div><div style="font-weight:600">'+esc(hb.name)+'</div><div class="muted" style="font-size:12.5px">'+(st?'серия '+plural(st,'день','дня','дней'):'начни серию сегодня')+'</div></div><button class="check" data-act="habit" data-id="'+esc(hb.id)+'" aria-pressed="'+on+'" aria-label="'+esc(hb.name)+'">'+(on?ICON.check:'')+'</button></div>'; }).join(''));
@@ -1077,7 +1162,7 @@ function viewToday(){
   return h+'</div>';
 }
 function diary(day, wa){
-  const c=calDays[day]||{status:'loading',events:[]};
+  const c=calDays[day]||(cap.mcp?{status:'loading',events:[]}:{status:'off',events:[]});
   const t=today(); const isToday=day===t;
   const from=Math.max(0,Math.floor((toMin(S.rhythm.wake)??420)/60)); let to=Math.min(24,Math.ceil((toMin(S.rhythm.sleep)??1380)/60)); if(to<=from) to=24;
   const items=[];
@@ -1259,7 +1344,7 @@ function calInline(day){
 async function loadCalendar(force){
   if(!S.modules.calendar || !S.onboarded) return;
   const start=today(), end=addDays(start,13);
-  if(!cap.mcp){ for(let i=0;i<14;i++) calDays[addDays(start,i)]={status:'err',events:[],msg:'Google Календарь подключим следующим шагом.'}; if(ui.tab==='today') render(); return; }
+  if(!cap.mcp){ calDays={}; return; }
   for(let i=0;i<14;i++){ const k=addDays(start,i); if(!calDays[k]) calDays[k]={status:'loading',events:[]}; }
   if(ui.tab==='today') render();
   const hm=v=>{ const m=String(v||'').match(/T(\d{2}):(\d{2})/); return m?m[1]+':'+m[2]:'весь день'; };
@@ -1327,6 +1412,7 @@ async function createReminder(t, quiet){
 function connView(){
   const remindName = id => id==='primary'?'Основной календарь':((S.calNames&&S.calNames[id])||id);
   let h='<section class="card block"><h2 id="conn" style="font-size:22px">Подключения</h2>';
+  if(!cap.mcp){ h+='<div class="block" style="gap:6px"><div class="row between"><b>Google Календарь</b><span class="pill">скоро</span></div><p class="muted" style="margin:0;font-size:13.5px">Пока всё живёт в ежедневнике Ритма: дела на любую дату — хоть через месяц — встанут на свой день в «Неделе» и «Месяце» и придут пушем. Когда подключим Google Календарь, дела будут дублироваться туда, а встречи — показываться здесь.</p></div>'; } else {
   h+='<div class="block" style="gap:10px"><div class="row between"><b>Google Календарь</b><span class="pill">'+(cap.mcp?'подключён':'скоро')+'</span></div>';
   h+='<p class="muted" style="margin:0;font-size:13.5px">Показываю события из выбранных календарей. Напоминания ставлю событием с уведомлением за '+esc(S.rhythm.remind)+' мин.</p>';
   if(calList.status==='ok'){
@@ -1335,6 +1421,7 @@ function connView(){
   } else if(calList.status==='loading') h+='<div class="thinking"><span class="spin"></span>Загружаю список календарей…</div>';
   else { if(calList.status==='err') h+='<p role="alert" style="margin:0;color:var(--warn);font-weight:600">'+esc(calList.msg)+'</p>'; h+='<div class="muted" style="font-size:13.5px">Сейчас: '+esc(S.calendars.map(remindName).join(', '))+'. Напоминания → '+esc(remindName(S.remindCal))+'.</div><button class="btn" data-act="conn-load">Выбрать календари</button>'; }
   h+=(cap.mcp?'<button class="btn" data-act="conn-test">Проверить напоминание через 2 минуты</button>':'')+'</div>';
+  }
   if(window.RITM_PUSH){
     const st=cap.pushState||'off';
     const msg={on:'Включены ✓ Напомню за '+esc(S.rhythm.remind)+' мин до дела и в момент дела — даже если Ритм закрыт.',off:'Пуш от Ритма прямо на экран телефона, даже когда приложение закрыто.','need-install':'Сначала установи Ритм на экран «Домой»: Safari → «Поделиться» → «На экран Домой». Потом открой Ритм с иконки и вернись сюда — iPhone присылает уведомления только так.',denied:'Уведомления запрещены. Включи: Настройки iPhone → Уведомления → Ритм → Допуск уведомлений.',unsupported:'Нужен iOS 16.4 или новее: обнови iPhone в Настройках.'}[st]||'';
@@ -1398,7 +1485,7 @@ function viewProfile(){
   const mods=[['affirm','Настрой дня'],['calendar','Календарь'],['main','Главные дела'],['small','Мелочи'],['wait','Жду ответа'],['habits','Привычки'],['evening','Итоги дня']];
   let h='<div class="stack" style="gap:16px"><h1>Профиль</h1>';
   h+='<section class="card block"><label class="f" for="pf-name">Имя<input id="pf-name" type="text" value="'+esc(S.name)+'"></label><div class="eyebrow">Стиль</div><div class="seg"><button data-act="skin" data-v="clean" aria-pressed="'+(S.skin==='clean')+'">Clean girl</button><button data-act="skin" data-v="oldmoney" aria-pressed="'+(S.skin==='oldmoney')+'">Old money</button></div></section>';
-  h+='<section class="card block"><h2 style="font-size:22px">Пересобрать голосом</h2><p class="muted" style="margin:0">Расскажи заново о себе, целях и ритме — ассистент обновит сферы, ритм и привычки. Дела останутся.</p><button class="btn primary" data-act="reonboard">Рассказать заново</button></section>';
+  h+='<section class="card block"><h2 style="font-size:22px">Начать заново</h2><p class="muted" style="margin:0">Расскажи заново о себе, целях и ритме — ассистент обновит сферы, ритм и привычки. Дела останутся.</p><button class="btn primary" data-act="reonboard">Рассказать о себе заново</button><div id="reset-zone" class="stack" style="gap:8px"><button class="btn ghost" data-act="reset-ask" style="color:var(--warn)">Стереть всё и начать с нуля</button></div></section>';
   h+=connView();
   h+='<section class="card block"><h2 style="font-size:22px">Блоки экрана «Сегодня»</h2><div class="row wrap">'+mods.map(([k,n])=>'<button class="chip" data-act="mod" data-k="'+k+'" aria-pressed="'+!!S.modules[k]+'">'+n+'</button>').join('')+'</div></section>';
   h+='<section class="card block"><h2 style="font-size:22px">Мой ритм</h2>'+rhythmFields(S.rhythm,'pf')+'<div class="eyebrow">Режим «Сейчас работаю»</div><div class="seg"><button data-act="wm" data-v="auto" aria-pressed="'+(S.workMode==='auto')+'">По расписанию</button><button data-act="wm" data-v="on" aria-pressed="'+(S.workMode==='on')+'">Всегда</button><button data-act="wm" data-v="off" aria-pressed="'+(S.workMode==='off')+'">Выключен</button></div></section>';
@@ -1892,11 +1979,19 @@ document.addEventListener('click', async e=>{
       const ids=L.map(x=>x.id); toast('Добавила дел: '+L.length, ()=>{ S.tasks=S.tasks.filter(x=>!ids.includes(x.id)); save(); render(); });
       const timed=L.filter(x=>x.due&&x.time); if(timed.length && (cap.push||cap.mcp)){ for(const t of timed) await createReminder(t,true); render(); }
       dump={list:[],src:'',reply:'',busy:false}; break; }
-    case 'tour': tourSheet(Number(v)); break;
+    case 'tour': coach(0); break;
+    case 'coach': coach(Number(v)); break;
+    case 'coach-end': coachEnd(); break;
     case 'tour-end': S.tourDone=true; S.tourV=2; save(); closeSheet(); break;
     case 'view': ui.view=b.getAttribute('data-v'); try{ localStorage.setItem('ritm-view', ui.view); }catch(_){} render(); break;
     case 'wk': ui.week=(ui.week||0)+Number(b.getAttribute('data-v')); ui.mon=weekStart(ui.week).slice(0,7); render(); break;
     case 'wk-now': ui.week=0; ui.mon=null; render(); break;
+    case 'mon-now': ui.mon=null; render(); break;
+    case 'plan-month': ctl={text:'',actions:[],reply:'',busy:false,err:''}; ctl.text='Помоги спланировать '+v+': посмотри мои дела, цели и повторяющиеся дела, распредели дела без даты по дням и предложи, что ещё важно запланировать.'; ctlSheet(); break;
+    case 'nudge-skip': { const d=today(); S.days[d]=S.days[d]||{}; S.days[d].nudgeOff=true; save(); render(); break; }
+    case 'reset-ask': { const z=$('#reset-zone'); if(z) z.innerHTML='<p style="margin:0;font-weight:700;color:var(--warn)">Стереть все дела, привычки, «Мою жизнь» и настройки? Это нельзя отменить.</p><div class="row wrap"><button class="btn danger" data-act="reset-all">Да, стереть всё</button><button class="btn ghost" data-act="reset-no">Нет</button></div>'; break; }
+    case 'reset-no': render(); break;
+    case 'reset-all': { const sk=S.skin; S=DEFAULT(); S.skin=sk; S.updatedAt=Date.now(); calDays={}; save(true); closeSheet(); ui={...ui, tab:'today', D:null, ob:0, reob:false, view:'day', week:0, mon:null, day:null}; render(); window.scrollTo(0,0); toast('Всё стёрто. Давай знакомиться заново'); if(window.RITM_PUSH&&window.RITM_PUSH.scheduleBrief&&cap.push){ try{ window.RITM_PUSH.scheduleBrief([]); }catch(_){} } break; }
     case 'mon-toggle': ui.monOpen=!ui.monOpen; if(ui.monOpen) ui.mon=weekStart(ui.week||0).slice(0,7); render(); break;
     case 'mon': { const [yy,mm]=(ui.mon||today().slice(0,7)).split('-').map(Number); const dd=new Date(yy,mm-1+Number(v),1); ui.mon=dd.getFullYear()+'-'+pad(dd.getMonth()+1); render(); break; }
     case 'mon-pick': { const cur=weekStart(0); const [a,b2,c]=cur.split('-').map(Number); const [x1,x2,x3]=v.split('-').map(Number); const diff=Math.round((new Date(x1,x2-1,x3)-new Date(a,b2-1,c))/86400000); ui.week=Math.floor(diff/7); ui.monOpen=false; haptic(); render(); break; }
@@ -2079,7 +2174,7 @@ new MutationObserver(()=>ensureMics()).observe(document.body,{childList:true,sub
   if(!(ui.D && ui.ob>0)) render();
   if(S.onboarded) loadCalendar();
   if(S.onboarded) scheduleBrief();
-  if(S.onboarded && (S.tourV||0)<2 && !(ui.D)) setTimeout(()=>tourSheet(0),800);
+  if(S.onboarded && (S.tourV||0)<3) setTimeout(()=>coach(0),900);
   document.addEventListener('visibilitychange', ()=>{
     if(document.visibilityState==='hidden'){ if(saveT) flush(); }
     else { pull(); if(S.onboarded) loadCalendar(); }
