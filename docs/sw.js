@@ -1,5 +1,5 @@
 /* Ритм: сначала сеть, при отсутствии сети — сохранённая оболочка. */
-const C='ritm-v4';
+const C='ritm-v5';
 const SHELL=['./','index.html','backend.js','config.js','manifest.webmanifest','icons/icon-180.png'];
 self.addEventListener('install',e=>{ e.waitUntil(caches.open(C).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting())); });
 self.addEventListener('activate',e=>{ e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim())); });
@@ -12,7 +12,7 @@ self.addEventListener('fetch',e=>{
 /* пуш-напоминания */
 self.addEventListener('push', e=>{
   let d={}; try{ d=e.data?e.data.json():{}; }catch(_){ d={title:'Ритм', body:e.data&&e.data.text()}; }
-  e.waitUntil(self.registration.showNotification(d.title||'Ритм', { body:d.body||'', tag:d.tag||undefined, icon:'icons/icon-192.png', badge:'icons/icon-192.png', data:{url:'./'} }));
+  e.waitUntil(Promise.all([self.registration.showNotification(d.title||'Ритм', { body:d.body||'', tag:d.tag||undefined, icon:'icons/icon-192.png', badge:'icons/icon-192.png', data:{url:'./'} }), clients.matchAll({type:'window'}).then(l=>l.forEach(c=>{ try{ c.postMessage({type:'push', title:d.title, body:d.body}); }catch(_){} }))]));
 });
 self.addEventListener('notificationclick', e=>{
   e.notification.close();
