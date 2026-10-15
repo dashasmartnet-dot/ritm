@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015185501';</script>
-<script src="supabase.js?v=20261015185501"></script>
-<script src="config.js?v=20261015185501"></script>
-<script src="backend.js?v=20261015185501"></script>
+<script>window.RITM_BUILD='20261015185725';</script>
+<script src="supabase.js?v=20261015185725"></script>
+<script src="config.js?v=20261015185725"></script>
+<script src="backend.js?v=20261015185725"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -867,8 +867,7 @@ const TOUR=[
   ['Ассистент действует','Спроси: «перенеси несрочное на завтра», «есть ли у меня записи на завтра». Ассистент предложит изменения — нажми «Сделать». Каждое утро пришлю пуш «План на день».']
 ];
 const COACH=[
-  ['#cap-form','Говори сюда','Нажми на микрофон и надиктуй дела как есть. Длинный рассказ разберу на отдельные дела, а если не назовёшь день — спрошу.'],
-  ['#ctl-fab','Управление','Голосом меняй план: «удали…», «перенеси… на пятницу», «сделала…». Или спроси: «что у меня завтра?»'],
+  ['#cap-form','Говори сюда — это главное','Микрофон внизу делает всё: надиктуй дела (разберу и спрошу день), скажи «удали…», «перенеси… на пятницу», «сделала…» или спроси «что у меня завтра?».'],
   ['[data-act=tab][data-v=tasks]','Дела: планирование','День, неделя и месяц как в бумажном ежедневнике, плюс список. Зажми дело и перетащи на другой день или в корзину.'],
   ['#h-tasks','Дела на сегодня','Здесь только сегодняшнее. Кружок — сделано. Нажми на дело — изменить. Зажми или смахни влево — перенести и удалить.'],
   ['[data-act=tab][data-v=ai]','Ассистент','Знает твои дела и жизнь. Спроси совета — он сам предложит изменения, ты нажмёшь «Сделать».'],
@@ -935,7 +934,7 @@ function renderDock(){
   const tabs=[['today','Сегодня','today'],['tasks','Дела','list'],['ai','Ассистент','spark'],['dyn','Я','heart'],['me','Профиль','me']];
   const cur=$('#cap-in'); const keep=cur?cur.value:''; const foc=document.activeElement===cur;
   $('#dock').innerHTML='<div class="dock"><div class="dock-inner">'+(ui.tab==='ai'?'':
-    '<form class="capture" id="cap-form" autocomplete="off"><label for="cap-in" class="srt">Быстрая запись голосом или текстом</label><input id="cap-in" type="text" enterkeyhint="send" placeholder="'+(workActive()?'Рабочее дело: нажми и продиктуй':'Нажми и продиктуй, что сделать и когда')+'" value="'+esc(keep)+'"><button class="go" type="submit" aria-label="Добавить">'+ICON.send+'</button></form>')+
+    '<form class="capture" id="cap-form" autocomplete="off"><label for="cap-in" class="srt">Быстрая запись голосом или текстом</label><input id="cap-in" type="text" enterkeyhint="send" placeholder="Скажи дело, команду или вопрос" value="'+esc(keep)+'"><button class="go" type="submit" aria-label="Добавить">'+ICON.send+'</button></form>')+
     '<nav class="tabs" aria-label="Разделы">'+tabs.map(([k,n,i])=>'<button data-act="tab" data-v="'+k+'" '+(ui.tab===k?'aria-current="page"':'')+'>'+ICON[i]+'<span>'+n+'</span></button>').join('')+'</nav>'+
   '</div></div>';
   if(foc){ const n=$('#cap-in'); if(n) n.focus(); }
@@ -1226,7 +1225,7 @@ function viewToday(mode){
   const doneDay=isToday?doneToday:S.tasks.filter(x=>x.done&&x.due===sel).length;
   const totalDay=mains.length+smalls.length+doneDay;
   if(totalDay) plan='<div class="counter" role="img" aria-label="Сделано '+doneDay+' из '+totalDay+'"><div class="counter-n"><b>'+doneDay+'</b><span>из '+totalDay+'</span></div><div class="counter-bar"><i style="width:'+Math.round(doneDay/totalDay*100)+'%"></i></div><span class="counter-t">'+(doneDay===totalDay?'всё сделано ✓':'сделано')+'</span></div>'+plan;
-  h+='<section class="card block" aria-labelledby="h-tasks"><div class="block-head"><h2 id="h-tasks" style="font-size:24px">Дела на '+esc(dayLabel(sel))+'</h2>'+(home&&TTS?'<button class="btn ghost say-day" data-act="brief-say" data-speak-state aria-label="Послушать план дня">🔊 Послушать</button>':'')+'<span class="muted" style="font-size:13px">'+(mains.length+smalls.length?plural(mains.length+smalls.length,'дело','дела','дел'):'')+(overdue?' · просрочено '+overdue:'')+(isToday&&doneToday?' · сделано '+doneToday:'')+'</span></div><div>'+plan+'</div>'+(isToday||home?'':'<button class="btn" data-act="day" data-v="'+t+'">Вернуться к сегодня</button>')+'</section>';
+  h+='<section class="card block" aria-labelledby="h-tasks"><div class="block-head"><h2 id="h-tasks" style="font-size:24px">Дела на '+esc(dayLabel(sel))+'</h2><span class="muted" style="font-size:13px">'+(mains.length+smalls.length?plural(mains.length+smalls.length,'дело','дела','дел'):'')+(overdue?' · просрочено '+overdue:'')+(isToday&&doneToday?' · сделано '+doneToday:'')+'</span></div><div>'+plan+'</div>'+(isToday||home?'':'<button class="btn" data-act="day" data-v="'+t+'">Вернуться к сегодня</button>')+'</section>';
   if(home && !(S.days[t]&&S.days[t].nudgeOff)){
     const [qk,q]=focusQ();
     h+='<section class="card block nudge"><div class="eyebrow">Вопрос дня · чтобы Ритм лучше планировал</div><h2 style="font-size:20px">'+esc(q)+'</h2><p class="muted" style="margin:0;font-size:14px">Минута голосом. Запомню контекст, а конкретные дела сразу поставлю в план.</p><div class="row wrap"><button class="btn primary" data-act="focus-open" data-k="'+qk+'" data-v="'+esc(q)+'">Ответить</button><button class="btn ghost" data-act="nudge-skip">Не сегодня</button></div></section>';
@@ -1342,7 +1341,7 @@ function viewAssist(){
   else if(assist.busy) h+='<div class="chat"><div class="msg ai" id="ai-stream">'+esc(assist.stream||'Думаю…')+'</div></div>';
   if(!msgs.length && !assist.busy) h+='<div class="row wrap">'+['Что у меня сегодня?','С чего начать сегодня?','Разгрузи мне эту неделю','Есть ли у меня записи на завтра?','Когда лучше сходить к врачу?','Перенеси всё несрочное на завтра'].map(q=>'<button class="chip" data-act="ask-q" data-v="'+esc(q)+'">'+esc(q)+'</button>').join('')+'</div>';
   if(assist.err) h+='<p role="alert" style="margin:0;color:var(--warn);font-weight:600">'+esc(assist.err)+'</p>';
-  h+='<form id="chat-form" class="stack" style="gap:8px" autocomplete="off"><label for="chat-in" class="srt">Вопрос ассистенту</label><textarea id="chat-in" style="min-height:70px" placeholder="Нажми и продиктуй вопрос">'+esc(assist.draft||'')+'</textarea><div class="row wrap"><button class="btn primary" type="submit" '+(assist.busy||!cap.sample?'disabled':'')+'>'+(assist.busy?'Отвечаю…':'Спросить')+'</button>'+(assist.busy?'<button class="btn" type="button" data-act="ask-stop">Стоп</button>':'')+(msgs.length&&!assist.busy?'<button class="btn" type="button" data-act="ask-tasks">Сделать задачи из ответа</button><button class="btn ghost" type="button" data-act="ask-clear">Новый разговор</button>':'')+'</div></form>';
+  h+='<form id="chat-form" class="stack" style="gap:8px" autocomplete="off"><label for="chat-in" class="srt">Вопрос ассистенту</label><textarea id="chat-in" style="min-height:70px" placeholder="Нажми и продиктуй вопрос">'+esc(assist.draft||'')+'</textarea><div class="row wrap"><button class="btn primary" type="submit" '+(assist.busy||!cap.sample?'disabled':'')+'>'+(assist.busy?'Отвечаю…':'Спросить')+'</button>'+(assist.busy?'<button class="btn" type="button" data-act="ask-stop">Стоп</button>':'')+(msgs.length&&!assist.busy?'<button class="btn ghost" type="button" data-act="ask-clear">Новый разговор</button>':'')+'</div></form>';
   if(!cap.sample) h+='<p class="muted" style="margin:0">Ассистент сейчас недоступен. Проверь интернет и попробуй ещё раз.</p>';
   h+='</section>';
   // контекст
@@ -1426,7 +1425,7 @@ async function askAssistant(q){
   S.chat=arr(S.chat); S.chat.push({role:'user',content:q.slice(0,4000)}); S.chat=S.chat.slice(-20); assist.draft='';
   if(BRIEF_RE.test(q) && q.length<80 && !/неделю|завтра|месяц/i.test(q)){ const txt=briefText(); S.chat.push({role:'assistant',content:txt}); save(); render(); if(S.voiceMode) speak(txt, voiceNext); return; }
   assist.err=''; assist.busy=true; assist.stream=''; save(); render();
-  const rules='Ты — личный ассистент и «операционный директор жизни» пользователя в приложении-планировщике Ритм. '+dateCtx()+' Отвечай по-русски, коротко и по делу, списками, как умный близкий помощник. Опирайся на контекст ниже, не выдумывай фактов о человеке. Если советуешь действия — формулируй их конкретно, с датой. Учитывай загрузку, цели и баланс работы и личного. Тон: '+(S.skin==='oldmoney'?'сдержанный, уверенный':'тёплый, заботливый')+'. Не ставь диагнозов и не заменяй врача или психолога.\n\nДЕЙСТВИЯ. Ты умеешь менять план сам. Если человек просит добавить, перенести, поставить время, отметить сделанным или удалить дела — или ты предлагаешь конкретные изменения плана — в самом конце ответа добавь блок:\n```actions\n[{"op":"add","title":"…","due":"YYYY-MM-DD|null","time":"HH:MM|null","note":"…|null","kind":"main|small"},{"op":"move","id":"…","due":"YYYY-MM-DD|null","time":"HH:MM|null"},{"op":"done","id":"…"},{"op":"delete","id":"…"},{"op":"repeat","id":"…","days":[1,3]}]\n```\nid бери из списка дел (после #). В тексте ответа коротко скажи, что предлагаешь сделать — человек подтвердит одной кнопкой. Не добавляй блок, если менять нечего.\n\nКОНТЕКСТ ЖИЗНИ:\n'+lifeContext()+'\n\nДЕЛА И КАЛЕНДАРЬ:\n'+tasksContext();
+  const rules='Ты — личный ассистент и «операционный директор жизни» пользователя в приложении-планировщике Ритм. '+dateCtx()+' Отвечай по-русски, коротко и по делу, списками, как умный близкий помощник. Опирайся на контекст ниже, не выдумывай фактов о человеке. Если советуешь действия — формулируй их конкретно, с датой. Учитывай загрузку, цели и баланс работы и личного. Тон: '+(S.skin==='oldmoney'?'сдержанный, уверенный':'тёплый, заботливый')+'. Не ставь диагнозов и не заменяй врача или психолога.'+(S.voiceMode?' Сейчас ГОЛОСОВОЙ РЕЖИМ: человек слушает, а не читает. Говори живо, как разговор, без списков, звёздочек и заголовков, 3–7 предложений; называй дела и время словами; рассказывай подробнее, что есть в плане и что важно; в конце задай короткий уточняющий вопрос или предложи следующий шаг.':'')+'\n\nДЕЙСТВИЯ. Ты умеешь менять план сам. Если человек просит добавить, перенести, поставить время, отметить сделанным или удалить дела — или ты предлагаешь конкретные изменения плана — в самом конце ответа добавь блок:\n```actions\n[{"op":"add","title":"…","due":"YYYY-MM-DD|null","time":"HH:MM|null","note":"…|null","kind":"main|small"},{"op":"move","id":"…","due":"YYYY-MM-DD|null","time":"HH:MM|null"},{"op":"done","id":"…"},{"op":"delete","id":"…"},{"op":"repeat","id":"…","days":[1,3]}]\n```\nid бери из списка дел (после #). В тексте ответа коротко скажи, что предлагаешь сделать — человек подтвердит одной кнопкой. Не добавляй блок, если менять нечего.\n\nКОНТЕКСТ ЖИЗНИ:\n'+lifeContext()+'\n\nДЕЛА И КАЛЕНДАРЬ:\n'+tasksContext();
   const turns=[{role:'user',content:rules}].concat(S.chat.map(m=>({role:m.role,content:m.content+(m.actions?'\n[предложены действия: '+m.actions.length+(m.applied?', применены':m.applied===null?', отклонены':'')+']':'')})));
   // merge leading user turns is fine (platform reads consecutive same-role turns as one)
   assist.ctl=new AbortController();
@@ -1807,8 +1806,8 @@ async function brainDump(text){
   const inp=$('#cap-in'); if(inp){ inp.value=''; inp.disabled=true; inp.placeholder='Разбираю на дела…'; }
   openSheet('<div class="thinking" role="status"><span class="spin"></span>Разбираю на дела… это до 20 секунд</div>');
   let list=[];
-  try{ list=await aiDump(text); if(!list.length) throw new Error('пусто'); }catch(e){ closeSheet(); if(inp){ inp.disabled=false; inp.placeholder='Нажми и продиктуй, что сделать и когда'; } toast(aiError(e)+' Сохранила текст одним делом.'); const p=parseRu(text); const t=normTask({title:p.title.slice(0,90), due:p.due, time:p.time, note:text.slice(0,1000)}, defaultSphere()); S.tasks.push(t); save(); render(); return; }
-  if(inp){ inp.disabled=false; inp.placeholder='Нажми и продиктуй, что сделать и когда'; }
+  try{ list=await aiDump(text); if(!list.length) throw new Error('пусто'); }catch(e){ closeSheet(); if(inp){ inp.disabled=false; inp.placeholder='Скажи дело, команду или вопрос'; } toast(aiError(e)+' Сохранила текст одним делом.'); const p=parseRu(text); const t=normTask({title:p.title.slice(0,90), due:p.due, time:p.time, note:text.slice(0,1000)}, defaultSphere()); S.tasks.push(t); save(); render(); return; }
+  if(inp){ inp.disabled=false; inp.placeholder='Скажи дело, команду или вопрос'; }
   dump={list, src:text, reply:'', busy:false}; dumpSheet();
 }
 /* ---------- actions ---------- */
@@ -1873,7 +1872,7 @@ function addHabits(text){
 }
 function ctlBtn(){
   let el=document.getElementById('ctl-fab');
-  const show=!!S.onboarded;
+  const show=false;
   if(!show){ if(el) el.remove(); document.body.classList.remove('has-ctl'); return; }
   if(!el){ el=document.createElement('button'); el.id='ctl-fab'; el.type='button'; el.setAttribute('data-act','ctl-open'); el.setAttribute('aria-label','Управление планом голосом'); el.innerHTML=ICON.mic+'<span>Управление</span>'; document.body.appendChild(el); }
   document.body.classList.add('has-ctl');
@@ -1897,7 +1896,8 @@ const CMD_ANY=/(?:^|[\s,.])(удали|удалить|удалите|удаля�
 function inp_clear(){ const i=$('#cap-in'); if(i) i.value=''; return true; }
 async function quickAdd(text){
   text=text.trim(); if(!text) return;
-  if(CMD_RE.test(text) || CMD_ANY.test(text.slice(0,80))){ if(inp_clear()) {} return ctlRun(text); }
+  const isQ=/\?\s*$/.test(text) || /^(что|когда|есть ли|какие|какое|сколько|где|кто|покажи|расскажи|напомни,? что|спланируй|разгрузи|помоги)\s/i.test(text);
+  if(isQ || CMD_RE.test(text) || CMD_ANY.test(text.slice(0,80))){ if(inp_clear()) {} return ctlRun(text); }
   const inp=$('#cap-in');
   const p=parseRu(text);
   let list=[], refine=false;
