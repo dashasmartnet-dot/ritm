@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015185725';</script>
-<script src="supabase.js?v=20261015185725"></script>
-<script src="config.js?v=20261015185725"></script>
-<script src="backend.js?v=20261015185725"></script>
+<script>window.RITM_BUILD='20261015190442';</script>
+<script src="supabase.js?v=20261015190442"></script>
+<script src="config.js?v=20261015190442"></script>
+<script src="backend.js?v=20261015190442"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -445,6 +445,7 @@ body.has-ctl .app{padding-top:68px}
 .voice-hint{margin:0;font-size:13px;padding:8px 10px;border-radius:10px;background:color-mix(in srgb,var(--accent) 10%,transparent)}
 [data-speak-state].on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .say-day{min-height:36px;padding:0 10px;font-size:13px}
+.over-t{color:var(--warn);font-weight:700}
 </style>
 
 <style>html,body{margin:0}body{padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}</style>
@@ -944,10 +945,9 @@ function taskRow(t){
   const g=groupOf(t); const s=sphere(t.sphere); const meta=[];
   meta.push('<span class="tag">'+dotHtml(t,g)+esc(s?s.name:'—')+'</span>');
   if(t.recurId&&!t.pre){ const r=findRecur(t.recurId); if(r) meta.push('<span>· ↻ '+esc(repText(r))+'</span>'); }
-  if(t.due) meta.push('<span>· '+esc(human(t.due))+'</span>');
-  if(t.reminded&&!t.done) meta.push('<span>· напомню</span>');
+  if(t.due && t.due!==today()) meta.push('<span'+(t.due<today()?' class="over-t"':'')+'>· '+esc(t.due<today()?'просрочено, '+human(t.due):human(t.due))+'</span>');
+  if(t.reminded&&!t.done) meta.push('<span aria-label="будет напоминание" title="будет напоминание">· 🔔</span>');
   if(t.kind==='wait') meta.push('<span>· жду от '+esc(t.who||'—')+'</span>');
-  if(t.source==='meeting') meta.push('<span>· из встречи</span>');
   if((t.postponed||0)>=2 && !t.done) meta.push('<span>· перенос ×'+t.postponed+'</span>');
   const stuck=isStuck(t)?'<span class="pill warn">залипло</span>':'';
   const pr = t.priority===1&&!t.done?'<span class="pill">важно</span>':'';
