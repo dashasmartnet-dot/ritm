@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015172202';</script>
-<script src="supabase.js?v=20261015172202"></script>
-<script src="config.js?v=20261015172202"></script>
-<script src="backend.js?v=20261015172202"></script>
+<script>window.RITM_BUILD='20261015180540';</script>
+<script src="supabase.js?v=20261015180540"></script>
+<script src="config.js?v=20261015180540"></script>
+<script src="backend.js?v=20261015180540"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -363,7 +363,7 @@ body.dragging{overflow:hidden;touch-action:none}
 .spread-page{display:flex;flex-direction:column;min-width:0}
 .spread-page.left{padding-right:9px}
 .spread-page.right{padding-left:9px}
-.dbox{flex:1;min-height:138px;padding:8px 8px 6px;border-bottom:1px solid var(--line);background-image:repeating-linear-gradient(transparent 0 31px,var(--line) 31px 32px);background-position:0 34px;background-size:100% calc(100% - 34px);background-repeat:no-repeat;transition:background-color .15s}
+.dbox{flex:1 0 auto;min-height:138px;padding:8px 8px 6px;border-bottom:1px solid var(--line);background-image:repeating-linear-gradient(transparent 0 31px,var(--line) 31px 32px);background-position:0 34px;background-size:100% calc(100% - 34px);background-repeat:no-repeat;transition:background-color .15s}
 .dbox:last-child{border-bottom:0}
 .dbox.today{background-color:color-mix(in srgb,var(--accent) 7%,var(--surface))}
 .dbox.past{opacity:.7}
@@ -390,6 +390,10 @@ body.dragging{overflow:hidden;touch-action:none}
 .w-rep{color:var(--muted);font-weight:500}
 .dbox .w-item.over em{display:block;font-size:11px}
 :root[data-skin="oldmoney"] .spread{border-radius:6px}
+#ctl-fab{position:fixed;z-index:30;top:calc(env(safe-area-inset-top,0px) + 10px);right:max(14px,env(safe-area-inset-right,0px));min-height:44px;padding:0 14px 0 12px;border-radius:999px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);font:inherit;font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:7px;box-shadow:0 6px 18px rgba(0,0,0,.14)}
+#ctl-fab svg{width:17px;height:17px}
+body.has-ctl .app{padding-top:68px}
+:root[data-skin="oldmoney"] #ctl-fab{border-radius:6px}
 </style>
 
 <style>html,body{margin:0}body{padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}</style>
@@ -805,10 +809,10 @@ function obFinish(){
 function render(){
   try{
     document.documentElement.setAttribute('data-skin', S.skin||'clean');
-    if(!S.onboarded){ renderOnboarding(); return; }
+    if(!S.onboarded){ ctlBtn(); renderOnboarding(); return; }
     if(ensureRecur()) save();
     const v = ui.tab==='today'?viewToday():ui.tab==='tasks'?viewTasks():ui.tab==='ai'?viewAssist():ui.tab==='dyn'?viewDyn():viewProfile();
-    $('#app').innerHTML=v; renderDock(); if(pendingFocus){ const el=document.querySelector(pendingFocus); if(el) el.focus(); pendingFocus=null; }
+    $('#app').innerHTML=v; renderDock(); ctlBtn(); if(pendingFocus){ const el=document.querySelector(pendingFocus); if(el) el.focus(); pendingFocus=null; }
   }catch(err){
     console.error(err);
     $('#app').innerHTML='<div class="stack" style="padding-top:40px"><h1>Что-то пошло не так</h1><p class="muted">Твои дела сохранены в аккаунте. Обнови страницу. Если не помогло, очисти данные на этом устройстве — всё подтянется из аккаунта заново.</p><button class="btn primary" data-act="hard-reset">Очистить данные на этом устройстве</button></div>';
@@ -1553,6 +1557,50 @@ function cmdSheet(){
   else h+='<ul class="act-list cmd-list">'+cmd.actions.map((a,i)=>'<li><label class="row" style="gap:10px;align-items:center"><input type="checkbox" data-cmd-i="'+i+'" '+(a._off?'':'checked')+' style="width:22px;height:22px;flex:none"><span>'+esc(actLabel(a))+'</span></label></li>').join('')+'</ul><button class="btn primary block-btn" data-act="cmd-apply">Сделать</button>';
   openSheet(h);
 }
+/* ---------- «Управление»: голосом меняю план ---------- */
+let ctl={text:'',actions:[],reply:'',busy:false,err:''};
+function ctlSheet(){
+  let h='<div class="row between"><h2 id="sheet-h">Управление планом</h2><button class="btn ghost" data-act="close-sheet">Закрыть</button></div>'+
+    '<p class="muted" style="margin:0;font-size:14px">Скажи, что сделать: удалить, перенести, поставить время, отметить сделанным, добавить. Или спроси: «что у меня завтра?»</p>'+
+    '<label for="ctl-in" class="srt">Команда</label><textarea id="ctl-in" rows="3" placeholder="Например: перенеси созвон с Ершовым на пятницу в 11, а купить хлеб удали">'+esc(ctl.text)+'</textarea>';
+  if(!ctl.busy && !ctl.actions.length && !ctl.reply) h+='<div class="row wrap" style="gap:6px">'+['Перенеси всё несрочное на завтра','Что у меня завтра?','Удали всё сделанное за неделю','Разгрузи сегодняшний день'].map(q=>'<button class="chip sm" data-act="ctl-ex" data-v="'+esc(q)+'">'+esc(q)+'</button>').join('')+'</div>';
+  if(ctl.busy) h+='<div class="thinking" role="status"><span class="spin"></span>Смотрю дела и календарь…</div>';
+  else {
+    if(ctl.err) h+='<p role="alert" style="margin:0;color:var(--warn);font-weight:600">'+esc(ctl.err)+'</p>'+(ctl.text?'<button class="btn block-btn" data-act="ctl-as-task">Это новое дело — добавить</button>':'');
+    if(ctl.reply) h+='<div class="msg ai" style="max-width:100%">'+md(ctl.reply)+'</div>';
+    if(ctl.actions.length) h+='<div class="act-card"><div class="eyebrow">Сделаю так</div><ul class="act-list cmd-list">'+ctl.actions.map((a,i)=>'<li><label class="row" style="gap:10px;align-items:center"><input type="checkbox" data-ctl-i="'+i+'" '+(a._off?'':'checked')+' style="width:22px;height:22px;flex:none"><span>'+esc(actLabel(a))+'</span></label></li>').join('')+'</ul><button class="btn primary block-btn" data-act="ctl-apply">Сделать</button></div>';
+  }
+  h+=ctl.busy?'':'<button class="btn'+(ctl.actions.length?'':' primary')+' block-btn" data-act="ctl-go">'+(ctl.actions.length||ctl.reply?'Новая команда':'Выполнить')+'</button>';
+  openSheet(h, sh=>{ const ta=sh.querySelector('#ctl-in'); if(ta){ ta.oninput=()=>{ ctl.text=ta.value; }; } });
+}
+async function ctlRun(text){
+  text=String(text||'').trim(); if(!text){ const ta=$('#ctl-in'); if(ta) ta.focus(); return; }
+  ctl={text, actions:[], reply:'', busy:true, err:''}; ctlSheet();
+  if(cap.sample){
+    try{
+      const T=today();
+      const list=S.tasks.filter(x=>!x.done||(x.doneAt&&x.doneAt>Date.now()-7*86400000)).slice(-200).map(x=>'#'+x.id+' '+(x.done?'[сделано] ':'')+x.title+' ['+((sphere(x.sphere)||{}).name||'—')+(x.due?', '+x.due+(x.time?' '+x.time:''):', без даты')+(x.recurId?', повтор':'')+']').join('\n');
+      const ev=Object.keys(calDays).filter(d=>d>=T&&d<=addDays(T,7)).sort().map(d=>(calDays[d].events||[]).map(e=>'- '+d+' '+e.time+' '+e.title).join('\n')).filter(Boolean).join('\n');
+      const r=await cap.sample.json(dateCtx()+'\nДела человека:\n'+(list||'—')+'\nВстречи в календаре (7 дней):\n'+(ev||'—')+'\n\nЧеловек сказал голосом: «'+text.slice(0,3000)+'»\n\nЕсли это команда — верни действия над делами. Ищи дела по смыслу, а не дословно. «Несрочное» — дела не с высокой важностью и без времени. Если это вопрос — ответь коротко в reply (по-русски, 1–5 строк) и actions пустой. Можно и то и другое. Ответь ТОЛЬКО JSON {"reply":"текст или пусто","actions":[{"op":"add|move|done|delete|repeat","id":"… (для существующих)","title":"… (для add)","due":"YYYY-MM-DD|null","time":"HH:MM|null","days":[1,3]}]}',{modelTier:'default',cache:false});
+      ctl.reply=String(r&&r.reply||'').trim();
+      ctl.actions=arr(r&&r.actions).map(a=>Object.assign({},a,{id:a.id?String(a.id).replace(/^#/,''):undefined})).filter(a=>['add','move','done','delete','repeat'].includes(a.op)&&(a.op==='add'?!!a.title:!!findTask(a.id))).slice(0,40);
+      if(!ctl.reply && !ctl.actions.length) ctl.err='Не нашла, что поменять. Скажи точнее, какое дело.';
+    }catch(e){ ctl.err=aiError(e); }
+  }
+  if(!ctl.actions.length && !ctl.reply && CMD_RE.test(text)){
+    const verb=(text.match(CMD_RE)||[])[1]||''; const op=/удал|убер|вычерк|сотри|отмен/i.test(verb)?'delete':/перен|сдвин|передвин|отлож/i.test(verb)?null:'done';
+    if(op){ const m=localMatch(text); if(m.length){ const top=m[0].sc; ctl.actions=m.filter(o=>o.sc===top).slice(0,3).map(o=>({op,id:o.x.id})); ctl.err=''; } }
+  }
+  if(!cap.sample && !ctl.actions.length) ctl.err='Ассистент сейчас недоступен. Удалить и перенести можно зажав дело.';
+  ctl.busy=false; if(sheetOpen) ctlSheet();
+}
+function ctlBtn(){
+  let el=document.getElementById('ctl-fab');
+  const show=!!S.onboarded;
+  if(!show){ if(el) el.remove(); document.body.classList.remove('has-ctl'); return; }
+  if(!el){ el=document.createElement('button'); el.id='ctl-fab'; el.type='button'; el.setAttribute('data-act','ctl-open'); el.setAttribute('aria-label','Управление планом голосом'); el.innerHTML=ICON.mic+'<span>Управление</span>'; document.body.appendChild(el); }
+  document.body.classList.add('has-ctl');
+}
 async function runCommand(text){
   const inp=$('#cap-in'); if(inp) inp.value='';
   cmd={text, actions:[], busy:true, err:''}; cmdSheet();
@@ -1568,9 +1616,11 @@ async function runCommand(text){
   if(!cmd.actions.length && op!=='move'){ const m=localMatch(text); if(m.length){ const top=m[0].sc; cmd.actions=m.filter(o=>o.sc===top).slice(0,3).map(o=>({op,id:o.x.id})); cmd.err=''; } }
   cmd.busy=false; if(sheetOpen) cmdSheet();
 }
+const CMD_ANY=/(?:^|[\s,.])(удали|удалить|удалите|удаляй|убери|убрать|уберите|вычеркни|вычеркнуть|сотри|стереть|перенеси|перенести|перенесите|сдвинь|сдвинуть|передвинь|передвинуть|отложи|отложить|отметь|отметить|выполнила|выполнено|сделала|сделано|закрой|закрыть|отмени|отменить)(?=[\s,.!:]|$)/i;
+function inp_clear(){ const i=$('#cap-in'); if(i) i.value=''; return true; }
 async function quickAdd(text){
   text=text.trim(); if(!text) return;
-  if(CMD_RE.test(text) && text.split(/\s+/).length<=25){ return runCommand(text); }
+  if(CMD_RE.test(text) || CMD_ANY.test(text.slice(0,80))){ if(inp_clear()) {} return ctlRun(text); }
   const inp=$('#cap-in');
   const p=parseRu(text);
   let list=[], refine=false;
@@ -1827,6 +1877,12 @@ document.addEventListener('click', async e=>{
     case 'conn-cal': { if(ui.tab==='me') pfCollect(); else obCollect(); const i=S.calendars.indexOf(v); if(i>=0){ if(S.calendars.length>1) S.calendars.splice(i,1); else { toast('Оставь хотя бы один календарь'); break; } } else S.calendars.push(v); save(); render(); loadCalendar(true); break; }
     case 'dump-due': { dumpCollect(); const t=dump.list[Number(b.getAttribute('data-i'))]; if(t){ t.due=v||null; if(!v) t.time=null; } dumpSheet(); break; }
     case 'dump-reply': dumpReply(); break;
+    case 'ctl-open': ctl={text:'',actions:[],reply:'',busy:false,err:''}; ctlSheet(); if(SR && !inFrame){ try{ micToggle('ctl-in'); }catch(_){} } else setTimeout(()=>{ const ta=$('#ctl-in'); if(ta) ta.focus(); },250); break;
+    case 'ctl-ex': ctlRun(v); break;
+    case 'ctl-as-task': { const tx=ctl.text; closeSheet(); const p=parseRu(tx); const t=normTask({title:p.title.slice(0,90),due:p.due,time:p.time}, defaultSphere()); dump={list:[t],src:tx,reply:'',busy:false}; dumpSheet(); break; }
+    case 'ctl-go': { if(ctl.actions.length||ctl.reply){ ctl={text:'',actions:[],reply:'',busy:false,err:''}; ctlSheet(); break; } const ta=$('#ctl-in'); ctlRun(ta?ta.value:ctl.text); break; }
+    case 'ctl-apply': { document.querySelectorAll('[data-ctl-i]').forEach(el=>{ const a=ctl.actions[Number(el.getAttribute('data-ctl-i'))]; if(a) a._off=!el.checked; }); const L=ctl.actions.filter(a=>!a._off); closeSheet(); if(!L.length) break;
+      const snap=JSON.stringify(S.tasks), rs=JSON.stringify(S.recur||[]); const n=applyActions(L); toast('Готово: '+plural(n,'изменение','изменения','изменений'), ()=>{ S.tasks=JSON.parse(snap); S.recur=JSON.parse(rs); save(); render(); }); break; }
     case 'cmd-as-task': { const tx=cmd.text; closeSheet(); const p=parseRu(tx); const t=normTask({title:p.title.slice(0,90),due:p.due,time:p.time}, defaultSphere()); dump={list:[t],src:tx,reply:'',busy:false}; dumpSheet(); break; }
     case 'cmd-apply': { document.querySelectorAll('[data-cmd-i]').forEach(el=>{ const a=cmd.actions[Number(el.getAttribute('data-cmd-i'))]; if(a) a._off=!el.checked; }); const L=cmd.actions.filter(a=>!a._off); closeSheet(); if(!L.length) break;
       const snap=JSON.stringify(S.tasks), rs=JSON.stringify(S.recur||[]); const n=applyActions(L); toast('Готово: '+plural(n,'изменение','изменения','изменений'), ()=>{ S.tasks=JSON.parse(snap); S.recur=JSON.parse(rs); save(); render(); }); break; }
@@ -1898,6 +1954,20 @@ document.addEventListener('click', async e=>{
   }
 });
 
+/* iPhone: после открытия из уведомления нижняя панель «слетает» вверх — переставляем её на место */
+function fixDock(){
+  const fix=()=>{ const d=$('#dock'); if(!d) return; d.style.display='none'; void d.offsetHeight; d.style.display='';
+    try{ const y=window.scrollY; window.scrollTo(0,y+1); window.scrollTo(0,y); }catch(_){}
+    const vv=window.visualViewport; const fab=document.getElementById('ctl-fab');
+    if(vv){ const gap=Math.round(window.innerHeight-(vv.height+vv.offsetTop)); d.style.transform=gap<-2?'translateY('+(-gap)+'px)':''; } };
+  fix(); requestAnimationFrame(fix); [80,300,800,1500].forEach(t=>setTimeout(fix,t));
+}
+window.addEventListener('pageshow', fixDock);
+try{ navigator.serviceWorker && navigator.serviceWorker.addEventListener('message', e=>{ if(e.data&&e.data.type==='resume'){ fixDock(); render(); } }); }catch(_){}
+window.addEventListener('focus', fixDock);
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') fixDock(); });
+window.addEventListener('orientationchange', fixDock);
+if(window.visualViewport) window.visualViewport.addEventListener('resize', ()=>{ clearTimeout(window.__fdT); window.__fdT=setTimeout(fixDock,60); });
 /* ---------- boot ---------- */
 const cached=readLocal();
 try{ if(cached) S=merge(cached); }catch(e){ S=DEFAULT(); }
@@ -1916,7 +1986,7 @@ async function pull(){
   }catch(e){}
 }
 /* ---------- голос: запись и распознавание ---------- */
-const MIC_FIELDS=['dump-reply','cap-in','ob-story','chat-in','life-in','m-text','ev-note','e-note','rv-fix'];
+const MIC_FIELDS=['ctl-in','dump-reply','cap-in','ob-story','chat-in','life-in','m-text','ev-note','e-note','rv-fix'];
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 const inFrame=(()=>{ try{ return window.top!==window.self; }catch(e){ return true; } })();
 let voice={id:null,rec:null,media:null,chunks:[],stopping:false,base:''};
@@ -1945,6 +2015,7 @@ function micFail(msg){ voice.id=null; voice.rec=null; setMicUI(); toast(msg, nul
 function voiceDone(){
   const id=voice.id; voice.id=null; voice.rec=null; voice.media=null; setMicUI();
   const el=document.getElementById(id);
+  if(id==='ctl-in' && el && el.value.trim()){ ctlRun(el.value); return; }
   if(id==='dump-reply' && el && el.value.trim()){ dump.reply=el.value; dumpReply(); return; }
   if(id==='cap-in' && el && el.value.trim()){ const f=$('#cap-form'); if(f) f.requestSubmit?f.requestSubmit():f.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})); }
 }

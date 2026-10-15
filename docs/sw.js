@@ -1,5 +1,5 @@
 /* Ритм: сначала сеть, при отсутствии сети — сохранённая оболочка. */
-const C='ritm-v3';
+const C='ritm-v4';
 const SHELL=['./','index.html','backend.js','config.js','manifest.webmanifest','icons/icon-180.png'];
 self.addEventListener('install',e=>{ e.waitUntil(caches.open(C).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting())); });
 self.addEventListener('activate',e=>{ e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim())); });
@@ -16,5 +16,5 @@ self.addEventListener('push', e=>{
 });
 self.addEventListener('notificationclick', e=>{
   e.notification.close();
-  e.waitUntil(clients.matchAll({type:'window', includeUncontrolled:true}).then(list=>{ for(const c of list){ if('focus' in c) return c.focus(); } return clients.openWindow('./'); }));
+  e.waitUntil(clients.matchAll({type:'window', includeUncontrolled:true}).then(list=>{ for(const c of list){ if('focus' in c){ try{ c.postMessage({type:'resume'}); }catch(_){} return c.focus(); } } return clients.openWindow('./'); }));
 });
