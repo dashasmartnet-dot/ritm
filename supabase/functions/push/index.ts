@@ -66,14 +66,14 @@ Deno.serve(async (req) => {
           const open = tasks.filter((x) => !x.done && x.kind !== "wait" && x.due && x.due <= day);
           const pr = (x: any) => (x.priority || 2);
           const timed = open.filter((x) => x.time && x.due === day).sort((a, b) => a.time.localeCompare(b.time));
-          const key = open.filter((x) => x.kind === "main" && !(x.time && x.due === day)).sort((a, b) => pr(a) - pr(b)).slice(0, 3);
-          const small = open.filter((x) => x.kind === "small").length;
-          const parts: string[] = [];
-          if (key.length) parts.push("Главное: " + key.map((x) => x.title).join(" · "));
-          if (timed.length) parts.push("По времени: " + timed.slice(0, 3).map((x) => x.time + " " + x.title).join(" · "));
-          if (small) parts.push("Мелочей: " + small);
-          const body = parts.length ? parts.join("\n") : "На сегодня дел нет. Загляни — можно взять что-то заранее.";
-          sent += await sendTo(r.user_id, { title: "План на день" + (open.length ? " · " + open.length : ""), body, tag: "brief" }, keys);
+          const rest = open.filter((x) => !(x.time && x.due === day)).sort((a, b) => (a.kind === "small" ? 1 : 0) - (b.kind === "small" ? 1 : 0) || pr(a) - pr(b));
+          const all = [...timed, ...rest];
+          const first = timed[0] || rest[0];
+          const lines = all.slice(0, 12).map((x) => "• " + (x.time && x.due === day ? x.time + " " : "") + x.title + (x.due < day ? " (с прошлых дней)" : ""));
+          if (all.length > 12) lines.push("…и ещё " + (all.length - 12));
+          const body = all.length ? ("Первое — " + (first.time && first.due === day ? first.time + " " : "") + first.title + "\n" + lines.join("\n")) : "На сегодня дел нет. Хорошего дня!";
+          const n = all.length; const word = n % 10 === 1 && n % 100 !== 11 ? "дело" : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? "дела" : "дел";
+          sent += await sendTo(r.user_id, { title: n ? "Доброе утро · " + n + " " + word : "Доброе утро", body, tag: "brief" }, keys);
         }
         await admin.from("reminders").update({ sent_at: now.toISOString() }).eq("id", r.id);
         continue;
