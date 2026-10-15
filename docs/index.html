@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015162943';</script>
-<script src="supabase.js?v=20261015162943"></script>
-<script src="config.js?v=20261015162943"></script>
-<script src="backend.js?v=20261015162943"></script>
+<script>window.RITM_BUILD='20261015163230';</script>
+<script src="supabase.js?v=20261015163230"></script>
+<script src="config.js?v=20261015163230"></script>
+<script src="backend.js?v=20261015163230"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -301,6 +301,8 @@ body.dragging{overflow:hidden;touch-action:none}
 .sw-act button{flex:1;border:0;font:inherit;font-weight:700;font-size:13.5px;color:#fff;background:var(--muted)}
 .sw-act .del{background:#B3261E}
 @media (prefers-reduced-motion:reduce){.sw .task{transition:none}}
+.md-li{display:block;padding-left:14px;position:relative}.md-li::before{content:"";position:absolute;left:2px;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.tour-dots{display:flex;gap:6px}.tour-dots span{width:8px;height:8px;border-radius:50%;background:var(--line)}.tour-dots span.on{background:var(--accent);width:20px;border-radius:4px}
 </style>
 
 <style>html,body{margin:0}body{padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}</style>
@@ -622,6 +624,28 @@ async function obBuild(fix){
   }catch(e){ if(token!==D.token) return; D.err=aiError(e); }
   D.busy=false; render(); if(!fix) window.scrollTo(0,0);
 }
+function md(t){
+  return String(t||'').split('\n').map(line=>{
+    let l=esc(line).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/(^|\s)\*(\S[^*]*\S|\S)\*(?=\s|$)/g,'$1<i>$2</i>');
+    if(/^#{1,4}\s/.test(line)) return '<b>'+l.replace(/^#{1,4}\s/,'')+'</b>';
+    if(/^\s*[-*•]\s+/.test(line)) return '<span class="md-li">'+l.replace(/^\s*[-*•]\s+/,'')+'</span>';
+    return l;
+  }).join('\n');
+}
+const TOUR=[
+  ['Говори — я запишу','Нажми на строку внизу или на микрофон и скажи как есть: «завтра в 15 позвонить маме». Дата и время встанут сами. Если день не назван — дело попадёт в «Без даты», распределишь потом.'],
+  ['Сегодня и неделя','На «Сегодня» — дела дня (время слева) и страница-ежедневник по часам. Переключи на «Неделю»: 7 страниц как в бумажном дневнике. Зажми дело и перетащи на другой день.'],
+  ['Дела под рукой','Кружок — сделано. Нажми на дело — изменить. Проведи пальцем влево — «Перенести» или «Удалить». Случайно удалила — внизу будет «Отменить».'],
+  ['Ассистент знает твою жизнь','Спроси: «с чего начать день», «разгрузи неделю», «когда лучше сходить к врачу». В «Моей жизни» расскажи о себе понемногу — советы станут точнее.'],
+  ['Напоминания и итоги','Профиль → «Включить напоминания» — пуш придёт за час и в момент дела (Ритм должен быть на экране «Домой»). Вечером — «Итоги дня»: что сделано, настроение, перенос.']
+];
+function tourSheet(i){
+  ui.tour=i; const [h,p]=TOUR[i]; const last=i===TOUR.length-1;
+  openSheet('<div class="row between"><span class="muted" style="font-size:13px">'+(i+1)+' из '+TOUR.length+'</span><button class="btn ghost" data-act="tour-end">Пропустить</button></div>'+
+    '<h2 id="sheet-h" style="font-size:28px">'+esc(h)+'</h2><p style="margin:0;font-size:16px;line-height:1.5">'+esc(p)+'</p>'+
+    '<div class="tour-dots" aria-hidden="true">'+TOUR.map((_,k)=>'<span class="'+(k===i?'on':'')+'"></span>').join('')+'</div>'+
+    '<div class="row wrap">'+(i>0?'<button class="btn" data-act="tour" data-v="'+(i-1)+'">Назад</button>':'')+'<button class="btn primary" data-act="'+(last?'tour-end':'tour')+'" data-v="'+(i+1)+'">'+(last?'Начать':'Дальше')+'</button></div>');
+}
 function obFinish(){
   const D=ui.D; obCollect();
   D.spheres=D.spheres.map(s=>({...s,name:(s.name||'').trim()})).filter(s=>s.name);
@@ -633,8 +657,8 @@ function obFinish(){
   const keepH=new Map(S.habits.map(h=>[h.name,h.id]));
   S.habits=D.habits.map(n=>({id:keepH.get(n)||'h-'+uid(),name:n}));
   S.tasks.forEach(t=>{ if(!sphere(t.sphere)) t.sphere=fb; });
-  S.tasks.push(...D.tasks.filter(t=>!t._skip).map(t=>{ const c={...t}; delete c._skip; if(!ids.has(c.sphere)) c.sphere=fb; if(!c.due&&c.kind!=='wait') c.due=c.kind==='small'||c.priority===1?today():null; return c; }));
-  S.onboarded=true; ui.D=null; ui.reob=false; ui.tab='today'; save(true); render(); loadCalendar(); window.scrollTo(0,0);
+  S.tasks.push(...D.tasks.filter(t=>!t._skip).map(t=>{ const c={...t}; delete c._skip; if(!ids.has(c.sphere)) c.sphere=fb; return c; }));
+  const firstTime=!S.tourDone; S.onboarded=true; ui.D=null; ui.reob=false; ui.tab='today'; save(true); render(); loadCalendar(); window.scrollTo(0,0); if(firstTime) setTimeout(()=>tourSheet(0),400);
   toast('Готово! Добавь иконку: Поделиться → На экран Домой', null, true);
 }
 
@@ -925,7 +949,7 @@ function viewAssist(){
   // chat
   const msgs=arr(S.chat).slice(-12);
   h+='<section class="card block" aria-labelledby="h-chat"><h2 id="h-chat" style="font-size:22px">Спроси меня</h2><p class="muted" style="margin:0;font-size:13.5px">Я знаю твои дела, цели и всё, что ты рассказала о себе. Спроси, с чего начать день, как разгрузить неделю, что подготовить к встрече.</p>';
-  if(msgs.length) h+='<div class="chat" role="log" aria-live="polite">'+msgs.map(m=>'<div class="msg '+(m.role==='user'?'me':'ai')+'">'+esc(m.content)+'</div>').join('')+(assist.busy?'<div class="msg ai" id="ai-stream">'+esc(assist.stream||'Думаю…')+'</div>':'')+'</div>';
+  if(msgs.length) h+='<div class="chat" role="log" aria-live="polite">'+msgs.map(m=>'<div class="msg '+(m.role==='user'?'me':'ai')+'">'+(m.role==='user'?esc(m.content):md(m.content))+'</div>').join('')+(assist.busy?'<div class="msg ai" id="ai-stream">'+esc(assist.stream||'Думаю…')+'</div>':'')+'</div>';
   else if(assist.busy) h+='<div class="chat"><div class="msg ai" id="ai-stream">'+esc(assist.stream||'Думаю…')+'</div></div>';
   if(!msgs.length && !assist.busy) h+='<div class="row wrap">'+['С чего начать сегодня?','Как разгрузить эту неделю?','Что я давно откладываю?','Помоги спланировать завтра'].map(q=>'<button class="chip" data-act="ask-q" data-v="'+esc(q)+'">'+esc(q)+'</button>').join('')+'</div>';
   if(assist.err) h+='<p role="alert" style="margin:0;color:var(--warn);font-weight:600">'+esc(assist.err)+'</p>';
@@ -1132,6 +1156,7 @@ function viewProfile(){
   h+='<section class="card block"><h2 style="font-size:22px">Привычки</h2>'+(S.habits.length?S.habits.map(hb=>'<div class="habit"><span style="font-weight:600">'+esc(hb.name)+'</span><button class="btn ghost" data-act="hab-del" data-id="'+esc(hb.id)+'">Убрать</button></div>').join(''):'<div class="empty">Пока нет привычек.</div>')+'<div class="row"><input type="text" id="pf-hab" placeholder="Новая привычка" aria-label="Новая привычка"><button class="btn" data-act="hab-add" style="flex:none">Добавить</button></div></section>';
   h+='<button class="btn primary block-btn" data-act="pf-save">Сохранить профиль</button>';
   h+='<section class="card block"><h2 style="font-size:22px">Иконка на iPhone</h2><ol style="margin:0;padding-left:20px;line-height:1.7"><li>Открой сайт Ритма в Safari.</li><li>Нажми «Поделиться» внизу экрана.</li><li>Выбери «На экран Домой» → «Добавить».</li></ol><p class="muted" style="font-size:13px;margin:0">Данные хранятся в твоём аккаунте: на телефоне и компьютере одни и те же дела.</p><button class="btn" data-act="sign-out">Выйти из аккаунта</button></section>';
+  h+='<section class="card block"><h2 style="font-size:22px">Как пользоваться Ритмом</h2><p class="muted" style="margin:0">Короткое знакомство: что умеет приложение и куда нажимать.</p><button class="btn" data-act="tour" data-v="0">Показать знакомство</button></section>';
   h+='<section class="card block"><h2 style="font-size:22px">Порядок</h2><button class="btn" data-act="clean-done">Убрать сделанные старше 30 дней</button></section>';
   return h+'</div>';
 }
@@ -1402,6 +1427,8 @@ document.addEventListener('click', async e=>{
     case 'ask-all': askDate(S.tasks.filter(x=>!x.done&&!x.due&&x.kind!=='wait').map(x=>x.id)); break;
     case 'conn-load': if(ui.tab==='me') pfCollect(); else obCollect(); loadCalList(); break;
     case 'conn-cal': { if(ui.tab==='me') pfCollect(); else obCollect(); const i=S.calendars.indexOf(v); if(i>=0){ if(S.calendars.length>1) S.calendars.splice(i,1); else { toast('Оставь хотя бы один календарь'); break; } } else S.calendars.push(v); save(); render(); loadCalendar(true); break; }
+    case 'tour': tourSheet(Number(v)); break;
+    case 'tour-end': S.tourDone=true; save(); closeSheet(); break;
     case 'view': ui.view=b.getAttribute('data-v'); try{ localStorage.setItem('ritm-view', ui.view); }catch(_){} render(); break;
     case 'wk': ui.week=(ui.week||0)+Number(b.getAttribute('data-v')); render(); break;
     case 'day-open': ui.view='day'; ui.day=b.getAttribute('data-v'); try{ localStorage.setItem('ritm-view','day'); }catch(_){} render(); window.scrollTo(0,0); break;
@@ -1556,6 +1583,7 @@ new MutationObserver(()=>ensureMics()).observe(document.body,{childList:true,sub
   }
   if(!(ui.D && ui.ob>0)) render();
   if(S.onboarded) loadCalendar();
+  if(S.onboarded && !S.tourDone && !(ui.D)) setTimeout(()=>tourSheet(0),800);
   document.addEventListener('visibilitychange', ()=>{
     if(document.visibilityState==='hidden'){ if(saveT) flush(); }
     else { pull(); if(S.onboarded) loadCalendar(); }
