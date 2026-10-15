@@ -19,6 +19,8 @@ var css = '.lg{position:fixed;inset:0;z-index:9999;background:var(--bg,#F7EFE8);
 '.lg-box .lnk{background:none;color:var(--accent,#8C4A3C);min-height:44px;font-weight:600}'+
 '.lg-box .er{color:#A5541E;font-weight:600;min-height:1.2em}'+
 '.lg-soc{display:flex;flex-direction:column;gap:10px}'+
+'.lg-pw{position:relative;display:flex}.lg-pw input{flex:1;padding-right:52px}'+
+'.lg-box .eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);min-height:44px;width:44px;background:none;color:var(--muted,#76665F);display:flex;align-items:center;justify-content:center}.lg-box .eye.on{color:var(--accent,#8C4A3C)}'+
 '.lg-box .soc{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid #DADCE0;font-weight:600}'+
 '.lg-box .soc.a{background:#000;color:#fff;border-color:#000}'+
 '.lg-box .soc.v{background:#0077FF;color:#fff;border-color:#0077FF}'+
@@ -38,30 +40,36 @@ function socialHtml(){
   return '<div class="lg-soc">'+SOCIAL.map(function(k){ var c=SOC[k]; return '<button type="button" class="soc '+c.cls+'" data-oauth="'+k+'">'+c.icon+'<span>'+c.label+'</span></button>'; }).join('')+'</div><div class="lg-or"><span>или по почте</span></div>';
 }
 function field(id, type, ph, ac, val){ return '<label for="'+id+'" class="live">'+ph+'</label><input id="'+id+'" type="'+type+'" placeholder="'+ph+'" autocomplete="'+ac+'" required'+(type==='email'?' inputmode="email"':'')+(type==='password'?' minlength="8"':'')+(val?' value="'+esc(val)+'"':'')+'>'; }
+function pfield(id, ph, ac){ return '<div class="lg-pw">'+field(id,'password',ph,ac)+'<button type="button" class="eye" data-eye="'+id+'" aria-label="Показать пароль" aria-pressed="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>'; }
 function showLogin(msg, ok){
   if(!lg){
     document.head.appendChild(el('style', {}, css));
     lg = el('div', {'class':'lg', role:'dialog', 'aria-modal':'true', 'aria-label':'Вход в Ритм'});
     document.body.appendChild(lg);
     lg.addEventListener('submit', onSubmit);
-    lg.addEventListener('click', function(e){ var o=e.target.closest('[data-oauth]'); if(o){ oauth(o.getAttribute('data-oauth'), o); return; } var t=e.target.closest('[data-lg]'); if(t){ step=t.getAttribute('data-lg'); showLogin(); } });
+    lg.addEventListener('click', function(e){ var ey=e.target.closest('[data-eye]'); if(ey){ var i=lg.querySelector('#'+ey.getAttribute('data-eye')); var show=i.type==='password'; i.type=show?'text':'password'; ey.setAttribute('aria-pressed',show); ey.setAttribute('aria-label',show?'Скрыть пароль':'Показать пароль'); ey.classList.toggle('on',show); return; }
+      var rs=e.target.closest('[data-resend]'); if(rs){ rs.disabled=true; sb.auth.resend({ type:'signup', email: email, options:{ emailRedirectTo: HERE } }).then(function(r){ showLogin(r.error?errText(r.error):'Письмо отправлено ещё раз на '+email+'. Проверь и папку «Спам».', !r.error); }); return; }
+      var o=e.target.closest('[data-oauth]'); if(o){ oauth(o.getAttribute('data-oauth'), o); return; } var t=e.target.closest('[data-lg]'); if(t){ step=t.getAttribute('data-lg'); showLogin(); } });
   }
   var body = '<img src="icons/icon-180.png" alt=""><h1>Ритм</h1>', f='';
   if(step==='in'){
     body += '<p>Умный ассистент твоего дня.</p>';
-    f = field('lg-email','email','почта','email',email)+field('lg-pass','password','пароль','current-password')+'<button type="submit">Войти</button><button type="button" class="lnk" data-lg="up">Впервые здесь? Создать аккаунт</button><button type="button" class="lnk" data-lg="forgot">Забыла пароль</button>';
+    f = field('lg-email','email','почта','email',email)+pfield('lg-pass','пароль','current-password')+'<button type="submit">Войти</button><button type="button" class="lnk" data-lg="up">Впервые здесь? Создать аккаунт</button><button type="button" class="lnk" data-lg="forgot">Забыла пароль</button>';
   } else if(step==='up'){
     body += '<p>Создай аккаунт: почта и пароль от 8 символов. Все дела и настройки сохранятся в нём.</p>';
-    f = field('lg-email','email','почта','email',email)+field('lg-pass','password','придумай пароль','new-password')+'<button type="submit">Создать аккаунт</button><button type="button" class="lnk" data-lg="in">У меня уже есть аккаунт</button>';
+    f = field('lg-email','email','почта','email',email)+pfield('lg-pass','придумай пароль','new-password')+'<button type="submit">Создать аккаунт</button><button type="button" class="lnk" data-lg="in">У меня уже есть аккаунт</button>';
   } else if(step==='sent'){
     body += '<p>Письмо отправлено на <b>'+esc(email)+'</b>. Нажми в нём ссылку подтверждения, потом вернись сюда и войди.</p>';
-    f = '<button type="button" data-lg="in">Я подтвердила — войти</button>';
+    f = '<button type="button" data-lg="in">Я подтвердила — войти</button><button type="button" class="lnk" data-resend>Не пришло? Прислать ещё раз</button><button type="button" class="lnk" data-lg="up">Ошиблась в почте — исправить</button>';
+  } else if(step==='unconf'){
+    body += '<p>Почта <b>'+esc(email)+'</b> ещё не подтверждена. Открой письмо от Ритма и нажми ссылку. Если адрес с ошибкой — создай аккаунт заново с правильной почтой.</p>';
+    f = '<button type="button" data-resend>Прислать письмо ещё раз</button><button type="button" class="lnk" data-lg="up">Создать аккаунт с другой почтой</button><button type="button" class="lnk" data-lg="in">Я подтвердила — войти</button>';
   } else if(step==='forgot'){
     body += '<p>Пришлю ссылку, чтобы задать новый пароль.</p>';
     f = field('lg-email','email','почта','email',email)+'<button type="submit">Прислать ссылку</button><button type="button" class="lnk" data-lg="in">Назад</button>';
   } else if(step==='reset'){
     body += '<p>Придумай новый пароль.</p>';
-    f = field('lg-pass','password','новый пароль','new-password')+'<button type="submit">Сохранить пароль</button>';
+    f = pfield('lg-pass','новый пароль','new-password')+'<button type="submit">Сохранить пароль</button>';
   }
   body += ((step==='in'||step==='up')?socialHtml():'')+'<form class="lg-box" style="gap:10px">'+f+'</form><div class="er" role="alert"'+(ok?' style="color:var(--good,#2F7A55)"':'')+'>'+esc(msg)+'</div>';
   lg.innerHTML = '<div class="lg-box">'+body+'</div>';
@@ -108,7 +116,7 @@ async function onSubmit(e){
       var s = await sb.auth.getSession(); session = s.data.session;
       hideLogin(); if(session) readyResolve(session);
     }
-  }catch(x){ showLogin(errText(x)); }
+  }catch(x){ if(/not confirmed/i.test(String(x&&x.message))){ step='unconf'; showLogin(); } else showLogin(errText(x)); }
 }
 function hideLogin(){ if(lg){ lg.remove(); lg=null; } }
 
