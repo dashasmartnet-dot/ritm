@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015191604';</script>
-<script src="supabase.js?v=20261015191604"></script>
-<script src="config.js?v=20261015191604"></script>
-<script src="backend.js?v=20261015191604"></script>
+<script>window.RITM_BUILD='20261015191954';</script>
+<script src="supabase.js?v=20261015191954"></script>
+<script src="config.js?v=20261015191954"></script>
+<script src="backend.js?v=20261015191954"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -454,6 +454,22 @@ body.has-ctl .app{padding-top:68px}
 .chip.sm{min-height:40px}
 .seg button{min-height:40px}
 .muted{color:color-mix(in srgb,var(--muted) 88%,var(--ink))}
+.ob-days{gap:12px}
+.ob-day .eyebrow{margin-bottom:4px}
+.ob-task{display:flex;align-items:flex-start;gap:10px;padding:6px 0;font-weight:600;font-size:15.5px}
+.ob-task b{color:var(--accent)}
+.ob-task.off span{text-decoration:line-through;color:var(--muted)}
+.ob-more,.e-more{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--surface)}
+.ob-more summary,.e-more summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:32px}
+.ob-more summary::after,.e-more summary::after{content:'▾';color:var(--muted)}
+.ob-more[open] summary::after,.e-more[open] summary::after{content:'▴'}
+.ob-more summary::-webkit-details-marker,.e-more summary::-webkit-details-marker{display:none}
+.push-ask{display:grid;gap:14px;text-align:center;padding:8px 4px}
+.push-ico{font-size:48px;line-height:1}
+.install-steps{text-align:left;margin:0;padding-left:22px;display:grid;gap:8px;font-size:15.5px}
+.later-btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;min-height:36px;padding:0 12px;font:inherit;font-size:13px;font-weight:700;flex:none}
+.sheet-foot{position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom,0px));background:var(--bg);padding:10px 0 4px;margin-top:4px}
+.ob-progress #ob-step{transition:opacity .2s}
 </style>
 
 <style>html,body{margin:0}body{padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}</style>
@@ -752,9 +768,9 @@ function draft(){
 }
 const OB_STEPS=3;
 function renderOnboarding(){
-  const D=draft(); const st=ui.ob;
+  const D=draft(); const st=ui.ob===0?1:ui.ob;
   document.documentElement.setAttribute('data-skin', D.skin);
-  const prog='<div class="progress" aria-hidden="true">'+Array.from({length:OB_STEPS},(_,i)=>'<span class="'+(i<=st?'on':'')+'"></span>').join('')+'</div>';
+  const prog='<div class="progress" aria-hidden="true">'+[1,2].map(i=>'<span class="'+(i<=st?'on':'')+'"></span>').join('')+'</div>';
   let body='', foot='';
   if(st===0){
     body='<div class="eyebrow">Ритм · личный ассистент</div><h1>Голова свободна, дела под контролем</h1>'+
@@ -765,22 +781,26 @@ function renderOnboarding(){
     '</div>';
     foot='<span></span><button class="btn primary" data-act="ob-go1" style="min-width:60%">Дальше</button>';
   } else if(st===1){
-    body='<div class="eyebrow">Шаг 2 из 3 · Расскажи о себе</div><h2>Надиктуй всё как есть</h2>'+
-    '<div class="voice"><ul class="prompts"><li>Как тебя зовут, чем занимаешься, где работаешь</li><li>Как выглядит обычный день: подъём, работа, спорт, сон</li><li>Цели на ближайшие 3 месяца</li><li>Какие привычки хочешь держать</li><li>Что сейчас висит: дела, сроки, кто тебе что должен</li></ul>'+
-    '<label for="ob-story" class="srt">Рассказ о себе</label><textarea id="ob-story" placeholder="Например: я Дарья, руковожу продажами, работаю удалённо с 9 до 18… хочу закрыть 10 клиентов до декабря… в пятницу надо отправить договор…">'+esc(D.story)+'</textarea>'+MIC_HINT+'</div>'+
+    body='<div class="eyebrow">Ритм · голосовой ежедневник</div><h1 style="font-size:34px">Надиктуй всё, что сейчас в голове</h1>'+
+    '<p class="muted" style="font-size:16px;margin:0">Дела, планы, кто что обещал, как устроен твой день — хоть кашей. Я разложу всё по дням и запомню, что для тебя важно.</p>'+
+    '<label for="ob-story" class="srt">Что в голове</label><textarea id="ob-story" style="min-height:170px" placeholder="Например: завтра в 11 созвон с Ершовым, до пятницы отправить КП, каждый понедельник планёрка, записаться к стоматологу, хочу 3 раза в неделю спорт…">'+esc(D.story||'')+'</textarea>'+
     (D.err?'<p role="alert" style="margin:0;color:var(--warn);font-weight:600">'+esc(D.err)+'</p>':'')+
-    (D.busy?'<div class="thinking"><span class="spin"></span>Собираю твою систему… обычно до минуты</div>':'');
-    foot=(ui.reob?'<button class="btn ghost" data-act="ob-cancel">Отмена</button>':'<button class="btn ghost" data-act="ob-back">Назад</button>')+'<div class="row" style="gap:8px"><button class="btn" data-act="ob-manual" '+(D.busy?'disabled':'')+'>Заполню сама</button><button class="btn primary" data-act="ob-build" '+(D.busy?'disabled':'')+'>Собрать</button></div>';
+    (D.busy?'<div class="thinking ob-progress" role="status"><span class="spin"></span><span id="ob-step">Слушаю…</span></div>':'');
+    foot=(ui.reob?'<button class="btn ghost" data-act="ob-cancel">Отмена</button>':'<span></span>')+'<div class="row" style="gap:8px"><button class="btn" data-act="ob-manual" '+(D.busy?'disabled':'')+'>Заполню сама</button><button class="btn primary" data-act="ob-build" '+(D.busy?'disabled':'')+'>Собрать</button></div>';
   } else {
     body=reviewView(D);
-    foot='<button class="btn ghost" data-act="ob-back" '+(D.busy?'disabled':'')+'>Назад</button><button class="btn primary" data-act="ob-finish" style="min-width:55%" '+(D.busy?'disabled':'')+'>Начать день</button>';
+    foot='<button class="btn ghost" data-act="ob-back" '+(D.busy?'disabled':'')+'>Назад</button><button class="btn primary" data-act="ob-finish" style="min-width:55%" '+(D.busy?'disabled':'')+'>Начинаем</button>';
   }
   $('#app').innerHTML='<div class="ob">'+prog+'<div class="stack" style="gap:16px">'+body+'</div><div style="flex:1"></div><div class="row between">'+foot+'</div></div>';
   $('#dock').innerHTML='';
 }
 function reviewView(D){
   const mods=[['affirm','Настрой дня'],['calendar','Календарь'],['main','Главные дела'],['small','Мелочи'],['wait','Жду ответа'],['habits','Каждый день'],['evening','Итоги дня']];
-  let h='<div class="eyebrow">Шаг 3 из 3 · Проверь</div><h2>'+(D.built?'Вот что я поняла':'Настрой под себя')+'</h2>';
+  let h='<div class="eyebrow">Готово</div><h2>'+(D.built?(D.tasks.length?'Разложила '+plural(D.tasks.length,'дело','дела','дел'):'Вот что я поняла'):'Настрой под себя')+'</h2>';
+  if(D.tasks.length){ const T=today(); const grp={}; D.tasks.forEach((t,i)=>{ const k=t.due?(t.due===T?'Сегодня':t.due===addDays(T,1)?'Завтра':dayLabel(t.due)):'Без даты'; (grp[k]=grp[k]||[]).push([t,i]); });
+    const order=Object.keys(grp).sort((a,b)=>(a==='Сегодня'?0:a==='Завтра'?1:a==='Без даты'?9:5)-(b==='Сегодня'?0:b==='Завтра'?1:b==='Без даты'?9:5));
+    h+='<section class="card block ob-days">'+order.map(k=>'<div class="ob-day"><div class="eyebrow">'+esc(k)+'</div>'+grp[k].map(([t,i])=>'<div class="ob-task'+(t._skip?' off':'')+'"><button class="check sm" data-act="rv-pick" data-i="'+i+'" aria-pressed="'+(!t._skip)+'" aria-label="'+(t._skip?'Взять':'Не брать')+': '+esc(t.title)+'">'+(t._skip?'':ICON.check)+'</button><span>'+(t.time?'<b>'+esc(t.time)+'</b> ':'')+esc(t.title)+'</span></div>').join('')+'</div>').join('')+'<p class="muted" style="margin:0;font-size:13px">Сними галочку, если что-то лишнее. Поправить можно и потом.</p></section>'; }
+  h+='<details class="ob-more"><summary>Настроить имя, сферы, ритм дня и привычки</summary><div class="stack" style="gap:16px;margin-top:12px">';
   h+='<label class="f" for="rv-name">Имя<input id="rv-name" type="text" autocomplete="given-name" value="'+esc(D.name)+'"></label>';
   if(D.goals.length) h+='<section class="card block"><div class="eyebrow">Цели</div>'+D.goals.map(g=>'<div class="goal">'+esc(g)+'</div>').join('')+'</section>';
   h+='<section class="card block"><div class="eyebrow">Сферы жизни</div><p class="muted" style="margin:0;font-size:13px">Рабочие сферы попадут во вкладку «Работа» и в режим «Сейчас работаю».</p>'+
@@ -792,7 +812,8 @@ function reviewView(D){
   h+='<section class="card block"><div class="eyebrow">Привычки</div><div class="row wrap">'+ideas.map(n=>'<button class="chip" data-act="rv-hab" data-v="'+esc(n)+'" aria-pressed="'+habitSet.has(n)+'">'+esc(n)+'</button>').join('')+'</div><div class="row"><input type="text" id="rv-hab-new" placeholder="Своя привычка" aria-label="Своя привычка"><button class="btn" data-act="rv-hab-add" style="flex:none">Добавить</button></div></section>';
   h+=connView();
   h+='<section class="card block"><div class="eyebrow">Блоки экрана «Сегодня»</div><div class="row wrap">'+mods.map(([k,n])=>'<button class="chip" data-act="rv-mod" data-k="'+k+'" aria-pressed="'+!!D.modules[k]+'">'+n+'</button>').join('')+'</div></section>';
-  h+='<section class="block"><div class="eyebrow">Первые дела</div>'+(D.tasks.length?confirmList(D.tasks,'rv',D.spheres):'<div class="card empty">Дел пока нет. Их можно надиктовать ниже или позже на главном экране.</div>')+'</section>';
+  h+='</div></details>';
+  if(!D.tasks.length) h+='<section class="block"><div class="eyebrow">Первые дела</div>'+(D.tasks.length?confirmList(D.tasks,'rv',D.spheres):'<div class="card empty">Дел пока нет. Их можно надиктовать ниже или позже на главном экране.</div>')+'</section>';
   h+='<section class="voice"><label class="f" for="rv-fix" style="color:var(--ink)">Поправить или добавить голосом</label><textarea id="rv-fix" style="min-height:110px" placeholder="Например: подъём в 7, добавь сферу «Реактор» в работу, ещё дело — оплатить интернет до 20-го">'+esc(D.fix)+'</textarea>'+MIC_HINT+
     (D.err?'<p role="alert" style="margin:0;color:var(--warn);font-weight:600">'+esc(D.err)+'</p>':'')+
     (D.busy?'<div class="thinking"><span class="spin"></span>Применяю…</div>':'<button class="btn" data-act="ob-fix">Применить</button>')+'</section>';
@@ -839,6 +860,7 @@ async function obBuild(fix){
   if(fix && !D.fix.trim()) return;
   if(!cap.sample){ D.err='Помощник ИИ недоступен на этой странице. Заполни вручную — это тоже быстро.'; if(!fix){ ui.ob=2; } render(); return; }
   D.busy=true; D.err=''; const token=++D.token; render();
+  { const msgs=fix?['Применяю…']:['Слушаю…','Ищу дела…','Раскладываю по дням…','Собираю сферы и ритм…','Почти готово…']; let k=0; clearInterval(window.__obT); window.__obT=setInterval(()=>{ k=Math.min(k+1,msgs.length-1); const el=document.getElementById('ob-step'); if(el) el.textContent=msgs[k]; if(!ui.D||!ui.D.busy) clearInterval(window.__obT); }, 2200); }
   try{
     const r=await cap.sample.json(systemPrompt(D, D.story, fix?D.fix:''),{modelTier:'default',cache:false});
     if(token!==D.token || ui.D!==D) return;
@@ -878,10 +900,8 @@ const TOUR=[
 const COACH=[
   ['#cap-form','Говори сюда — это главное','Микрофон внизу делает всё: надиктуй дела (разберу и спрошу день), скажи «удали…», «перенеси… на пятницу», «сделала…» или спроси «что у меня завтра?».'],
   ['[data-act=tab][data-v=tasks]','Дела: планирование','День, неделя и месяц как в бумажном ежедневнике, плюс список. Зажми дело и перетащи на другой день или в корзину.'],
-  ['#h-tasks','Дела на сегодня','Здесь только сегодняшнее. Кружок — сделано. Нажми на дело — изменить. Зажми или смахни влево — перенести и удалить.'],
-  ['[data-act=tab][data-v=ai]','Ассистент','Знает твои дела и жизнь. Спроси совета — он сам предложит изменения, ты нажмёшь «Сделать».'],
+  ['#h-tasks','Дела на сегодня','Здесь только сегодняшнее. Кружок — сделано. Нажми на дело — откроется меню: на завтра, перенести, время, удалить, изменить.'],
   ['[data-act=tab][data-v=dyn]','Обо мне','Работа и жизнь: проекты, приоритеты, люди, важные даты. Из этого Ритм планирует. Дополняй голосом, когда есть минута.'],
-  ['[data-act=tab][data-v=me]','Профиль','Цвета сфер, ритм дня, напоминания на телефон, «Начать заново». Здесь же можно снова посмотреть это знакомство.']
 ];
 function coachEnd(){ const c=document.getElementById('coach'); if(c) c.remove(); S.tourDone=true; S.tourV=3; save(); }
 function coach(i){
@@ -928,8 +948,7 @@ function obFinish(){
   S.habits=D.habits.map(n=>({id:keepH.get(n)||'h-'+uid(),name:n}));
   S.tasks.forEach(t=>{ if(!sphere(t.sphere)) t.sphere=fb; });
   S.tasks.push(...D.tasks.filter(t=>!t._skip).map(t=>{ const c={...t}; delete c._skip; if(!ids.has(c.sphere)) c.sphere=fb; return c; }));
-  const firstTime=!S.tourDone; S.onboarded=true; ui.D=null; ui.reob=false; ui.tab='today'; save(true); render(); loadCalendar(); window.scrollTo(0,0); if(firstTime||(S.tourV||0)<3) setTimeout(()=>coach(0),500);
-  toast('Готово! Добавь иконку: Поделиться → На экран Домой', null, true);
+  const firstTime=!S.tourDone; S.onboarded=true; ui.D=null; ui.reob=false; ui.tab='today'; save(true); render(); loadCalendar(); window.scrollTo(0,0); setTimeout(()=>pushAsk(firstTime||(S.tourV||0)<3),450);
 }
 
 /* ---------- main render ---------- */
@@ -967,9 +986,9 @@ function taskRow(t){
   const stuck=isStuck(t)?'<span class="pill warn">залипло</span>':'';
   const pr = t.priority===1&&!t.done?'<span class="pill">важно</span>':'';
   const id=esc(t.id), title=esc(t.title);
-  return '<div class="sw" data-sw="'+id+'"><div class="sw-act" aria-hidden="true"><button tabindex="-1" data-act="mv-open" data-id="'+id+'">Перенести</button><button tabindex="-1" class="del" data-act="sw-del" data-id="'+id+'">Удалить</button></div><div class="task'+(t.done?' done':'')+(t.time?' timed':'')+(sphColor(t)?' has-c':'')+'"'+cStyle(t)+'><button class="check" data-act="done" data-id="'+id+'" aria-pressed="'+!!t.done+'" aria-label="'+(t.done?'Вернуть в работу':'Сделано')+': '+title+'">'+(t.done?ICON.check:'')+'</button>'+(t.time?'<span class="t-time">'+esc(t.time)+'</span>':'')+
-    '<button class="task-main" data-act="edit" data-id="'+id+'" aria-label="Изменить: '+title+'"><div class="task-title">'+title+'</div>'+notePrev(t)+'<div class="meta">'+meta.join('')+'</div></button>'+
-    '<div class="row" style="gap:4px;flex:none">'+pr+stuck+(t.done?'':'<button class="icon-btn" data-act="later" data-id="'+id+'" aria-label="На завтра: '+title+'" title="На завтра">'+ICON.later+'</button>')+'</div></div></div>';
+  return '<div class="sw" data-sw="'+id+'"><div class="sw-act" aria-hidden="true"><button tabindex="-1" data-act="later" data-id="'+id+'">Завтра</button><button tabindex="-1" class="del" data-act="sw-del" data-id="'+id+'">Удалить</button></div><div class="task'+(t.done?' done':'')+(t.time?' timed':'')+(sphColor(t)?' has-c':'')+'"'+cStyle(t)+'><button class="check" data-act="done" data-id="'+id+'" aria-pressed="'+!!t.done+'" aria-label="'+(t.done?'Вернуть в работу':'Сделано')+': '+title+'">'+(t.done?ICON.check:'')+'</button>'+(t.time?'<span class="t-time">'+esc(t.time)+'</span>':'')+
+    '<button class="task-main" data-act="mv-open" data-id="'+id+'" aria-label="Действия: '+title+'"><div class="task-title">'+title+'</div>'+notePrev(t)+'<div class="meta">'+meta.join('')+'</div></button>'+
+    '<div class="row" style="gap:4px;flex:none">'+pr+stuck+(t.done?'':'<button class="later-btn" data-act="later" data-id="'+id+'" aria-label="Перенести на завтра: '+title+'">Завтра</button>')+'</div></div></div>';
 }
 function greeting(){ const h=new Date().getHours(); return h<5?'Доброй ночи':h<12?'Доброе утро':h<18?'Добрый день':'Добрый вечер'; }
 function affirmation(){ const t=today(); if(S.affirm[t]) return S.affirm[t]; const [y,m,d]=t.split('-').map(Number); const n=Math.floor(Date.UTC(y,m-1,d)/86400000); return AFFIRMS[(n*263+41)%AFFIRMS.length]; }
@@ -1098,7 +1117,7 @@ function moveSheet(id){
   const r=x.recurId&&findRecur(x.recurId);
   openSheet('<div class="row between"><h2 id="sheet-h">Дело</h2><button class="btn ghost" data-act="close-sheet">Закрыть</button></div>'+
     '<p style="margin:0;font-weight:650;font-size:18px">'+esc(x.title)+'</p>'+(x.note?'<p class="muted" style="margin:0;font-size:14px;white-space:pre-line">'+esc(x.note)+'</p>':'')+(r?'<p class="muted" style="margin:0;font-size:13px">↻ '+esc(repText(r))+'</p>':'')+
-    '<button class="btn primary block-btn" data-act="mv-done" data-id="'+esc(id)+'">'+(x.done?'Вернуть в работу':'✓ Сделано')+'</button>'+
+    '<div class="grid2"><button class="btn primary" data-act="mv-done" data-id="'+esc(id)+'">'+(x.done?'Вернуть':'✓ Сделано')+'</button>'+(x.done?'<span></span>':'<button class="btn" data-act="mv-later" data-id="'+esc(id)+'">На завтра</button>')+'</div>'+
     '<div class="eyebrow">Перенести на день</div><div class="row wrap">'+chips+'</div>'+
     '<div class="eyebrow">Время</div><div class="row" style="gap:6px"><button class="btn tstep" data-act="mv-tstep" data-v="-30" aria-label="На 30 минут раньше">−30</button><button class="btn tstep" data-act="mv-tstep" data-v="-15" aria-label="На 15 минут раньше">−15</button><input id="mv-time" type="time" lang="ru" value="'+esc(x.time||'')+'" aria-label="Время" style="flex:1;min-width:0"><button class="btn tstep" data-act="mv-tstep" data-v="15" aria-label="На 15 минут позже">+15</button><button class="btn tstep" data-act="mv-tstep" data-v="30" aria-label="На 30 минут позже">+30</button></div><button class="btn block-btn" data-act="mv-time" data-id="'+esc(id)+'">Поставить время</button>'+
     (x.time?'<div class="eyebrow">Напомнить пушем</div>'+remChips(x):'')+
@@ -1885,6 +1904,17 @@ function addHabits(text){
   add.forEach(n=>S.habits.push({id:'h-'+uid(),name:n.slice(0,80)}));
   if(add.length){ haptic(); save(); render(); scheduleBrief(); toast('Каждый день: '+add.join(', ')); const x=$('#hab-new'); if(x) x.focus(); }
 }
+function pushAsk(thenCoach){
+  ui.afterPush=thenCoach;
+  const st=cap.pushState||(window.RITM_PUSH?'off':'none');
+  if(st==='on'||st==='none'||st==='unsupported'||st==='denied'){ if(thenCoach) coach(0); return; }
+  const first=dayTasks(today(),false).concat(S.tasks.filter(x=>!x.done&&x.time&&x.due>today())).find(x=>x.time);
+  let h='<div class="push-ask"><div class="push-ico" aria-hidden="true">🔔</div><h2 id="sheet-h">Напоминать тебе?</h2>';
+  h+='<p style="margin:0;font-size:16px;line-height:1.45">Утром в '+esc(S.rhythm.brief)+' пришлю план на день'+(first?', а за час до «'+esc(first.title.slice(0,40))+'» — напоминание':', а за час до важных дел — напоминание')+'. Даже когда Ритм закрыт.</p>';
+  if(st==='need-install') h+='<ol class="install-steps"><li>Нажми <b>«Поделиться»</b> внизу Safari <span aria-hidden="true">⬆︎</span></li><li>Выбери <b>«На экран Домой»</b> → «Добавить»</li><li>Открой Ритм <b>с иконки</b> — и включи здесь напоминания</li></ol><p class="muted" style="margin:0;font-size:13px">iPhone присылает уведомления только приложениям с экрана «Домой».</p><button class="btn primary block-btn" data-act="push-later">Понятно</button>';
+  else h+='<button class="btn primary block-btn" data-act="push-on">Включить напоминания</button><button class="btn ghost block-btn" data-act="push-later">Позже</button>';
+  openSheet(h+'</div>');
+}
 function ctlBtn(){
   let el=document.getElementById('ctl-fab');
   const show=false;
@@ -2023,19 +2053,18 @@ function editSheet(id){
   const sphOpts=S.spheres.map(s=>'<option value="'+esc(s.id)+'"'+(s.id===t.sphere?' selected':'')+'>'+esc(s.name)+'</option>').join('')+(sphere(t.sphere)||!t.sphere?'':'<option value="'+esc(t.sphere)+'" selected>— без сферы —</option>');
   openSheet('<div class="row between"><h2 id="sheet-h">'+(isNew?'Новое дело':'Дело')+'</h2><button class="btn ghost" data-act="close-sheet">Закрыть</button></div>'+
     '<label class="f" for="e-title">Что сделать<textarea id="e-title" style="min-height:60px">'+esc(t.title)+'</textarea></label>'+
-    '<label class="f" for="e-note">Подробности<textarea id="e-note" style="min-height:60px">'+esc(t.note||'')+'</textarea></label>'+
+    '<div class="eyebrow">Когда</div><div class="row wrap" style="gap:6px"><button class="chip sm" data-act="e-quick" data-v="0">Сегодня</button><button class="chip sm" data-act="e-quick" data-v="1">Завтра</button><button class="chip sm" data-act="e-quick" data-v="7">Через неделю</button><button class="chip sm" data-act="e-quick" data-v="none">Без срока</button></div>'+
+    '<div class="grid2"><label class="f" for="e-due">Дата<input id="e-due" type="date" lang="ru" value="'+esc(t.due||'')+'"></label>'+
+    '<label class="f" for="e-time">Время<input id="e-time" type="time" lang="ru" value="'+esc(t.time||'')+'"></label></div>'+
+    '<label class="f" for="e-remind">Напомнить<select id="e-remind">'+REM_OPTS.map(([n,l])=>'<option value="'+n+'"'+(((t.remind!=null?Number(t.remind):(Number(S.rhythm.remind)||60))===n)?' selected':'')+'>'+l+'</option>').join('')+'</select></label>'+
+    '<details class="e-more"><summary>Ещё: описание, сфера, тип, повтор</summary><div class="stack" style="gap:12px;margin-top:10px">'+
+    '<label class="f" for="e-note">Описание<textarea id="e-note" style="min-height:60px">'+esc(t.note||'')+'</textarea></label>'+
     '<div class="grid2"><label class="f" for="e-sph">Сфера<select id="e-sph">'+sphOpts+'</select></label>'+
-    '<label class="f" for="e-due">Срок<input id="e-due" type="date" lang="ru" value="'+esc(t.due||'')+'"></label>'+
-    '<label class="f" for="e-time">Время<input id="e-time" type="time" lang="ru" value="'+esc(t.time||'')+'"></label>'+
-    '<span></span>'+
     '<label class="f" for="e-kind">Тип<select id="e-kind"><option value="main"'+(t.kind==='main'?' selected':'')+'>Главное</option><option value="small"'+(t.kind==='small'?' selected':'')+'>Мелочь</option><option value="wait"'+(t.kind==='wait'?' selected':'')+'>Жду от другого</option></select></label>'+
-    '<label class="f" for="e-pr">Важность<select id="e-pr"><option value="1"'+(t.priority===1?' selected':'')+'>Высокая</option><option value="2"'+(t.priority===2?' selected':'')+'>Средняя</option><option value="3"'+(t.priority===3?' selected':'')+'>Низкая</option></select></label>'+
     '<label class="f" for="e-est">Минут на дело<input id="e-est" type="number" inputmode="numeric" min="5" max="480" value="'+esc(t.est||30)+'"></label>'+
-    '<label class="f" for="e-who">От кого жду<input id="e-who" type="text" value="'+esc(t.who||'')+'" placeholder="Если тип «Жду»"></label></div>'+
-    '<div class="row wrap"><button class="chip" data-act="e-quick" data-v="0">Сегодня</button><button class="chip" data-act="e-quick" data-v="1">Завтра</button><button class="chip" data-act="e-quick" data-v="7">Через неделю</button><button class="chip" data-act="e-quick" data-v="none">Без срока</button></div>'+
-    '<div class="eyebrow">Повторять</div><div id="e-rep">'+repChips()+'</div>'+
-    '<label class="f" for="e-remind">Напомнить пушем<select id="e-remind">'+REM_OPTS.map(([n,l])=>'<option value="'+n+'"'+(((t.remind!=null?Number(t.remind):(Number(S.rhythm.remind)||60))===n)?' selected':'')+'>'+l+'</option>').join('')+'</select></label>'+
-    '<button class="btn primary block-btn" data-act="e-save" data-id="'+esc(t.id)+'" data-new="'+isNew+'">Сохранить</button>'+
+    '<label class="f" for="e-who">От кого жду<input id="e-who" type="text" value="'+esc(t.who||'')+'" placeholder="Если «Жду»"></label></div>'+
+    '<div class="eyebrow">Повторять</div><div id="e-rep">'+repChips()+'</div></div></details>'+
+    '<div class="sheet-foot"><button class="btn primary block-btn" data-act="e-save" data-id="'+esc(t.id)+'" data-new="'+isNew+'">Сохранить</button></div>'+
     (isNew?'':'<div id="del-zone">'+delBtn(t.id)+'</div>'));
 }
 const delBtn = id => '<button class="btn danger block-btn" data-act="e-del" data-id="'+esc(id)+'">Удалить дело</button>';
@@ -2063,7 +2092,7 @@ function applyRepeat(t, rule){
 function saveEdit(id,isNew){
   const title=$('#e-title').value.trim(); if(!title){ $('#e-title').focus(); return; }
   const time=($('#e-time')||{}).value||null; const wantRem=!($('#e-remind')&&Number($('#e-remind').value)===-1);
-  const remSel=$('#e-remind'); const data={remind:remSel?Number(remSel.value):undefined, title, time, note:(($('#e-note')||{}).value||'').trim()||null, sphere:$('#e-sph').value, due:$('#e-due').value||null, kind:$('#e-kind').value, priority:Number($('#e-pr').value), est:Math.max(5,Math.min(480,Number($('#e-est').value)||30)), who:$('#e-who').value.trim()||null};
+  const t0p=(findTask(id)||{}).priority||2; const remSel=$('#e-remind'); const data={remind:remSel?Number(remSel.value):undefined, title, time, note:(($('#e-note')||{}).value||'').trim()||null, sphere:$('#e-sph').value, due:$('#e-due').value||null, kind:$('#e-kind').value, priority:$('#e-pr')?Number($('#e-pr').value):(t0p), est:Math.max(5,Math.min(480,Number($('#e-est').value)||30)), who:$('#e-who').value.trim()||null};
   if(isNew) S.tasks.push({id,done:false,created:Date.now(),postponed:0,source:'manual',...data});
   else { const t=findTask(id); if(!t){ closeSheet(); toast('Это дело уже удалено'); render(); return; } Object.assign(t,data); }
   { const tt=findTask(id); if(tt) applyRepeat(tt, erepRule(tt.due)); }
@@ -2234,6 +2263,7 @@ document.addEventListener('click', async e=>{
     case 'mv-open': if(window.__ritmDragEnd && Date.now()-window.__ritmDragEnd<400) break; moveSheet(id); break;
     case 'sw-del': case 'mv-del': closeSheet(); deleteWithUndo(id); break;
     case 'mv-done': closeSheet(); toggleDone(id); break;
+    case 'mv-later': closeSheet(); postpone(id); break;
     case 'rem-set': { const x=findTask(id); if(!x) break; x.remind=Number(v); x.reminded=false; save(); const z=document.querySelector('.sheet [data-act=rem-set]'); if(z){ const wrap=z.closest('.row'); if(wrap&&wrap.parentNode){ const tmp=document.createElement('div'); tmp.innerHTML=remChips(x); wrap.nextElementSibling&&wrap.nextElementSibling.tagName==='P'&&wrap.nextElementSibling.remove(); wrap.replaceWith(...tmp.childNodes); } } if(cap.push||cap.mcp){ const ok=await createReminder(x,true); toast(x.remind===-1?'Напоминать не буду':ok?'Напомню '+REM_OPTS.find(o=>o[0]===x.remind)[1]:'Время уже прошло — напоминание не нужно'); } else toast('Включи напоминания в Профиле — и пуш придёт'); break; }
     case 'slot': slotSheet(b.getAttribute('data-day'), Number(v)); break;
     case 'slot-set': { const x=findTask(id); closeSheet(); if(x) setTaskTime(x, b.getAttribute('data-day'), v); break; }
@@ -2244,7 +2274,8 @@ document.addEventListener('click', async e=>{
     case 'take-today': { const x=findTask(id); if(x){ x.due=today(); save(); render(); toast('Взяла на сегодня: '+x.title); } break; }
     case 'go-ask': ui.tab='ai'; render(); askAssistant(v); break;
     case 'mv-set': closeSheet(); moveTask(id, b.getAttribute('data-v')); break;
-    case 'push-on': { b.disabled=true; b.textContent='Секунду…'; try{ await window.RITM_PUSH.enable(); cap.pushState='on'; cap.push=true; toast('Напоминания включены ✓'); scheduleBrief(); const fut=S.tasks.filter(x=>!x.done&&x.due&&x.time&&x.due>=today()); for(const x of fut) await createReminder(x,true); }catch(e){ cap.pushState=(e&&e.code==='denied')?'denied':'off'; toast(cap.pushState==='denied'?'Уведомления не разрешены. Настройки iPhone → Уведомления → Ритм.':'Не получилось включить. Открой Ритм с иконки на экране «Домой» и попробуй ещё раз.', null, true); } render(); break; }
+    case 'push-later': closeSheet(); if(ui.afterPush){ ui.afterPush=false; setTimeout(()=>coach(0),250); } break;
+    case 'push-on': { b.disabled=true; b.textContent='Секунду…'; try{ await window.RITM_PUSH.enable(); cap.pushState='on'; cap.push=true; toast('Напоминания включены ✓'); scheduleBrief(); if(b.closest('.push-ask')){ closeSheet(); if(ui.afterPush){ ui.afterPush=false; setTimeout(()=>coach(0),300); } } const fut=S.tasks.filter(x=>!x.done&&x.due&&x.time&&x.due>=today()); for(const x of fut) await createReminder(x,true); }catch(e){ cap.pushState=(e&&e.code==='denied')?'denied':'off'; toast(cap.pushState==='denied'?'Уведомления не разрешены. Настройки iPhone → Уведомления → Ритм.':'Не получилось включить. Открой Ритм с иконки на экране «Домой» и попробуй ещё раз.', null, true); } render(); break; }
     case 'push-test': { b.disabled=true; try{ const n=await window.RITM_PUSH.test(); toast(n?'Отправила — уведомление придёт через пару секунд':'Не нашла телефон для уведомлений. Нажми «Включить напоминания» ещё раз.', null, !n); if(!n){ cap.pushState='off'; cap.push=false; render(); } }catch(e){ toast('Не получилось отправить. Попробуй ещё раз.', null, true); } b.disabled=false; break; }
     case 'conn-test': { const d=new Date(Date.now()+3*60000); const t={id:'test',title:'Проверка напоминания из Ритма',due:dstr(d),time:pad(d.getHours())+':'+pad(d.getMinutes())}; b.disabled=true; const prev=S.rhythm.remind; const input={summary:'‼️ '+t.title,startTime:t.due+'T'+t.time+':00',endTime:addMin(t.due,t.time,15),description:'Тест из Ритма. Можно удалить.',overrideReminders:[{method:'popup',minutes:1}]}; if(S.remindCal&&S.remindCal!=='primary') input.calendarId=S.remindCal; if(!cap.mcp){ toast('Google Календарь подключим следующим шагом.'); b.disabled=false; break; } try{ await cap.mcp.callTool('Google Calendar','create_event',input,{cache:false}); toast('Тестовое событие на '+t.time+' создано. Уведомление придёт через ~2 минуты.', null, true); }catch(err){ toast('Не получилось создать тест. Проверь подключение календаря.', null, true); } b.disabled=false; break; }
     case 'meeting': meetingSheet(); break;
@@ -2277,7 +2308,7 @@ document.addEventListener('click', async e=>{
     /* onboarding */
     case 'ob-skin': obCollect(); D.skin=v; render(); break;
     case 'ob-go1': obCollect(); ui.ob=1; render(); window.scrollTo(0,0); break;
-    case 'ob-back': obCollect(); D.err=''; ui.ob=Math.max(0,ui.ob-1); render(); break;
+    case 'ob-back': obCollect(); D.err=''; ui.ob=Math.max(1,ui.ob-1); render(); break;
     case 'ob-cancel': ui.D=null; ui.reob=false; S.onboarded=true; ui.tab='today'; render(); break;
     case 'ob-build': obBuild(false); break;
     case 'ob-manual': obCollect(); D.err=''; D.built=false; ui.ob=2; render(); window.scrollTo(0,0); break;
