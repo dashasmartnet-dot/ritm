@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015190849';</script>
-<script src="supabase.js?v=20261015190849"></script>
-<script src="config.js?v=20261015190849"></script>
-<script src="backend.js?v=20261015190849"></script>
+<script>window.RITM_BUILD='20261015191604';</script>
+<script src="supabase.js?v=20261015191604"></script>
+<script src="config.js?v=20261015191604"></script>
+<script src="backend.js?v=20261015191604"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -892,13 +892,19 @@ function coach(i){
   let el=document.querySelector(sel); if(el&&sel==='#h-tasks') el=el.closest('section')||el;
   if(!el){ coach(i+1); return; }
   const fixed=getComputedStyle(el.closest('#dock,#ctl-fab')||el).position==='fixed'||!!el.closest('#dock');
-  if(!fixed) el.scrollIntoView({block:'center'});
+  const safeTop=parseFloat(getComputedStyle(document.body).paddingTop)||0;
+  if(!fixed){ const r0=el.getBoundingClientRect(); if(r0.height>innerHeight*0.4){ window.scrollBy(0, r0.top-safeTop-16); } else el.scrollIntoView({block:'center'}); }
   setTimeout(()=>{
-    const r=el.getBoundingClientRect(); const pad=8;
+    const r=el.getBoundingClientRect(); const pad=8, CH=250;
     let c=document.getElementById('coach'); if(!c){ c=document.createElement('div'); c.id='coach'; document.body.appendChild(c); }
-    const below=r.top+r.height/2<innerHeight/2;
-    const hole='left:'+(r.left-pad)+'px;top:'+(r.top-pad)+'px;width:'+(r.width+pad*2)+'px;height:'+(Math.min(r.height,innerHeight*0.5)+pad*2)+'px';
-    c.innerHTML='<div class="coach-hole" style="'+hole+'"></div><div class="coach-card" role="dialog" aria-modal="true" aria-labelledby="coach-h" style="'+(below?'top:'+Math.min(innerHeight-240,r.top+Math.min(r.height,innerHeight*0.5)+pad+14)+'px':'bottom:'+Math.max(12,innerHeight-r.top+pad+14)+'px')+'"><div class="row between"><span class="muted" style="font-size:12.5px">'+(i+1)+' из '+COACH.length+'</span><button class="btn ghost" data-act="coach-end" style="min-height:36px">Пропустить</button></div><h2 id="coach-h" style="font-size:24px">'+esc(title)+'</h2><p style="margin:0;font-size:15.5px;line-height:1.45">'+esc(text)+'</p><div class="row wrap">'+(i>0?'<button class="btn" data-act="coach" data-v="'+(i-1)+'">Назад</button>':'')+'<button class="btn primary" data-act="coach" data-v="'+(i+1)+'">'+(i===COACH.length-1?'Понятно, начинаю':'Дальше')+'</button></div></div>';
+    const hTop=Math.max(safeTop+4, r.top), hH=Math.min(r.bottom-hTop, innerHeight*0.42);
+    const below=innerHeight-(hTop+hH), above=hTop-safeTop;
+    let pos;
+    if(below>=CH+24) pos='top:'+Math.round(hTop+hH+pad+12)+'px';
+    else if(above>=CH+24) pos='bottom:'+Math.round(innerHeight-hTop+pad+12)+'px';
+    else pos='bottom:'+Math.round(12+(parseFloat(getComputedStyle(document.body).paddingBottom)||0))+'px';
+    const hole='left:'+(r.left-pad)+'px;top:'+(hTop-pad)+'px;width:'+(r.width+pad*2)+'px;height:'+(hH+pad*2)+'px';
+    c.innerHTML='<div class="coach-hole" style="'+hole+'"></div><div class="coach-card" role="dialog" aria-modal="true" aria-labelledby="coach-h" style="'+pos+'"><div class="row between"><span class="muted" style="font-size:12.5px">'+(i+1)+' из '+COACH.length+'</span><button class="btn ghost" data-act="coach-end" style="min-height:36px">Пропустить</button></div><h2 id="coach-h" style="font-size:24px">'+esc(title)+'</h2><p style="margin:0;font-size:15.5px;line-height:1.45">'+esc(text)+'</p><div class="row wrap">'+(i>0?'<button class="btn" data-act="coach" data-v="'+(i-1)+'">Назад</button>':'')+'<button class="btn primary" data-act="coach" data-v="'+(i+1)+'">'+(i===COACH.length-1?'Понятно, начинаю':'Дальше')+'</button></div></div>';
     const btn=c.querySelector('.btn.primary'); if(btn) btn.focus();
   }, fixed?30:260);
 }
@@ -947,6 +953,7 @@ function renderDock(){
     '<nav class="tabs" aria-label="Разделы">'+tabs.map(([k,n,i])=>'<button data-act="tab" data-v="'+k+'" '+(ui.tab===k?'aria-current="page"':'')+'>'+ICON[i]+'<span>'+n+'</span></button>').join('')+'</nav>'+
   '</div></div>';
   if(foc){ const n=$('#cap-in'); if(n) n.focus(); }
+  try{ pinDock(); }catch(_){}
 }
 function notePrev(t){ if(!t.note) return ''; const s=String(t.note).replace(/\s*\n\s*-\s*/g,' · ').replace(/^-\s*/,'').replace(/\s+/g,' ').trim(); return '<div class="task-note">'+esc(s.length>110?s.slice(0,108)+'…':s)+'</div>'; }
 function taskRow(t){
@@ -2287,13 +2294,19 @@ document.addEventListener('click', async e=>{
 });
 
 /* iPhone: после открытия из уведомления нижняя панель «слетает» вверх — переставляем её на место */
-function fixDock(){
-  const fix=()=>{ const d=$('#dock'); if(!d) return; d.style.display='none'; void d.offsetHeight; d.style.display='';
-    try{ const y=window.scrollY; window.scrollTo(0,y+1); window.scrollTo(0,y); }catch(_){}
-    const vv=window.visualViewport; const fab=document.getElementById('ctl-fab');
-    if(vv){ const gap=Math.round(window.innerHeight-(vv.height+vv.offsetTop)); d.style.transform=gap<-2?'translateY('+(-gap)+'px)':''; } };
-  fix(); requestAnimationFrame(fix); [80,300,800,1500].forEach(t=>setTimeout(fix,t));
+/* нижняя панель всегда прижата к низу видимой области (iPhone иногда «поднимает» fixed-элементы) */
+function pinDock(){
+  const d=document.querySelector('#dock .dock'); if(!d) return;
+  const vv=window.visualViewport; if(!vv){ d.style.top=''; d.style.bottom=''; return; }
+  const h=d.offsetHeight||0; const top=Math.round(vv.offsetTop+vv.height-h);
+  d.style.bottom='auto'; d.style.top=top+'px';
 }
+function fixDock(){ pinDock(); requestAnimationFrame(pinDock); [60,250,600,1200].forEach(t=>setTimeout(pinDock,t)); }
+if(window.visualViewport){ window.visualViewport.addEventListener('resize', pinDock); window.visualViewport.addEventListener('scroll', pinDock); }
+window.addEventListener('resize', pinDock);
+window.addEventListener('scroll', pinDock, {passive:true});
+document.addEventListener('focusout', ()=>{ setTimeout(fixDock,50); });
+document.addEventListener('focusin', ()=>{ setTimeout(fixDock,50); });
 window.addEventListener('pageshow', fixDock);
 try{ navigator.serviceWorker && navigator.serviceWorker.addEventListener('message', e=>{ if(e.data&&e.data.type==='resume'){ fixDock(); render(); } if(e.data&&e.data.type==='push'&&document.visibilityState==='visible'){ chime(); toast((e.data.title||'Ритм')+(e.data.body?' — '+e.data.body:'')); } }); }catch(_){}
 let AC=null;
@@ -2301,7 +2314,6 @@ function chime(){ try{ AC=AC||new (window.AudioContext||window.webkitAudioContex
 window.addEventListener('focus', fixDock);
 document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') fixDock(); });
 window.addEventListener('orientationchange', fixDock);
-if(window.visualViewport) window.visualViewport.addEventListener('resize', ()=>{ clearTimeout(window.__fdT); window.__fdT=setTimeout(fixDock,60); });
 /* ---------- boot ---------- */
 const cached=readLocal();
 try{ if(cached) S=merge(cached); }catch(e){ S=DEFAULT(); }
