@@ -183,7 +183,11 @@ function parseJson(t){
 function makeSample(){
   var sample = function(input, opts){
     opts = opts || {};
-    return callAi({ messages: toMessages(input), tier: opts.modelTier || 'default', stream: !!opts.onText }, opts);
+    var body = { messages: toMessages(input), tier: opts.modelTier || 'default', stream: !!opts.onText };
+    return callAi(body, opts).catch(function(e){
+      if(!body.stream || e.code==='cancelled' || e.code==='session_expired' || e.code==='rate_limited') throw e;
+      body.stream = false; return callAi(body, opts);
+    });
   };
   sample.json = async function(prompt, opts){
     opts = opts || {};

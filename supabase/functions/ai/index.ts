@@ -23,7 +23,7 @@ function providers(): Provider[] {
   const list: Provider[] = [];
   if (env("GROQ_API_KEY")) list.push({
     name: "groq", url: "https://api.groq.com/openai/v1/chat/completions", key: env("GROQ_API_KEY"),
-    model: env("GROQ_MODEL") || "openai/gpt-oss-120b", quickModel: env("GROQ_MODEL_QUICK") || "llama-3.3-70b-versatile",
+    model: env("GROQ_MODEL") || "llama-3.3-70b-versatile", quickModel: env("GROQ_MODEL_QUICK") || "llama-3.3-70b-versatile",
   });
   if (env("GEMINI_API_KEY")) list.push({
     name: "gemini", url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", key: env("GEMINI_API_KEY"),
@@ -35,6 +35,31 @@ function providers(): Provider[] {
     headers: { "HTTP-Referer": ORIGIN, "X-Title": "Ritm" },
   });
   return list;
+}
+
+// Модели у провайдеров меняются — выбираем доступную из списка предпочтений (кэш на время жизни функции).
+const PREF: Record<string, string[]> = {
+  groq: ["moonshotai/kimi-k2-instruct-0905", "moonshotai/kimi-k2-instruct", "openai/gpt-oss-120b", "meta-llama/llama-4-maverick-17b-128e-instruct", "qwen/qwen3-32b", "llama-3.3-70b-versatile", "openai/gpt-oss-20b"],
+  gemini: ["gemini-flash-latest", "gemini-2.5-flash", "gemini-flash-lite-latest", "gemini-2.5-flash-lite"],
+};
+const modelCache: Record<string, { list: string[]; at: number }> = {};
+async function pickModels(p: Provider): Promise<string[]> {
+  const pref = PREF[p.name];
+  if (!pref) return [p.model];
+  const c = modelCache[p.name];
+  let avail: string[] | null = c && Date.now() - c.at < 3600_000 ? c.list : null;
+  if (!avail) {
+    try {
+      const r = await fetch(p.url.replace("/chat/completions", "/models"), { headers: { Authorization: "Bearer " + p.key }, signal: AbortSignal.timeout(5000) });
+      const d = await r.json();
+      avail = (d.data || []).map((m: any) => String(m.id).replace(/^models\//, ""));
+      modelCache[p.name] = { list: avail!, at: Date.now() };
+    } catch { avail = []; }
+  }
+  const envModel = env(p.name.toUpperCase() + "_MODEL");
+  const ordered = [envModel, ...pref].filter(Boolean);
+  const ok = avail && avail.length ? ordered.filter((m) => avail!.includes(m)) : ordered;
+  return (ok.length ? ok : ordered).slice(0, 2);
 }
 
 function normalize(messages: Msg[]): Msg[] {
@@ -85,7 +110,7 @@ async function callOpenAICompat(p: Provider, system: string, messages: Msg[], o:
     method: "POST",
     headers: { Authorization: "Bearer " + p.key, "content-type": "application/json", ...(p.headers || {}) },
     body: JSON.stringify(body),
-    signal: AbortSignal.timeout(45000),
+    signal: AbortSignal.timeout(25000),
   });
   if (!r.ok) throw new Error(p.name + " " + r.status + " " + (await r.text()).slice(0, 300));
   if (o.stream && r.body) return { stream: textStream(r.body, (ev) => ev.choices?.[0]?.delta?.content) };
@@ -123,15 +148,21 @@ Deno.serve(async (req) => {
   if (!u?.user) return json({ error: "auth", code: "session_expired" }, 401);
 
   // дневной лимит на человека (защита бесплатных квот от злоупотреблений)
+  const t0 = Date.now();
+  console.log("auth ok", u.user.id.slice(0, 8));
   const svcKey = env("SUPABASE_SERVICE_ROLE_KEY");
-  if (svcKey) {
+  if (svcKey) try { await Promise.race([(async () => {
     const admin = createClient(url, svcKey);
     const day = new Date().toISOString().slice(0, 10);
     const { data: row } = await admin.from("ai_usage").select("n").eq("user_id", u.user.id).eq("day", day).maybeSingle();
     const n = (row?.n || 0) + 1;
-    if (n > DAILY_LIMIT) return json({ error: "limit", code: "rate_limited" }, 429);
+    if (n > DAILY_LIMIT) throw new Error("limit");
     await admin.from("ai_usage").upsert({ user_id: u.user.id, day, n });
+  })(), new Promise((_, rej) => setTimeout(() => rej(new Error("usage timeout")), 3000))]); } catch (e) {
+    if (String(e).includes("limit")) return json({ error: "limit", code: "rate_limited" }, 429);
+    console.error("usage", String(e));
   }
+  console.log("usage ok", Date.now() - t0);
 
   let body: { messages: Msg[]; tier?: string; json?: boolean; stream?: boolean };
   try { body = await req.json(); } catch { return json({ error: "bad json" }, 400); }
@@ -148,11 +179,19 @@ Deno.serve(async (req) => {
   const errors: string[] = [];
   for (const p of providers()) {
     try {
-      const r = await callOpenAICompat(p, system, messages, o);
+      const ts = Date.now();
+      const models = await pickModels(p);
+      let r: any = null, lastErr: unknown = null;
+      for (const m of models) {
+        try { r = await callOpenAICompat({ ...p, model: m, quickModel: m }, system, messages, o); break; }
+        catch (e) { lastErr = e; console.error("model", p.name, m, String(e).slice(0, 200)); }
+      }
+      if (!r) throw lastErr || new Error(p.name + " no model");
+      console.log("provider", p.name, "ok", Date.now() - ts, "ms", o.stream ? "stream" : "json");
       const headers = { ...CORS, "X-Ritm-Provider": p.name, "Access-Control-Expose-Headers": "X-Ritm-Provider" };
       if ("stream" in r && r.stream) return new Response(r.stream, { headers: { ...headers, "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-cache" } });
       return new Response(JSON.stringify({ text: (r as any).text, provider: p.name }), { headers: { ...headers, "Content-Type": "application/json" } });
-    } catch (e) { errors.push(String(e).slice(0, 300)); }
+    } catch (e) { console.error("provider", p.name, String(e).slice(0, 300)); errors.push(String(e).slice(0, 300)); }
   }
   if (env("ANTHROPIC_API_KEY")) {
     try {
