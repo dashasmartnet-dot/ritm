@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015203418';</script>
-<script src="supabase.js?v=20261015203418"></script>
-<script src="config.js?v=20261015203418"></script>
-<script src="backend.js?v=20261015203418"></script>
+<script>window.RITM_BUILD='20261015203947';</script>
+<script src="supabase.js?v=20261015203947"></script>
+<script src="config.js?v=20261015203947"></script>
+<script src="backend.js?v=20261015203947"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -1663,7 +1663,7 @@ const TTS=window.speechSynthesis; let ttsOn=false, ttsVoice=null;
 function pickVoice(){ if(!TTS) return null; const vs=TTS.getVoices().filter(v=>/^ru/i.test(v.lang)); return vs.find(v=>/Milena|Милена|Katya|Катя|premium|enhanced/i.test(v.name))||vs[0]||null; }
 if(TTS){ try{ TTS.onvoiceschanged=()=>{ ttsVoice=pickVoice(); }; ttsVoice=pickVoice(); }catch(_){} }
 function plainText(s){ return String(s||'').replace(/```[\s\S]*?```/g,' ').replace(/[*_#>`~]/g,'').replace(/^\s*[-•]\s*/gm,'').replace(/\[(.*?)\]\(.*?\)/g,'$1').replace(/(\d{1,2}):00/g,'$1 ноль ноль').replace(/\s+\n/g,'\n').trim(); }
-let ttsAudio=null, ttsNeuralOff=false, ttsJob=0, ttsAbort=null;
+let ttsAudio=null, ttsNeuralOff=!/[?&]neural=1/.test(location.search), ttsJob=0, ttsAbort=null;
 function sysSpeak(parts, onend, job){
   if(!TTS){ ttsOn=false; renderSpeak(); if(onend) onend(); return; }
   try{ TTS.cancel(); }catch(_){}
@@ -1680,9 +1680,10 @@ async function speak(text, onend){
   if(!parts.length){ ttsOn=false; renderSpeak(); if(onend) onend(); return; }
   if(!window.RITM_TTS || ttsNeuralOff || !ttsAudio){ sysSpeak(parts, onend, job); return; }
   const ch=chunks(parts); ttsAbort=new AbortController(); const sig=ttsAbort.signal;
-  const urls=ch.map(c=>window.RITM_TTS(c, sig)); urls.forEach(u=>u.catch(()=>{}));
+  const tmo=setTimeout(()=>{ try{ ttsAbort.abort(); }catch(_){} }, 6000);
+  const urls=ch.map((c,k)=>{ const pr=window.RITM_TTS(c, sig); if(k===0) pr.then(()=>clearTimeout(tmo),()=>clearTimeout(tmo)); return pr; }); urls.forEach(u=>u.catch(()=>{}));
   for(let k=0;k<ch.length;k++){
-    let url; try{ url=await urls[k]; }catch(e){ if(job!==ttsJob) return; if(e&&(e.code==='no_key'||e.status===404)) ttsNeuralOff=true; sysSpeak((ch.slice(k).join(' ').match(/[^.!?…\n]+[.!?…\n]*/g)||[]), onend, job); return; }
+    let url; try{ url=await urls[k]; }catch(e){ if(job!==ttsJob) return; ttsNeuralOff=true; sysSpeak((ch.slice(k).join(' ').match(/[^.!?…\n]+[.!?…\n]*/g)||[]), onend, job); return; }
     if(job!==ttsJob) return;
     const ok=await new Promise(res=>{ ttsAudio.onended=()=>res(true); ttsAudio.onerror=()=>res(false); ttsAudio.src=url; const pr=ttsAudio.play(); if(pr&&pr.catch) pr.catch(()=>res(false)); });
     try{ URL.revokeObjectURL(url); }catch(_){}
