@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015191954';</script>
-<script src="supabase.js?v=20261015191954"></script>
-<script src="config.js?v=20261015191954"></script>
-<script src="backend.js?v=20261015191954"></script>
+<script>window.RITM_BUILD='20261015200444';</script>
+<script src="supabase.js?v=20261015200444"></script>
+<script src="config.js?v=20261015200444"></script>
+<script src="backend.js?v=20261015200444"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -470,6 +470,15 @@ body.has-ctl .app{padding-top:68px}
 .later-btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;min-height:36px;padding:0 12px;font:inherit;font-size:13px;font-weight:700;flex:none}
 .sheet-foot{position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom,0px));background:var(--bg);padding:10px 0 4px;margin-top:4px}
 .ob-progress #ob-step{transition:opacity .2s}
+.toast{left:16px;right:16px;transform:none;max-width:520px;margin:0 auto;justify-content:space-between;z-index:60;bottom:calc(132px + env(safe-area-inset-bottom,0px))}
+.toast span{flex:1;min-width:0}
+.toast button{flex:none;white-space:nowrap;background:none;border:0;color:inherit;font:inherit;font-weight:700;text-decoration:underline;min-height:36px;padding:0 4px}
+.toast.top{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 12px)}
+.sw.open .later-btn{visibility:hidden}
+.check.sm{position:relative}
+.check.sm::after{content:'';position:absolute;inset:-12px}
+.dbox-head{min-height:44px}
+.coach-card .btn.ghost{min-height:44px}
 </style>
 
 <style>html,body{margin:0}body{padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}</style>
@@ -735,8 +744,9 @@ function toast(msg, undo, long){
   const d=document.createElement('div'); d.className='toast'; d.id='toast'; d.setAttribute('role','status');
   const s=document.createElement('span'); s.textContent=msg; d.appendChild(s);
   if(undo){ const b=document.createElement('button'); b.type='button'; b.textContent='Отменить'; b.onclick=()=>{ try{undo();}catch(e){} d.remove(); }; d.appendChild(b); }
+  if(sheetOpen) d.classList.add('top');
   document.body.appendChild(d);
-  toastT=setTimeout(()=>d.remove(), undo?10000:(long?8000:5000));
+  toastT=setTimeout(()=>d.remove(), undo?7000:(long?6000:3500));
 }
 
 /* ---------- sheets ---------- */
@@ -988,7 +998,7 @@ function taskRow(t){
   const id=esc(t.id), title=esc(t.title);
   return '<div class="sw" data-sw="'+id+'"><div class="sw-act" aria-hidden="true"><button tabindex="-1" data-act="later" data-id="'+id+'">Завтра</button><button tabindex="-1" class="del" data-act="sw-del" data-id="'+id+'">Удалить</button></div><div class="task'+(t.done?' done':'')+(t.time?' timed':'')+(sphColor(t)?' has-c':'')+'"'+cStyle(t)+'><button class="check" data-act="done" data-id="'+id+'" aria-pressed="'+!!t.done+'" aria-label="'+(t.done?'Вернуть в работу':'Сделано')+': '+title+'">'+(t.done?ICON.check:'')+'</button>'+(t.time?'<span class="t-time">'+esc(t.time)+'</span>':'')+
     '<button class="task-main" data-act="mv-open" data-id="'+id+'" aria-label="Действия: '+title+'"><div class="task-title">'+title+'</div>'+notePrev(t)+'<div class="meta">'+meta.join('')+'</div></button>'+
-    '<div class="row" style="gap:4px;flex:none">'+pr+stuck+(t.done?'':'<button class="later-btn" data-act="later" data-id="'+id+'" aria-label="Перенести на завтра: '+title+'">Завтра</button>')+'</div></div></div>';
+    '<div class="row" style="gap:4px;flex:none">'+pr+stuck+(t.done||(t.due&&t.due>today())?'':'<button class="later-btn" data-act="later" data-id="'+id+'" aria-label="Перенести на завтра: '+title+'">Завтра</button>')+'</div></div></div>';
 }
 function greeting(){ const h=new Date().getHours(); return h<5?'Доброй ночи':h<12?'Доброе утро':h<18?'Добрый день':'Добрый вечер'; }
 function affirmation(){ const t=today(); if(S.affirm[t]) return S.affirm[t]; const [y,m,d]=t.split('-').map(Number); const n=Math.floor(Date.UTC(y,m-1,d)/86400000); return AFFIRMS[(n*263+41)%AFFIRMS.length]; }
@@ -1428,7 +1438,7 @@ function parseActions(text){
   return {text, actions};
 }
 function actLabel(a){
-  const t=a.id&&findTask(a.id); const nm=t?t.title:(a.title||'');
+  const t=a.id&&findTask(a.id); const nm=t?t.title+(a.op!=='add'&&a.op!=='move'?' ('+(t.due?dayLabel(t.due)+(t.time?', '+t.time:''):'без даты')+')':''):(a.title||'');
   const when=(a.due?dayLabel(a.due):'')+(a.time?' в '+a.time:'');
   if(a.op==='add') return '＋ '+nm+(when?' — '+when:'');
   if(a.op==='habit') return '📌 Каждый день: '+nm;
@@ -1862,6 +1872,13 @@ function cmdSheet(){
 }
 /* ---------- «Управление»: голосом меняю план ---------- */
 let ctl={text:'',actions:[],reply:'',busy:false,err:''};
+function dedupeActs(list){
+  // если одно и то же действие попало на несколько дел с одинаковым названием — отмечаем только ближайшее
+  const seen={}; const T=today();
+  const score=a=>{ const t=findTask(a.id); if(!t||!t.due) return 9e9; return Math.abs(new Date(t.due)-new Date(T)); };
+  list.slice().sort((a,b)=>score(a)-score(b)).forEach(a=>{ const t=a.id&&findTask(a.id); if(!t||a.op==='add'||a.op==='habit') return; const k=a.op+'|'+t.title.toLowerCase().trim(); if(seen[k]) a._off=true; else seen[k]=1; });
+  return list;
+}
 function ctlSheet(){
   let h='<div class="row between"><h2 id="sheet-h">Управление планом</h2><button class="btn ghost" data-act="close-sheet">Закрыть</button></div>'+
     '<p class="muted" style="margin:0;font-size:14px">Скажи, что сделать: удалить, перенести, поставить время, отметить сделанным, добавить. Или спроси: «что у меня завтра?»</p>'+
@@ -1884,15 +1901,16 @@ async function ctlRun(text){
       const T=today();
       const list=S.tasks.filter(x=>!x.done||(x.doneAt&&x.doneAt>Date.now()-7*86400000)).slice(-200).map(x=>'#'+x.id+' '+(x.done?'[сделано] ':'')+x.title+' ['+((sphere(x.sphere)||{}).name||'—')+(x.due?', '+x.due+(x.time?' '+x.time:''):', без даты')+(x.recurId?', повтор':'')+']').join('\n');
       const ev=Object.keys(calDays).filter(d=>d>=T&&d<=addDays(T,7)).sort().map(d=>(calDays[d].events||[]).map(e=>'- '+d+' '+e.time+' '+e.title).join('\n')).filter(Boolean).join('\n');
-      const r=await cap.sample.json(dateCtx()+'\nДела человека:\n'+(list||'—')+'\nВстречи в календаре (7 дней):\n'+(ev||'—')+'\n\nЧеловек сказал голосом: «'+text.slice(0,3000)+'»\n\nЕсли это команда — верни действия над делами. Если просят добавить что-то в «каждый день» / ежедневные привычки — op "habit" с title.  Ищи дела по смыслу, а не дословно. «Несрочное» — дела не с высокой важностью и без времени. Если это вопрос — ответь коротко в reply (по-русски, 1–5 строк) и actions пустой. Можно и то и другое. Ответь ТОЛЬКО JSON {"reply":"текст или пусто","actions":[{"op":"add|move|done|delete|repeat","id":"… (для существующих)","title":"… (для add)","due":"YYYY-MM-DD|null","time":"HH:MM|null",days":[1,3],"rule":{"freq":"week|month|year","days":[1,3],"dom":10,"every":1,"md":"MM-DD","before":3}}]} (для повтора — либо days для дней недели, либо rule для месяца/года)',{modelTier:'default',cache:false});
+      const r=await cap.sample.json(dateCtx()+'\nДела человека:\n'+(list||'—')+'\nВстречи в календаре (7 дней):\n'+(ev||'—')+'\n\nЧеловек сказал голосом: «'+text.slice(0,3000)+'»\n\nЕсли это команда — верни действия над делами. Если просят добавить что-то в «каждый день» / ежедневные привычки — op "habit" с title.  Ищи дела по смыслу, а не дословно. Если под описание подходит несколько дел — верни действие только для одного, ближайшего по дате, если человек не сказал «все». «Несрочное» — дела не с высокой важностью и без времени. Если это вопрос — ответь коротко в reply (по-русски, 1–5 строк) и actions пустой. Можно и то и другое. Ответь ТОЛЬКО JSON {"reply":"текст или пусто","actions":[{"op":"add|move|done|delete|repeat","id":"… (для существующих)","title":"… (для add)","due":"YYYY-MM-DD|null","time":"HH:MM|null",days":[1,3],"rule":{"freq":"week|month|year","days":[1,3],"dom":10,"every":1,"md":"MM-DD","before":3}}]} (для повтора — либо days для дней недели, либо rule для месяца/года)',{modelTier:'default',cache:false});
       ctl.reply=String(r&&r.reply||'').trim();
       ctl.actions=arr(r&&r.actions).map(a=>Object.assign({},a,{id:a.id?String(a.id).replace(/^#/,''):undefined})).filter(a=>['add','move','done','delete','repeat','habit'].includes(a.op)&&(a.op==='add'||a.op==='habit'?!!a.title:!!findTask(a.id))).slice(0,40);
+      dedupeActs(ctl.actions); if(ctl.actions.some(a=>a._off)) ctl.reply=(ctl.reply?ctl.reply+'\n':'')+'Нашла несколько дел с таким названием — отметила ближайшее. Поставь галочку, если нужно и другое.';
       if(!ctl.reply && !ctl.actions.length) ctl.err='Не нашла, что поменять. Скажи точнее, какое дело.';
     }catch(e){ ctl.err=aiError(e); }
   }
   if(!ctl.actions.length && !ctl.reply && CMD_RE.test(text)){
     const verb=(text.match(CMD_RE)||[])[1]||''; const op=/удал|убер|вычерк|сотри|отмен/i.test(verb)?'delete':/перен|сдвин|передвин|отлож/i.test(verb)?null:'done';
-    if(op){ const m=localMatch(text); if(m.length){ const top=m[0].sc; ctl.actions=m.filter(o=>o.sc===top).slice(0,3).map(o=>({op,id:o.x.id})); ctl.err=''; } }
+    if(op){ const m=localMatch(text); if(m.length){ const top=m[0].sc; ctl.actions=dedupeActs(m.filter(o=>o.sc===top).slice(0,3).map(o=>({op,id:o.x.id}))); ctl.err=''; } }
   }
   if(!cap.sample && !ctl.actions.length) ctl.err='Ассистент сейчас недоступен. Удалить и перенести можно зажав дело.';
   ctl.busy=false; if(sheetOpen) ctlSheet();
@@ -2056,7 +2074,7 @@ function editSheet(id){
     '<div class="eyebrow">Когда</div><div class="row wrap" style="gap:6px"><button class="chip sm" data-act="e-quick" data-v="0">Сегодня</button><button class="chip sm" data-act="e-quick" data-v="1">Завтра</button><button class="chip sm" data-act="e-quick" data-v="7">Через неделю</button><button class="chip sm" data-act="e-quick" data-v="none">Без срока</button></div>'+
     '<div class="grid2"><label class="f" for="e-due">Дата<input id="e-due" type="date" lang="ru" value="'+esc(t.due||'')+'"></label>'+
     '<label class="f" for="e-time">Время<input id="e-time" type="time" lang="ru" value="'+esc(t.time||'')+'"></label></div>'+
-    '<label class="f" for="e-remind">Напомнить<select id="e-remind">'+REM_OPTS.map(([n,l])=>'<option value="'+n+'"'+(((t.remind!=null?Number(t.remind):(Number(S.rhythm.remind)||60))===n)?' selected':'')+'>'+l+'</option>').join('')+'</select></label>'+
+    (()=>{ const cur=t.remind!=null?Number(t.remind):(t.reminded?(Number(S.rhythm.remind)||60):-1); return '<label class="f" for="e-remind">Напомнить<select id="e-remind" data-init="'+cur+'">'+REM_OPTS.map(([n,l])=>'<option value="'+n+'"'+(cur===n?' selected':'')+'>'+l+'</option>').join('')+'</select></label>'; })()+
     '<details class="e-more"><summary>Ещё: описание, сфера, тип, повтор</summary><div class="stack" style="gap:12px;margin-top:10px">'+
     '<label class="f" for="e-note">Описание<textarea id="e-note" style="min-height:60px">'+esc(t.note||'')+'</textarea></label>'+
     '<div class="grid2"><label class="f" for="e-sph">Сфера<select id="e-sph">'+sphOpts+'</select></label>'+
@@ -2091,8 +2109,8 @@ function applyRepeat(t, rule){
 }
 function saveEdit(id,isNew){
   const title=$('#e-title').value.trim(); if(!title){ $('#e-title').focus(); return; }
-  const time=($('#e-time')||{}).value||null; const wantRem=!($('#e-remind')&&Number($('#e-remind').value)===-1);
-  const t0p=(findTask(id)||{}).priority||2; const remSel=$('#e-remind'); const data={remind:remSel?Number(remSel.value):undefined, title, time, note:(($('#e-note')||{}).value||'').trim()||null, sphere:$('#e-sph').value, due:$('#e-due').value||null, kind:$('#e-kind').value, priority:$('#e-pr')?Number($('#e-pr').value):(t0p), est:Math.max(5,Math.min(480,Number($('#e-est').value)||30)), who:$('#e-who').value.trim()||null};
+  const time=($('#e-time')||{}).value||null; const wantRem=!!($('#e-remind')&&Number($('#e-remind').value)!==-1&&($('#e-remind').value!==$('#e-remind').getAttribute('data-init')||(findTask(id)||{}).reminded));
+  const t0p=(findTask(id)||{}).priority||2; const remSel=$('#e-remind'); const remChanged=remSel&&remSel.value!==remSel.getAttribute('data-init'); const data={remind:remChanged?Number(remSel.value):(findTask(id)||{}).remind, title, time, note:(($('#e-note')||{}).value||'').trim()||null, sphere:$('#e-sph').value, due:$('#e-due').value||null, kind:$('#e-kind').value, priority:$('#e-pr')?Number($('#e-pr').value):(t0p), est:Math.max(5,Math.min(480,Number($('#e-est').value)||30)), who:$('#e-who').value.trim()||null};
   if(isNew) S.tasks.push({id,done:false,created:Date.now(),postponed:0,source:'manual',...data});
   else { const t=findTask(id); if(!t){ closeSheet(); toast('Это дело уже удалено'); render(); return; } Object.assign(t,data); }
   { const tt=findTask(id); if(tt) applyRepeat(tt, erepRule(tt.due)); }
