@@ -142,6 +142,14 @@ function makeDb(){
   }};
 }
 async function callAi(body, opts){
+  try{ return await callAiOnce(body, opts); }
+  catch(e){
+    if(!e || (e.code!=='network' && e.code!=='ai_error') || (opts&&opts.signal&&opts.signal.aborted)) throw e;
+    await new Promise(function(r){ setTimeout(r, 1500); });
+    return callAiOnce(body, opts);
+  }
+}
+async function callAiOnce(body, opts){
   opts = opts || {};
   var t = await token();
   var res;

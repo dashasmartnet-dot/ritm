@@ -177,7 +177,9 @@ Deno.serve(async (req) => {
   const o = { quick: body.tier === "quick", json: !!body.json, stream: !!body.stream && !body.json };
 
   const errors: string[] = [];
-  for (const p of providers()) {
+  const big = JSON.stringify(messages).length > 12000; // у Groq лимит ~8k токенов в минуту — длинное сразу в Gemini
+  const plist = providers().sort((a, b) => big ? (a.name === "gemini" ? -1 : b.name === "gemini" ? 1 : 0) : 0);
+  for (const p of plist) {
     try {
       const ts = Date.now();
       const models = await pickModels(p);
