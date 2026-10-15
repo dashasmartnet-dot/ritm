@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015170956';</script>
-<script src="supabase.js?v=20261015170956"></script>
-<script src="config.js?v=20261015170956"></script>
-<script src="backend.js?v=20261015170956"></script>
+<script>window.RITM_BUILD='20261015171150';</script>
+<script src="supabase.js?v=20261015171150"></script>
+<script src="config.js?v=20261015171150"></script>
+<script src="backend.js?v=20261015171150"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -725,11 +725,11 @@ function md(t){
   }).join('\n');
 }
 const TOUR=[
-  ['Говори — я запишу','Нажми на строку внизу или на микрофон и скажи как есть: «завтра в 15 позвонить маме». Дата и время встанут сами. Если день не назван — дело попадёт в «Без даты», распределишь потом.'],
-  ['Сегодня и неделя','На «Сегодня» — дела дня (время слева) и страница-ежедневник по часам. Переключи на «Неделю»: 7 страниц как в бумажном дневнике. Зажми дело и перетащи на другой день.'],
-  ['Дела под рукой','Кружок — сделано. Нажми на дело — изменить. Проведи пальцем влево — «Перенести» или «Удалить». Случайно удалила — внизу будет «Отменить».'],
-  ['Ассистент знает твою жизнь','Спроси: «с чего начать день», «разгрузи неделю», «когда лучше сходить к врачу». В «Моей жизни» расскажи о себе понемногу — советы станут точнее.'],
-  ['Напоминания и итоги','Профиль → «Включить напоминания» — пуш придёт за час и в момент дела (Ритм должен быть на экране «Домой»). Вечером — «Итоги дня»: что сделано, настроение, перенос.']
+  ['Говори — я разберу','Нажми на строку внизу или на микрофон и надиктуй всё подряд. Длинный рассказ разобью на отдельные дела с описанием. Если не назвала день — спрошу: нажми кнопку дня или ответь голосом.'],
+  ['Сегодня и неделя','Сверху счётчик: сколько сделано из плана. Ниже дела по времени и ежедневник по часам. «Неделя» — 7 страниц как в дневнике: зажми дело и перетащи на другой день, нажми — поставь день и время.'],
+  ['Удалить и перенести','Кружок — сделано (телефон слегка вздрогнет). Нажми на дело — изменить. Зажми дело или проведи влево — «Перенести» и «Удалить». Удалила случайно — внизу «Отменить».'],
+  ['Повторы и цвета','Скажи «каждый понедельник в 9 планёрка» или «по будням зарядка» — дело само встанет на нужные дни. В Профиле → «Сферы и цвета» выбери цвет: например, жёлтый — Реактор, красный — Контур.'],
+  ['Ассистент действует','Спроси: «перенеси несрочное на завтра», «есть ли у меня записи на завтра». Ассистент предложит изменения — нажми «Сделать». Каждое утро пришлю пуш «План на день».']
 ];
 function tourSheet(i){
   ui.tour=i; const [h,p]=TOUR[i]; const last=i===TOUR.length-1;
@@ -1734,7 +1734,7 @@ document.addEventListener('click', async e=>{
       const timed=L.filter(x=>x.due&&x.time); if(timed.length && (cap.push||cap.mcp)){ for(const t of timed) await createReminder(t,true); render(); }
       dump={list:[],src:'',reply:'',busy:false}; break; }
     case 'tour': tourSheet(Number(v)); break;
-    case 'tour-end': S.tourDone=true; save(); closeSheet(); break;
+    case 'tour-end': S.tourDone=true; S.tourV=2; save(); closeSheet(); break;
     case 'view': ui.view=b.getAttribute('data-v'); try{ localStorage.setItem('ritm-view', ui.view); }catch(_){} render(); break;
     case 'wk': ui.week=(ui.week||0)+Number(b.getAttribute('data-v')); render(); break;
     case 'day-open': ui.view='day'; ui.day=b.getAttribute('data-v'); try{ localStorage.setItem('ritm-view','day'); }catch(_){} render(); window.scrollTo(0,0); break;
@@ -1901,7 +1901,7 @@ new MutationObserver(()=>ensureMics()).observe(document.body,{childList:true,sub
   if(!(ui.D && ui.ob>0)) render();
   if(S.onboarded) loadCalendar();
   if(S.onboarded) scheduleBrief();
-  if(S.onboarded && !S.tourDone && !(ui.D)) setTimeout(()=>tourSheet(0),800);
+  if(S.onboarded && (S.tourV||0)<2 && !(ui.D)) setTimeout(()=>tourSheet(0),800);
   document.addEventListener('visibilitychange', ()=>{
     if(document.visibilityState==='hidden'){ if(saveT) flush(); }
     else { pull(); if(S.onboarded) loadCalendar(); }
