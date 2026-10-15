@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015171238';</script>
-<script src="supabase.js?v=20261015171238"></script>
-<script src="config.js?v=20261015171238"></script>
-<script src="backend.js?v=20261015171238"></script>
+<script>window.RITM_BUILD='20261015172202';</script>
+<script src="supabase.js?v=20261015172202"></script>
+<script src="config.js?v=20261015172202"></script>
+<script src="backend.js?v=20261015172202"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -345,6 +345,51 @@ body.dragging{overflow:hidden;touch-action:none}
 .dump-card input.dump-time{width:96px}
 #drop-del{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;height:84px;border-radius:18px;border:2px dashed var(--warn);background:color-mix(in srgb,var(--warn) 12%,var(--surface));color:var(--warn);font-weight:700;display:grid;place-items:center;font-size:15px}
 #drop-del.drop{background:var(--warn);color:#fff;border-style:solid}
+.week-title{background:none;border:0;font:inherit;font-family:var(--display);font-size:24px;color:var(--ink);display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 6px}
+.week-title .caret{font-size:14px;color:var(--muted)}
+.mcal{background:var(--surface);border-radius:var(--radius);padding:10px 10px 12px;box-shadow:0 6px 20px rgba(0,0,0,.06)}
+.mcal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.mcal-head .btn{min-width:44px;font-size:22px}
+.mcal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.mcal-wd{text-align:center;font-size:11px;color:var(--muted);font-weight:700;padding:2px 0}
+.mcal-d{min-height:44px;border:0;background:none;border-radius:10px;font:inherit;font-weight:600;font-size:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ink);gap:1px}
+.mcal-d i{font-style:normal;font-size:9px;line-height:1;color:var(--accent);letter-spacing:1px}
+.mcal-d.past{color:var(--muted)}
+.mcal-d.inweek{background:var(--soft)}
+.mcal-d.today{background:var(--ink);color:var(--bg)}
+.mcal-d.today i{color:var(--bg)}
+.spread{display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--surface);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.08),0 1px 0 var(--line);position:relative;overflow:hidden}
+.spread::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:18px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,rgba(0,0,0,.07) 45%,rgba(0,0,0,.1) 50%,rgba(0,0,0,.07) 55%,transparent);pointer-events:none}
+.spread-page{display:flex;flex-direction:column;min-width:0}
+.spread-page.left{padding-right:9px}
+.spread-page.right{padding-left:9px}
+.dbox{flex:1;min-height:138px;padding:8px 8px 6px;border-bottom:1px solid var(--line);background-image:repeating-linear-gradient(transparent 0 31px,var(--line) 31px 32px);background-position:0 34px;background-size:100% calc(100% - 34px);background-repeat:no-repeat;transition:background-color .15s}
+.dbox:last-child{border-bottom:0}
+.dbox.today{background-color:color-mix(in srgb,var(--accent) 7%,var(--surface))}
+.dbox.past{opacity:.7}
+.dbox.drop{background-color:var(--soft);box-shadow:inset 0 0 0 2px var(--accent)}
+.dbox-head{display:flex;align-items:baseline;gap:6px;width:100%;background:none;border:0;padding:0 0 4px;margin:0;text-align:left;color:inherit;min-height:30px;border-bottom:1.5px solid var(--ink)}
+.dbox.wknd .dbox-head{border-bottom-color:var(--accent)}
+.db-n{font-family:var(--display);font-size:24px;line-height:1;font-weight:600}
+.db-wd{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dbox.today .db-wd{color:var(--accent)}
+.db-c{font-size:12px;color:var(--muted);font-weight:700}
+.dbox.nodate .db-wd{font-size:13px}
+.dbox .wlist{margin-top:2px}
+.dbox .w-item{min-height:32px;gap:6px;border-bottom:0;align-items:flex-start;padding:3px 0}
+.dbox .w-item .check.sm{width:20px;height:20px;min-width:20px;margin-top:2px}
+.dbox .w-item .w-title{padding:1px 0;font-size:13.5px;line-height:1.3;font-weight:600;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dbox .w-item .w-time{min-width:0;font-size:12px;font-weight:800;color:var(--accent)}
+.dbox .w-item.ev .w-title{font-weight:500;font-size:12.5px}
+.dbox .w-item.done .w-title{font-weight:500}
+.dbox .w-item.ev,.dbox .w-item.done{padding-left:26px;position:relative}
+.dbox .w-item.ev .w-time,.dbox .w-item.done .w-time{position:absolute;left:0;top:4px}
+.dbox .w-item.has-c{box-shadow:none;padding-left:0}
+.dbox .w-item.has-c .check.sm{border-color:var(--c);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--c) 35%,transparent)}
+.dbox .w-empty{height:24px}
+.w-rep{color:var(--muted);font-weight:500}
+.dbox .w-item.over em{display:block;font-size:11px}
+:root[data-skin="oldmoney"] .spread{border-radius:6px}
 </style>
 
 <style>html,body{margin:0}body{padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}</style>
@@ -818,31 +863,50 @@ function weekStrip(wa){
   return h+'</div><p class="muted" style="margin:0;font-size:12.5px">Цифра под датой — дела, после точки — встречи в календаре.</p>';
 }
 function weekStart(off){ const d=new Date(); const dow=(d.getDay()+6)%7; return addDays(today(), -dow+7*(off||0)); }
+function monthGrid(){
+  const t=today(); const base=ui.mon||t.slice(0,7); const [y,m]=base.split('-').map(Number);
+  const first=new Date(y,m-1,1); const lead=(first.getDay()+6)%7; const dim=new Date(y,m,0).getDate();
+  const wk=weekStart(ui.week||0), wkEnd=addDays(wk,6);
+  const cnt={}; S.tasks.forEach(x=>{ if(!x.done&&x.due&&x.kind!=='wait') cnt[x.due]=(cnt[x.due]||0)+1; });
+  let h='<div class="mcal"><div class="mcal-head"><button class="btn ghost" data-act="mon" data-v="-1" aria-label="Прошлый месяц">‹</button><b>'+['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'][m-1]+' '+y+'</b><button class="btn ghost" data-act="mon" data-v="1" aria-label="Следующий месяц">›</button></div><div class="mcal-grid">'+['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(w=>'<span class="mcal-wd">'+w+'</span>').join('');
+  for(let i=0;i<lead;i++) h+='<span></span>';
+  for(let d=1;d<=dim;d++){ const ds=y+'-'+pad(m)+'-'+pad(d); const n=cnt[ds]||0;
+    h+='<button class="mcal-d'+(ds===t?' today':'')+(ds>=wk&&ds<=wkEnd?' inweek':'')+(ds<t?' past':'')+'" data-act="mon-pick" data-v="'+ds+'" aria-label="'+d+' '+MONTHS[m-1]+(n?', дел: '+n:'')+'">'+d+(n?'<i>'+(n>3?'•••':'•'.repeat(n))+'</i>':'')+'</button>'; }
+  return h+'</div></div>';
+}
+function dayBox(d, wa, label){
+  const t=today();
+  if(d==='none'){
+    const nodate=S.tasks.filter(x=>!x.done&&!x.due&&x.kind!=='wait'&&(!wa||groupOf(x)==='work'));
+    return '<section class="dbox nodate" data-dropday="none"><div class="dbox-head"><span class="db-wd">Без даты</span><span class="db-c">'+(nodate.length||'')+'</span></div><ul class="wlist">'+(nodate.length?nodate.map(x=>wItem(x,d)).join(''):'<li class="w-empty">пусто</li>')+'</ul></section>';
+  }
+  const [y,m,dd]=d.split('-').map(Number); const wd=new Date(y,m-1,dd).getDay();
+  const isT=d===t, past=d<t;
+  const tasks=S.tasks.filter(x=>!x.done&&x.kind!=='wait'&&x.due&&(isT?x.due<=t:x.due===d)&&(!wa||groupOf(x)==='work'));
+  const done=S.tasks.filter(x=>x.done&&x.due===d&&(!wa||groupOf(x)==='work'));
+  const ev=((calDays[d]&&calDays[d].events)||[]).filter(e=>e.time!=='весь день');
+  const items=[...tasks.map(x=>({k:'t',time:x.time||'',x})),...ev.map(e=>({k:'e',time:e.time,e}))].sort((a,b)=>(a.time||'99').localeCompare(b.time||'99'));
+  let h='<section class="dbox'+(isT?' today':'')+(past?' past':'')+(wd===0||wd===6?' wknd':'')+'" data-dropday="'+d+'" aria-label="'+esc(WD[wd]+', '+dd+' '+MONTHS[m-1])+'"><button class="dbox-head" data-act="day-open" data-v="'+d+'"><span class="db-n">'+dd+'</span><span class="db-wd">'+DOWN[wd]+(isT?' · сегодня':'')+'</span><span class="db-c">'+(tasks.length||'')+'</span></button><ul class="wlist">';
+  if(!items.length && !done.length) h+='<li class="w-empty"></li>';
+  items.forEach(it=>{ if(it.k==='e') h+='<li class="w-item ev"><span class="w-time">'+esc(it.time)+'</span><span class="w-title">'+esc(it.e.title)+'</span></li>'; else h+=wItem(it.x,d); });
+  done.slice(0,3).forEach(x=>{ h+='<li class="w-item done"><span class="w-time">✓</span><span class="w-title">'+esc(x.title)+'</span></li>'; });
+  return h+'</ul></section>';
+}
+function wItem(x,d){
+  const over=d!=='none'&&x.due&&x.due<d;
+  return '<li class="w-item task'+(over?' over':'')+(sphColor(x)?' has-c':'')+'"'+cStyle(x)+' data-drag="'+esc(x.id)+'"><button class="check sm" data-act="done" data-id="'+esc(x.id)+'" aria-label="Сделано: '+esc(x.title)+'"></button><button class="w-title" data-act="mv-open" data-id="'+esc(x.id)+'">'+(x.time?'<span class="w-time">'+esc(x.time)+'</span> ':'')+esc(x.title)+(over?' <em>просрочено</em>':'')+(x.recurId?' <span class="w-rep">↻</span>':'')+'</button></li>';
+}
 function viewWeek(wa){
-  const st=weekStart(ui.week||0), t=today();
+  const st=weekStart(ui.week||0);
   const [y1,m1,d1]=st.split('-').map(Number); const en=addDays(st,6); const [y2,m2,d2]=en.split('-').map(Number);
   const title=d1+(m1!==m2?' '+MONTHS[m1-1]:'')+' — '+d2+' '+MONTHS[m2-1];
-  let h='<div class="week-nav"><button class="btn ghost" data-act="wk" data-v="-1" aria-label="Прошлая неделя">‹</button><h2 class="week-title">'+esc(title)+'</h2><button class="btn ghost" data-act="wk" data-v="1" aria-label="Следующая неделя">›</button></div>';
-  h+='<p class="muted week-hint">Зажми дело и перетащи на другой день или вниз — в корзину. Нажми на дело — выбери день, время или удали.</p>';
-  for(let i=0;i<7;i++){
-    const d=addDays(st,i); const [y,m,dd]=d.split('-').map(Number); const wd=new Date(y,m-1,dd).getDay();
-    const isT=d===t, past=d<t;
-    const tasks=S.tasks.filter(x=>!x.done&&x.kind!=='wait'&&x.due&&(isT?x.due<=t:x.due===d)&&(!wa||groupOf(x)==='work'));
-    const done=S.tasks.filter(x=>x.done&&x.due===d&&(!wa||groupOf(x)==='work'));
-    const ev=((calDays[d]&&calDays[d].events)||[]).filter(e=>e.time!=='весь день');
-    const items=[...tasks.map(x=>({k:'t',time:x.time||'',x})),...ev.map(e=>({k:'e',time:e.time,e}))].sort((a,b)=>(a.time||'99').localeCompare(b.time||'99'));
-    h+='<section class="wpage'+(isT?' today':'')+(past?' past':'')+'" data-dropday="'+d+'" aria-label="'+esc(WD[wd]+', '+dd+' '+MONTHS[m-1])+'">'+
-      '<button class="wpage-head" data-act="day-open" data-v="'+d+'"><span class="wp-n">'+dd+'</span><span class="wp-wd">'+WD[wd]+(isT?' · сегодня':'')+'</span><span class="wp-c">'+(tasks.length?plural(tasks.length,'дело','дела','дел'):'')+'</span></button><ul class="wlist">';
-    if(!items.length && !done.length) h+='<li class="w-empty">свободно</li>';
-    items.forEach(it=>{
-      if(it.k==='e') h+='<li class="w-item ev"><span class="w-time">'+esc(it.time)+'</span><span class="w-title">'+esc(it.e.title)+'</span></li>';
-      else { const x=it.x; const over=x.due<d; h+='<li class="w-item task'+(over?' over':'')+(sphColor(x)?' has-c':'')+'"'+cStyle(x)+' data-drag="'+esc(x.id)+'"><button class="check sm" data-act="done" data-id="'+esc(x.id)+'" aria-label="Сделано: '+esc(x.title)+'"></button><span class="w-time">'+esc(x.time||'')+'</span><button class="w-title" data-act="mv-open" data-id="'+esc(x.id)+'">'+esc(x.title)+(over?' <em>просрочено</em>':'')+(x.note?'<span class="w-note">'+esc(String(x.note).replace(/\s+/g,' ').slice(0,80))+'</span>':'')+'</button></li>'; }
-    });
-    done.slice(0,4).forEach(x=>{ h+='<li class="w-item done"><span class="w-time">✓</span><span class="w-title">'+esc(x.title)+'</span></li>'; });
-    h+='</ul></section>';
-  }
-  const nodate=S.tasks.filter(x=>!x.done&&!x.due&&x.kind!=='wait'&&(!wa||groupOf(x)==='work'));
-  if(nodate.length){ h+='<section class="wpage nodate" data-dropday="none"><div class="wpage-head static"><span class="wp-wd">Без даты</span><span class="wp-c">'+nodate.length+'</span></div><ul class="wlist">'+nodate.map(x=>'<li class="w-item task'+(sphColor(x)?' has-c':'')+'"'+cStyle(x)+' data-drag="'+esc(x.id)+'"><button class="check sm" data-act="done" data-id="'+esc(x.id)+'" aria-label="Сделано: '+esc(x.title)+'"></button><span class="w-time"></span><button class="w-title" data-act="mv-open" data-id="'+esc(x.id)+'">'+esc(x.title)+(x.note?'<span class="w-note">'+esc(String(x.note).replace(/\s+/g,' ').slice(0,80))+'</span>':'')+'</button></li>').join('')+'</ul></section>'; }
+  let h='<div class="week-nav"><button class="btn ghost" data-act="wk" data-v="-1" aria-label="Прошлая неделя">‹</button><button class="week-title" data-act="mon-toggle" aria-expanded="'+!!ui.monOpen+'">'+esc(title)+' <span class="caret" aria-hidden="true">'+(ui.monOpen?'▴':'▾')+'</span></button><button class="btn ghost" data-act="wk" data-v="1" aria-label="Следующая неделя">›</button></div>';
+  if(ui.monOpen) h+=monthGrid();
+  if(ui.week) h+='<div style="text-align:center"><button class="btn ghost" data-act="wk-now">К этой неделе</button></div>';
+  const L=[0,1,2].map(i=>dayBox(addDays(st,i),wa)).join('')+dayBox('none',wa);
+  const R=[3,4,5,6].map(i=>dayBox(addDays(st,i),wa)).join('');
+  h+='<div class="spread" role="group" aria-label="Неделя-разворот"><div class="spread-page left">'+L+'</div><div class="spread-page right">'+R+'</div></div>';
+  h+='<p class="muted week-hint">Зажми дело и перетащи на другой день или вниз — в корзину. Нажми — день, время, удалить. Нажми на дату — откроется день. Нажми на название недели — календарь месяца.</p>';
   return h;
 }
 function moveTask(id, day){
@@ -1299,8 +1363,9 @@ function viewTasks(){
   h+='<div class="seg" role="group" aria-label="Вкладки">'+groups.map(g=>'<button data-act="group" data-v="'+esc(g.id)+'" aria-pressed="'+(ui.group===g.id)+'">'+esc(g.name)+'</button>').join('')+'<button data-act="group-add" aria-label="Добавить вкладку">+</button></div>';
   if(subs.length>1) h+='<div class="row wrap">'+['<button class="chip" data-act="sub" data-v="" aria-pressed="'+(!ui.sub)+'">Все сферы</button>'].concat(subs.map(s=>'<button class="chip" data-act="sub" data-v="'+esc(s.id)+'" aria-pressed="'+(ui.sub===s.id)+'">'+esc(s.name)+'</button>')).join('')+'</div>';
   h+='<div class="seg" role="group" aria-label="Фильтр">'+filters.map(([k,n])=>'<button data-act="filter" data-v="'+k+'" aria-pressed="'+(f===k)+'" style="min-height:36px;font-size:13px">'+n+'</button>').join('')+'</div>';
+  if(f==='week'){ h+=viewWeek(ui.group==='work'); return h+'</div>'; }
   h+='<section class="card">'+(list.length?list.map(taskRow).join(''):'<div class="empty">Здесь пусто. Надиктуй дело в строке внизу или нажми «+ Дело».</div>')+'</section>';
-  return h+'<p class="muted" style="font-size:13px">Нажми на дело, чтобы поменять текст, срок или сферу. Стрелка справа — на завтра.</p></div>';
+  return h+'<p class="muted" style="font-size:13px">Нажми на дело — изменить. Зажми или проведи влево — перенести или удалить. Стрелка справа — на завтра.</p></div>';
 }
 
 function viewDyn(){
@@ -1473,8 +1538,39 @@ async function brainDump(text){
   dump={list, src:text, reply:'', busy:false}; dumpSheet();
 }
 /* ---------- actions ---------- */
+const CMD_RE=/^\s*(?:пожалуйста\s+)?(удали|убери|вычеркни|сотри|отмени|перенеси|сдвинь|передвинь|отложи|отметь|выполнила|сделала|я\s+сделала|готово)(?=[\s,.!:]|$)/i;
+const stem=w=>w.toLowerCase().replace(/ё/g,'е').replace(/[^а-яa-z0-9]/g,'').slice(0,5);
+function localMatch(text){
+  const words=text.replace(CMD_RE,' ').split(/\s+/).map(stem).filter(w=>w.length>=3&&!['задач','дело','дела','мне','надо','котор','завтр','сегод','все','всё'].includes(w));
+  if(!words.length) return [];
+  return S.tasks.filter(x=>!x.done).map(x=>{ const tw=x.title.split(/\s+/).map(stem); const sc=words.filter(w=>tw.some(t=>t&&t.startsWith(w.slice(0,4)))).length; return {x,sc}; }).filter(o=>o.sc>0).sort((a,b)=>b.sc-a.sc).slice(0,5);
+}
+let cmd={text:'',actions:[],busy:false,err:''};
+function cmdSheet(){
+  let h='<div class="row between"><h2 id="sheet-h">Поняла так</h2><button class="btn ghost" data-act="close-sheet">Отмена</button></div><p class="muted" style="margin:0;font-size:14px">«'+esc(cmd.text)+'»</p>';
+  if(cmd.busy) h+='<div class="thinking" role="status"><span class="spin"></span>Ищу дела…</div>';
+  else if(!cmd.actions.length) h+='<div class="empty">'+esc(cmd.err||'Не нашла такое дело. Скажи точнее название.')+'</div><button class="btn block-btn" data-act="cmd-as-task">Это новое дело — добавить</button>';
+  else h+='<ul class="act-list cmd-list">'+cmd.actions.map((a,i)=>'<li><label class="row" style="gap:10px;align-items:center"><input type="checkbox" data-cmd-i="'+i+'" '+(a._off?'':'checked')+' style="width:22px;height:22px;flex:none"><span>'+esc(actLabel(a))+'</span></label></li>').join('')+'</ul><button class="btn primary block-btn" data-act="cmd-apply">Сделать</button>';
+  openSheet(h);
+}
+async function runCommand(text){
+  const inp=$('#cap-in'); if(inp) inp.value='';
+  cmd={text, actions:[], busy:true, err:''}; cmdSheet();
+  const verb=(text.match(CMD_RE)||[])[1]||'';
+  const op=/удал|убер|убра|вычерк|сотри|отмен/i.test(verb)?'delete':/перен|сдвин|передвин|отлож/i.test(verb)?'move':'done';
+  if(cap.sample){
+    try{
+      const list=S.tasks.filter(x=>!x.done).slice(-150).map(x=>'#'+x.id+' '+x.title+(x.due?' ['+x.due+(x.time?' '+x.time:'')+']':' [без даты]')).join('\n');
+      const r=await cap.sample.json(dateCtx()+'\nДела человека:\n'+list+'\n\nЧеловек сказал голосом: «'+text.slice(0,2000)+'»\nЭто команда над существующими делами (удалить, перенести, поставить время, отметить сделанным). Найди, о каких делах речь (по смыслу, не дословно). Ответь ТОЛЬКО JSON {"actions":[{"op":"delete|move|done","id":"…","due":"YYYY-MM-DD|null","time":"HH:MM|null"}]}. Если дело не найдено — пустой список.',{modelTier:'quick',cache:false});
+      cmd.actions=arr(r&&r.actions).map(a=>Object.assign({},a,{id:String(a.id||'').replace(/^#/,'')})).filter(a=>['delete','move','done'].includes(a.op)&&findTask(a.id));
+    }catch(e){ cmd.err=aiError(e); }
+  }
+  if(!cmd.actions.length && op!=='move'){ const m=localMatch(text); if(m.length){ const top=m[0].sc; cmd.actions=m.filter(o=>o.sc===top).slice(0,3).map(o=>({op,id:o.x.id})); cmd.err=''; } }
+  cmd.busy=false; if(sheetOpen) cmdSheet();
+}
 async function quickAdd(text){
   text=text.trim(); if(!text) return;
+  if(CMD_RE.test(text) && text.split(/\s+/).length<=25){ return runCommand(text); }
   const inp=$('#cap-in');
   const p=parseRu(text);
   let list=[], refine=false;
@@ -1731,6 +1827,9 @@ document.addEventListener('click', async e=>{
     case 'conn-cal': { if(ui.tab==='me') pfCollect(); else obCollect(); const i=S.calendars.indexOf(v); if(i>=0){ if(S.calendars.length>1) S.calendars.splice(i,1); else { toast('Оставь хотя бы один календарь'); break; } } else S.calendars.push(v); save(); render(); loadCalendar(true); break; }
     case 'dump-due': { dumpCollect(); const t=dump.list[Number(b.getAttribute('data-i'))]; if(t){ t.due=v||null; if(!v) t.time=null; } dumpSheet(); break; }
     case 'dump-reply': dumpReply(); break;
+    case 'cmd-as-task': { const tx=cmd.text; closeSheet(); const p=parseRu(tx); const t=normTask({title:p.title.slice(0,90),due:p.due,time:p.time}, defaultSphere()); dump={list:[t],src:tx,reply:'',busy:false}; dumpSheet(); break; }
+    case 'cmd-apply': { document.querySelectorAll('[data-cmd-i]').forEach(el=>{ const a=cmd.actions[Number(el.getAttribute('data-cmd-i'))]; if(a) a._off=!el.checked; }); const L=cmd.actions.filter(a=>!a._off); closeSheet(); if(!L.length) break;
+      const snap=JSON.stringify(S.tasks), rs=JSON.stringify(S.recur||[]); const n=applyActions(L); toast('Готово: '+plural(n,'изменение','изменения','изменений'), ()=>{ S.tasks=JSON.parse(snap); S.recur=JSON.parse(rs); save(); render(); }); break; }
     case 'dump-del': { dumpCollect(); dump.list.splice(Number(b.getAttribute('data-i')),1); dumpSheet(); break; }
     case 'dump-save': { dumpCollect(); const L=dump.list.map(t=>{ const c={...t}; delete c.ask; delete c.repeat; c.source='voice'; return c; }); S.tasks.push(...L);
       dump.list.forEach((t,i)=>{ if(t.repeat){ const x=L[i]; const r=makeRecur(x, t.repeat); x.recurId=r.id; x.due=x.due||nextRepDay(t.repeat, today()); } }); ensureRecur(); haptic(); save(); closeSheet(); render();
@@ -1740,7 +1839,11 @@ document.addEventListener('click', async e=>{
     case 'tour': tourSheet(Number(v)); break;
     case 'tour-end': S.tourDone=true; S.tourV=2; save(); closeSheet(); break;
     case 'view': ui.view=b.getAttribute('data-v'); try{ localStorage.setItem('ritm-view', ui.view); }catch(_){} render(); break;
-    case 'wk': ui.week=(ui.week||0)+Number(b.getAttribute('data-v')); render(); break;
+    case 'wk': ui.week=(ui.week||0)+Number(b.getAttribute('data-v')); ui.mon=weekStart(ui.week).slice(0,7); render(); break;
+    case 'wk-now': ui.week=0; ui.mon=null; render(); break;
+    case 'mon-toggle': ui.monOpen=!ui.monOpen; if(ui.monOpen) ui.mon=weekStart(ui.week||0).slice(0,7); render(); break;
+    case 'mon': { const [yy,mm]=(ui.mon||today().slice(0,7)).split('-').map(Number); const dd=new Date(yy,mm-1+Number(v),1); ui.mon=dd.getFullYear()+'-'+pad(dd.getMonth()+1); render(); break; }
+    case 'mon-pick': { const cur=weekStart(0); const [a,b2,c]=cur.split('-').map(Number); const [x1,x2,x3]=v.split('-').map(Number); const diff=Math.round((new Date(x1,x2-1,x3)-new Date(a,b2-1,c))/86400000); ui.week=Math.floor(diff/7); ui.monOpen=false; haptic(); render(); break; }
     case 'day-open': ui.view='day'; ui.day=b.getAttribute('data-v'); try{ localStorage.setItem('ritm-view','day'); }catch(_){} render(); window.scrollTo(0,0); break;
     case 'mv-open': if(window.__ritmDragEnd && Date.now()-window.__ritmDragEnd<400) break; moveSheet(id); break;
     case 'sw-del': case 'mv-del': closeSheet(); deleteWithUndo(id); break;
