@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015190442';</script>
-<script src="supabase.js?v=20261015190442"></script>
-<script src="config.js?v=20261015190442"></script>
-<script src="backend.js?v=20261015190442"></script>
+<script>window.RITM_BUILD='20261015190849';</script>
+<script src="supabase.js?v=20261015190849"></script>
+<script src="config.js?v=20261015190849"></script>
+<script src="backend.js?v=20261015190849"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -446,6 +446,14 @@ body.has-ctl .app{padding-top:68px}
 [data-speak-state].on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .say-day{min-height:36px;padding:0 10px;font-size:13px}
 .over-t{color:var(--warn);font-weight:700}
+.app{padding-bottom:calc(210px + env(safe-area-inset-bottom,0px))}
+.capture .mic-round{width:56px;height:56px;background:var(--accent);color:var(--accent-ink);border-color:var(--accent);box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 35%,transparent)}
+.capture .mic-round svg{width:24px;height:24px}
+.capture:has(#cap-in:placeholder-shown) .go{display:none}
+.capture .go{background:var(--ink)}
+.chip.sm{min-height:40px}
+.seg button{min-height:40px}
+.muted{color:color-mix(in srgb,var(--muted) 88%,var(--ink))}
 </style>
 
 <style>html,body{margin:0}body{padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}</style>
@@ -872,7 +880,7 @@ const COACH=[
   ['[data-act=tab][data-v=tasks]','Дела: планирование','День, неделя и месяц как в бумажном ежедневнике, плюс список. Зажми дело и перетащи на другой день или в корзину.'],
   ['#h-tasks','Дела на сегодня','Здесь только сегодняшнее. Кружок — сделано. Нажми на дело — изменить. Зажми или смахни влево — перенести и удалить.'],
   ['[data-act=tab][data-v=ai]','Ассистент','Знает твои дела и жизнь. Спроси совета — он сам предложит изменения, ты нажмёшь «Сделать».'],
-  ['[data-act=tab][data-v=dyn]','Я','Мои дела и Моя жизнь: проекты, приоритеты, люди, важные даты. Из этого Ритм планирует. Дополняй голосом, когда есть минута.'],
+  ['[data-act=tab][data-v=dyn]','Обо мне','Работа и жизнь: проекты, приоритеты, люди, важные даты. Из этого Ритм планирует. Дополняй голосом, когда есть минута.'],
   ['[data-act=tab][data-v=me]','Профиль','Цвета сфер, ритм дня, напоминания на телефон, «Начать заново». Здесь же можно снова посмотреть это знакомство.']
 ];
 function coachEnd(){ const c=document.getElementById('coach'); if(c) c.remove(); S.tourDone=true; S.tourV=3; save(); }
@@ -932,10 +940,10 @@ function render(){
   }
 }
 function renderDock(){
-  const tabs=[['today','Сегодня','today'],['tasks','Дела','list'],['ai','Ассистент','spark'],['dyn','Я','heart'],['me','Профиль','me']];
+  const tabs=[['today','Сегодня','today'],['tasks','Дела','list'],['ai','Ассистент','spark'],['dyn','Обо мне','heart'],['me','Профиль','me']];
   const cur=$('#cap-in'); const keep=cur?cur.value:''; const foc=document.activeElement===cur;
-  $('#dock').innerHTML='<div class="dock"><div class="dock-inner">'+(ui.tab==='ai'?'':
-    '<form class="capture" id="cap-form" autocomplete="off"><label for="cap-in" class="srt">Быстрая запись голосом или текстом</label><input id="cap-in" type="text" enterkeyhint="send" placeholder="Скажи дело, команду или вопрос" value="'+esc(keep)+'"><button class="go" type="submit" aria-label="Добавить">'+ICON.send+'</button></form>')+
+  $('#dock').innerHTML='<div class="dock"><div class="dock-inner">'+(ui.tab==='ai'||ui.tab==='me'?'':
+    '<form class="capture" id="cap-form" autocomplete="off"><label for="cap-in" class="srt">Быстрая запись голосом или текстом</label><input id="cap-in" type="text" enterkeyhint="send" placeholder="Дело, вопрос или команда" value="'+esc(keep)+'"><button class="go" type="submit" aria-label="Добавить">'+ICON.send+'</button></form>')+
     '<nav class="tabs" aria-label="Разделы">'+tabs.map(([k,n,i])=>'<button data-act="tab" data-v="'+k+'" '+(ui.tab===k?'aria-current="page"':'')+'>'+ICON[i]+'<span>'+n+'</span></button>').join('')+'</nav>'+
   '</div></div>';
   if(foc){ const n=$('#cap-in'); if(n) n.focus(); }
@@ -1085,7 +1093,7 @@ function moveSheet(id){
     '<p style="margin:0;font-weight:650;font-size:18px">'+esc(x.title)+'</p>'+(x.note?'<p class="muted" style="margin:0;font-size:14px;white-space:pre-line">'+esc(x.note)+'</p>':'')+(r?'<p class="muted" style="margin:0;font-size:13px">↻ '+esc(repText(r))+'</p>':'')+
     '<button class="btn primary block-btn" data-act="mv-done" data-id="'+esc(id)+'">'+(x.done?'Вернуть в работу':'✓ Сделано')+'</button>'+
     '<div class="eyebrow">Перенести на день</div><div class="row wrap">'+chips+'</div>'+
-    '<div class="eyebrow">Время</div><div class="row" style="gap:6px"><button class="btn tstep" data-act="mv-tstep" data-v="-30" aria-label="На 30 минут раньше">−30</button><button class="btn tstep" data-act="mv-tstep" data-v="-15" aria-label="На 15 минут раньше">−15</button><input id="mv-time" type="time" value="'+esc(x.time||'')+'" aria-label="Время" style="flex:1;min-width:0"><button class="btn tstep" data-act="mv-tstep" data-v="15" aria-label="На 15 минут позже">+15</button><button class="btn tstep" data-act="mv-tstep" data-v="30" aria-label="На 30 минут позже">+30</button></div><button class="btn block-btn" data-act="mv-time" data-id="'+esc(id)+'">Поставить время</button>'+
+    '<div class="eyebrow">Время</div><div class="row" style="gap:6px"><button class="btn tstep" data-act="mv-tstep" data-v="-30" aria-label="На 30 минут раньше">−30</button><button class="btn tstep" data-act="mv-tstep" data-v="-15" aria-label="На 15 минут раньше">−15</button><input id="mv-time" type="time" lang="ru" value="'+esc(x.time||'')+'" aria-label="Время" style="flex:1;min-width:0"><button class="btn tstep" data-act="mv-tstep" data-v="15" aria-label="На 15 минут позже">+15</button><button class="btn tstep" data-act="mv-tstep" data-v="30" aria-label="На 30 минут позже">+30</button></div><button class="btn block-btn" data-act="mv-time" data-id="'+esc(id)+'">Поставить время</button>'+
     (x.time?'<div class="eyebrow">Напомнить пушем</div>'+remChips(x):'')+
     '<button class="btn block-btn" data-act="mv-pin" data-id="'+esc(id)+'">📌 Закрепить — делать каждый день</button>'+
     '<div class="grid2"><button class="btn" data-act="edit" data-id="'+esc(id)+'">Изменить</button><button class="btn danger" data-act="mv-del" data-id="'+esc(id)+'">Удалить</button></div>');
@@ -1187,7 +1195,7 @@ function viewToday(mode){
   if(home) h+='<div class="hello"><div class="eyebrow">'+WD[d.getDay()]+', '+d.getDate()+' '+MONTHS[d.getMonth()]+'</div><h1 tabindex="-1" id="page-h">'+greeting()+(S.name?', '+esc(S.name):'')+'</h1>'+
      (M.affirm?'<div class="affirm-line"><p>'+esc(affirmation())+'</p>'+'<button class="btn ghost" data-act="affirm-new" aria-label="Другая фраза дня">Другая</button>'+'</div>':'')+'</div>';
   if(!home) h+=weekStrip(wa);
-  if(!home && hasWork()) h+='<div class="workbar"><button class="toggle" data-act="workmode" aria-pressed="'+wa+'">'+(wa?'Сейчас работаю':'Показываю всё')+'</button><span class="muted" style="font-size:12.5px;text-align:right">'+(wa&&hiddenPersonal?'Личных скрыто: '+hiddenPersonal:S.workOverride&&S.workOverride.date===t?'Вручную до конца дня':S.workMode==='auto'?'Авто: '+esc(S.rhythm.workStart)+'–'+esc(S.rhythm.workEnd):S.workMode==='on'?'Всегда включён':'Выключен')+'</span></div>';
+  if(!home && hasWork()) h+='<div class="workbar"><button class="toggle" data-act="workmode" aria-pressed="'+wa+'">'+(wa?'Только работа: вкл':'Только работа: выкл')+'</button><span class="muted" style="font-size:12.5px;text-align:right">'+(wa&&hiddenPersonal?'Личных скрыто: '+hiddenPersonal:'')+'</span></div>';
   const undated=S.tasks.filter(x=>!x.done&&!x.due&&x.kind!=='wait'&&(!wa||groupOf(x)==='work'));
   if(!home&&undated.length){
     const T0=today(); const dw=new Date().getDay(); const toMon=(1-dw+7)%7||7;
@@ -1336,7 +1344,7 @@ function viewAssist(){
   let h='<div class="stack" style="gap:16px"><h1 tabindex="-1" id="page-h">Ассистент</h1>';
   // chat
   const msgs=arr(S.chat).slice(-12);
-  h+='<section class="card block" aria-labelledby="h-chat"><div class="block-head"><h2 id="h-chat" style="font-size:22px">Спроси меня</h2><button class="toggle" data-act="voice-mode" aria-pressed="'+!!S.voiceMode+'" data-speak-state>'+(S.voiceMode?'🔊 Голосом: вкл':'🔈 Голосом')+'</button></div>'+(S.voiceMode?'<p class="voice-hint">Голосовой режим: отвечаю вслух, потом сразу слушаю следующий вопрос. Можно не смотреть в экран.</p>':'')+'<button id="tts-stop" class="btn" data-act="tts-stop" '+(ttsOn?'':'hidden')+'>■ Остановить озвучку</button><p class="muted" style="margin:0;font-size:13.5px">Я знаю твои дела, цели и всё, что ты рассказала о себе. Спроси, с чего начать день, как разгрузить неделю, что подготовить к встрече.</p>';
+  h+='<section class="card block" aria-labelledby="h-chat"><div class="block-head"><h2 id="h-chat" style="font-size:22px">Спроси меня</h2><button class="toggle" data-act="voice-mode" aria-pressed="'+!!S.voiceMode+'" data-speak-state>'+(S.voiceMode?'🔊 Читаю вслух':'🔈 Читать вслух')+'</button></div>'+(S.voiceMode?'<p class="voice-hint">Голосовой режим: отвечаю вслух, потом сразу слушаю следующий вопрос. Можно не смотреть в экран.</p>':'')+'<button id="tts-stop" class="btn" data-act="tts-stop" '+(ttsOn?'':'hidden')+'>■ Остановить озвучку</button><p class="muted" style="margin:0;font-size:13.5px">Я знаю твои дела, цели и всё, что ты рассказала о себе. Спроси, с чего начать день, как разгрузить неделю, что подготовить к встрече.</p>';
   if(msgs.length) h+='<div class="chat" role="log" aria-live="polite">'+msgs.map((m,mi)=>'<div class="msg '+(m.role==='user'?'me':'ai')+'">'+(m.role==='user'?esc(m.content):md(m.content)+'<button class="say-btn" data-act="say" data-v="'+(S.chat.length-msgs.length+mi)+'" aria-label="Прочитать вслух">🔊</button>')+'</div>'+(m.actions&&m.actions.length?actCard(m, S.chat.length-msgs.length+mi):'')).join('')+(assist.busy?'<div class="msg ai" id="ai-stream">'+esc(assist.stream||'Думаю…')+'</div>':'')+'</div>';
   else if(assist.busy) h+='<div class="chat"><div class="msg ai" id="ai-stream">'+esc(assist.stream||'Думаю…')+'</div></div>';
   if(!msgs.length && !assist.busy) h+='<div class="row wrap">'+['Что у меня сегодня?','С чего начать сегодня?','Разгрузи мне эту неделю','Есть ли у меня записи на завтра?','Когда лучше сходить к врачу?','Перенеси всё несрочное на завтра'].map(q=>'<button class="chip" data-act="ask-q" data-v="'+esc(q)+'">'+esc(q)+'</button>').join('')+'</div>';
@@ -1346,7 +1354,7 @@ function viewAssist(){
   h+='</section>';
   // контекст
   const fd=LIFE.filter(x=>x[3]==='d'), fl=LIFE.filter(x=>x[3]==='l'); const cnt=a=>a.filter(([k])=>S.life[k]&&arr(S.life[k].facts).length).length;
-  h+='<button class="card block ctx-link" data-act="tab" data-v="dyn"><div class="eyebrow">Что я знаю о тебе</div><div class="row between"><span><b>Мои дела</b> '+cnt(fd)+' из '+fd.length+' · <b>Моя жизнь</b> '+cnt(fl)+' из '+fl.length+'</span><span aria-hidden="true">›</span></div><span class="muted" style="font-size:13px;text-align:left">Чем больше контекста, тем точнее планы и советы. Всё во вкладке «Я».</span></button>';
+  h+='<button class="card block ctx-link" data-act="tab" data-v="dyn"><div class="eyebrow">Что я знаю о тебе</div><div class="row between"><span><b>Работа</b> '+cnt(fd)+' из '+fd.length+' · <b>Жизнь</b> '+cnt(fl)+' из '+fl.length+'</span><span aria-hidden="true">›</span></div><span class="muted" style="font-size:13px;text-align:left">Чем больше контекста, тем точнее планы и советы. Всё во вкладке «Обо мне».</span></button>';
   return h+'</div>';
 }
 let assist={busy:false,stream:'',err:'',draft:'',ctl:null};
@@ -1379,8 +1387,8 @@ function briefText(){
   if(!n) s+='На сегодня дел нет. Можно взять что-то из списка без даты или просто отдохнуть.\n';
   else s+='На сегодня '+plural(n,'дело','дела','дел')+(over?', из них просрочено '+over:'')+'.\n';
   if(timed.length) s+='По времени: '+timed.map(x=>'в '+x.time+' — '+x.title).join('; ')+'.\n';
-  if(mains.length) s+='Главное: '+mains.slice(0,5).map(x=>x.title).join('; ')+(mains.length>5?' и ещё '+(mains.length-5):'')+'.\n';
-  if(smalls.length) s+='Мелочи: '+smalls.slice(0,5).map(x=>x.title).join('; ')+(smalls.length>5?' и ещё '+(smalls.length-5):'')+'.\n';
+  if(mains.length) s+='Три главных: '+mains.slice(0,3).map(x=>x.title).join('; ')+(mains.length>3?'. Ещё '+plural(mains.length-3,'важное дело','важных дела','важных дел')+' — если успеешь':'')+'.\n';
+  if(smalls.length) s+='И '+plural(smalls.length,'мелочь','мелочи','мелочей')+'.\n';
   if(habs.length) s+='И каждый день: '+habs.map(h=>h.name).join(', ')+'.\n';
   s+=affirmation();
   return s;
@@ -1523,8 +1531,8 @@ function addMin(date,time,mins){ const [y,mo,d]=date.split('-').map(Number); con
 async function scheduleBrief(){
   if(!cap.push || !window.RITM_PUSH || !window.RITM_PUSH.scheduleBrief) return;
   const tm=isHM(S.rhythm.brief)?S.rhythm.brief:'08:45';
-  const days=S.briefPush?Array.from({length:7},(_,i)=>addDays(today(),i)).map(d=>({date:d,time:tm})):[];
-  const hr=S.habRemind&&S.habRemind.on&&S.habits.length?Array.from({length:7},(_,i)=>addDays(today(),i)).map(d=>({date:d,time:isHM(S.habRemind.time)?S.habRemind.time:'20:00',kind:'habits'})):[];
+  const days=S.briefPush?Array.from({length:30},(_,i)=>addDays(today(),i)).map(d=>({date:d,time:tm})):[];
+  const hr=S.habRemind&&S.habRemind.on&&S.habits.length?Array.from({length:30},(_,i)=>addDays(today(),i)).map(d=>({date:d,time:isHM(S.habRemind.time)?S.habRemind.time:'20:00',kind:'habits'})):[];
   try{ await window.RITM_PUSH.scheduleBrief(days.concat(hr)); }catch(e){}
 }
 async function createReminder(t, quiet){
@@ -1609,16 +1617,16 @@ function datesBlock(){
   const T=today(); const ys=arr(S.recur).filter(r=>r.freq==='year').map(r=>({r,d:nextOcc(r,T)})).filter(x=>x.d).sort((a,b)=>a.d.localeCompare(b.d));
   let h='<section class="card block" aria-labelledby="h-dates"><div class="block-head"><h2 id="h-dates" style="font-size:22px">Важные даты</h2><span class="muted" style="font-size:13px">'+(ys.length||'')+'</span></div>';
   h+=ys.length?ys.map(({r,d})=>{ const [y,m,dd]=d.split('-').map(Number); const n=Math.round((new Date(y,m-1,dd)-new Date(T+'T00:00'))/86400000); return '<div class="habit"><div style="min-width:0;flex:1"><div style="font-weight:650">'+esc(r.title)+'</div><div class="muted" style="font-size:12.5px">'+dd+' '+MONTHS[m-1]+' · '+(n===0?'сегодня':n===1?'завтра':'через '+plural(n,'день','дня','дней'))+(r.before?' · напомню за '+plural(r.before,'день','дня','дней'):'')+'</div></div><button class="icon-btn" data-act="date-del" data-id="'+esc(r.id)+'" aria-label="Убрать дату: '+esc(r.title)+'">'+ICON.x+'</button></div>'; }).join(''):'<p class="muted" style="margin:0;font-size:14px">Дни рождения, годовщины, страховки, налоги. Ритм напомнит заранее и в сам день — каждый год.</p>';
-  h+='<form id="date-form" class="date-form" autocomplete="off"><label for="date-title" class="srt">Что за дата</label><input id="date-title" type="text" placeholder="День рождения мамы"><label for="date-d" class="srt">Дата</label><input id="date-d" type="date"><button class="btn" type="submit">Добавить</button></form><p class="muted" style="margin:0;font-size:12.5px">Или скажи в строке внизу: «каждый год 12 мая день рождения мамы».</p></section>';
+  h+='<form id="date-form" class="date-form" autocomplete="off"><label for="date-title" class="srt">Что за дата</label><input id="date-title" type="text" placeholder="День рождения мамы"><label for="date-d" class="srt">Дата</label><input id="date-d" type="date" lang="ru"><button class="btn" type="submit">Добавить</button></form><p class="muted" style="margin:0;font-size:12.5px">Или скажи в строке внизу: «каждый год 12 мая день рождения мамы».</p></section>';
   return h;
 }
 function viewMe(){
   const sec=ui.meSec||'dela';
-  let h='<div class="stack" style="gap:16px"><h1 tabindex="-1" id="page-h">Я</h1><p class="muted" style="margin:-8px 0 0">Всё, что Ритм знает о тебе. Из этого он планирует и советует. Нажми на блок — посмотри, поправь или дополни голосом.</p>';
-  h+='<div class="seg" role="group" aria-label="Раздел"><button data-act="me-sec" data-v="dela" aria-pressed="'+(sec==='dela')+'">Мои дела</button><button data-act="me-sec" data-v="life" aria-pressed="'+(sec==='life')+'">Моя жизнь</button><button data-act="me-sec" data-v="dyn" aria-pressed="'+(sec==='dyn')+'">Динамика</button></div>';
+  let h='<div class="stack" style="gap:16px"><h1 tabindex="-1" id="page-h">Обо мне</h1><p class="muted" style="margin:-8px 0 0">Всё, что Ритм знает о тебе. Из этого он планирует и советует. Нажми на блок — посмотри, поправь или дополни голосом.</p>';
+  h+='<div class="seg" role="group" aria-label="Раздел"><button data-act="me-sec" data-v="dela" aria-pressed="'+(sec==='dela')+'">Работа</button><button data-act="me-sec" data-v="life" aria-pressed="'+(sec==='life')+'">Жизнь</button><button data-act="me-sec" data-v="dyn" aria-pressed="'+(sec==='dyn')+'">Динамика</button></div>';
   if(sec==='dyn') return h+viewDyn().replace(/^<div class="stack"[^>]*>/,'<div class="stack" style="gap:16px">')+'</div>';
   const list=LIFE.filter(x=>x[3]===(sec==='dela'?'d':'l')); const filled=list.filter(([k])=>S.life[k]&&arr(S.life[k].facts).length).length;
-  h+='<section class="card block"><div class="block-head"><h2 style="font-size:22px">'+(sec==='dela'?'Мои дела':'Моя жизнь')+'</h2><span class="muted" style="font-size:13px">'+filled+' из '+list.length+'</span></div><div class="meter" role="img" aria-label="Заполнено '+filled+' из '+list.length+'"><i style="width:'+Math.round(filled/list.length*100)+'%"></i></div>'+lifeRows(list)+'</section>';
+  h+='<section class="card block"><div class="block-head"><h2 style="font-size:22px">'+(sec==='dela'?'Работа и дела':'Жизнь')+'</h2><span class="muted" style="font-size:13px">'+filled+' из '+list.length+'</span></div><div class="meter" role="img" aria-label="Заполнено '+filled+' из '+list.length+'"><i style="width:'+Math.round(filled/list.length*100)+'%"></i></div>'+lifeRows(list)+'</section>';
   if(sec==='life') h+=datesBlock();
   return h+'</div>';
 }
@@ -1657,7 +1665,7 @@ function viewProfile(){
     '<form id="hab-form" class="row" style="gap:8px" autocomplete="off"><label for="hab-new" class="srt">Добавить ежедневное</label><input id="hab-new" type="text" placeholder="Вода, зарядка, английский 10 минут" style="flex:1;min-width:0"><button class="btn" type="submit" style="flex:none">Добавить</button></form>'+
     '<p class="muted" style="margin:0;font-size:12.5px">Можно сразу списком через запятую или голосом: «вода, зарядка, витамины».</p>'+
     '<div class="row between" style="margin-top:6px"><span><b>Напоминать каждый день</b><span class="muted" style="display:block;font-size:13px">Пуш, если что-то не отмечено</span></span><button class="toggle" data-act="hab-rem" aria-pressed="'+!!(S.habRemind&&S.habRemind.on)+'">'+(S.habRemind&&S.habRemind.on?'Вкл':'Выкл')+'</button></div>'+
-    (S.habRemind&&S.habRemind.on?'<label class="f" for="hab-time">Во сколько<input id="hab-time" type="time" value="'+esc(S.habRemind.time||'20:00')+'"></label>':'')+'</section>';
+    (S.habRemind&&S.habRemind.on?'<label class="f" for="hab-time">Во сколько<input id="hab-time" type="time" lang="ru" value="'+esc(S.habRemind.time||'20:00')+'"></label>':'')+'</section>';
   h+='<button class="btn primary block-btn" data-act="pf-save">Сохранить профиль</button>';
   h+='<section class="card block"><h2 style="font-size:22px">Иконка на iPhone</h2><ol style="margin:0;padding-left:20px;line-height:1.7"><li>Открой сайт Ритма в Safari.</li><li>Нажми «Поделиться» внизу экрана.</li><li>Выбери «На экран Домой» → «Добавить».</li></ol><p class="muted" style="font-size:13px;margin:0">Данные хранятся в твоём аккаунте: на телефоне и компьютере одни и те же дела.</p><button class="btn" data-act="sign-out">Выйти из аккаунта</button></section>';
   h+='<section class="card block"><h2 style="font-size:22px">Как пользоваться Ритмом</h2><p class="muted" style="margin:0">Короткое знакомство: что умеет приложение и куда нажимать.</p><button class="btn" data-act="tour" data-v="0">Показать знакомство</button></section>';
@@ -1765,7 +1773,7 @@ function dumpDateChips(i,t){
   const T=today(); const opts=[[T,'Сегодня'],[addDays(T,1),'Завтра'],[addDays(T,2),WDS[(new Date().getDay()+2)%7]+' '+Number(addDays(T,2).slice(8))]];
   const dow=new Date().getDay(); const toMon=(1-dow+7)%7||7; opts.push([addDays(T,toMon),'Пн '+Number(addDays(T,toMon).slice(8))]);
   return '<div class="row wrap" style="gap:6px">'+opts.map(([d,l])=>'<button class="chip sm" data-act="dump-due" data-i="'+i+'" data-v="'+d+'" aria-pressed="'+(t.due===d)+'">'+esc(l)+'</button>').join('')+
-    '<button class="chip sm" data-act="dump-due" data-i="'+i+'" data-v="" aria-pressed="'+(!t.due)+'">Без даты</button><input type="date" class="dump-date" data-dump-date="'+i+'" value="'+esc(t.due||'')+'" aria-label="Другая дата"><input type="time" class="dump-time" data-dump-time="'+i+'" value="'+esc(t.time||'')+'" aria-label="Время"></div>';
+    '<button class="chip sm" data-act="dump-due" data-i="'+i+'" data-v="" aria-pressed="'+(!t.due)+'">Без даты</button><input type="date" lang="ru" class="dump-date" data-dump-date="'+i+'" value="'+esc(t.due||'')+'" aria-label="Другая дата"><input type="time" lang="ru" class="dump-time" data-dump-time="'+i+'" value="'+esc(t.time||'')+'" aria-label="Время"></div>';
 }
 function dumpCollect(){
   document.querySelectorAll('[data-dump-title]').forEach(el=>{ const t=dump.list[Number(el.getAttribute('data-dump-title'))]; if(t) t.title=el.value.trim()||t.title; });
@@ -1806,8 +1814,8 @@ async function brainDump(text){
   const inp=$('#cap-in'); if(inp){ inp.value=''; inp.disabled=true; inp.placeholder='Разбираю на дела…'; }
   openSheet('<div class="thinking" role="status"><span class="spin"></span>Разбираю на дела… это до 20 секунд</div>');
   let list=[];
-  try{ list=await aiDump(text); if(!list.length) throw new Error('пусто'); }catch(e){ closeSheet(); if(inp){ inp.disabled=false; inp.placeholder='Скажи дело, команду или вопрос'; } toast(aiError(e)+' Сохранила текст одним делом.'); const p=parseRu(text); const t=normTask({title:p.title.slice(0,90), due:p.due, time:p.time, note:text.slice(0,1000)}, defaultSphere()); S.tasks.push(t); save(); render(); return; }
-  if(inp){ inp.disabled=false; inp.placeholder='Скажи дело, команду или вопрос'; }
+  try{ list=await aiDump(text); if(!list.length) throw new Error('пусто'); }catch(e){ closeSheet(); if(inp){ inp.disabled=false; inp.placeholder='Дело, вопрос или команда'; } toast(aiError(e)+' Сохранила текст одним делом.'); const p=parseRu(text); const t=normTask({title:p.title.slice(0,90), due:p.due, time:p.time, note:text.slice(0,1000)}, defaultSphere()); S.tasks.push(t); save(); render(); return; }
+  if(inp){ inp.disabled=false; inp.placeholder='Дело, вопрос или команда'; }
   dump={list, src:text, reply:'', busy:false}; dumpSheet();
 }
 /* ---------- actions ---------- */
@@ -1968,12 +1976,13 @@ function askDate(ids){
   openSheet('<div class="row between"><h2 id="sheet-h">Когда сделать?</h2><button class="btn ghost" data-act="close-sheet">Позже</button></div>'+
     '<p style="margin:0;font-weight:600;font-size:17px">'+esc(t.title)+'</p>'+(dateAsk.length>1?'<p class="muted" style="margin:0;font-size:13px">Ещё без даты: '+(dateAsk.length-1)+'</p>':'')+
     '<div class="row wrap">'+opts.map(([d,l])=>'<button class="chip" data-act="ask-set" data-id="'+esc(t.id)+'" data-v="'+d+'">'+esc(l)+'</button>').join('')+'</div>'+
-    '<label class="f" for="ask-date">Другая дата<input id="ask-date" type="date" min="'+T+'"></label>'+
+    '<label class="f" for="ask-date">Другая дата<input id="ask-date" type="date" lang="ru" min="'+T+'"></label>'+
     '<div class="row wrap"><button class="btn primary" data-act="ask-pick" data-id="'+esc(t.id)+'">Поставить на эту дату</button><button class="btn" data-act="ask-none" data-id="'+esc(t.id)+'">Без срока</button></div>');
 }
 function toggleDone(id){
   const t=findTask(id); if(!t) return;
   t.done=!t.done; t.doneAt=t.done?Date.now():null; if(t.done) haptic(); save(); render();
+  if(t.done && t.due && t.due<=today()){ const left=dayTasks(today(),false).length; if(!left){ try{ chime(); }catch(_){} const tm=dayTasks(addDays(today(),1),false).length; setTimeout(()=>toast('День закрыт! 🎉'+(tm?' Завтра '+plural(tm,'дело','дела','дел')+'.':' Завтра пока свободно.')),350); return; } }
   if(t.done) toast('Готово: '+t.title, ()=>{ const x=findTask(id); if(x){ x.done=false; x.doneAt=null; save(); render(); } });
 }
 function bumpPostponed(n){ const d=today(); S.days[d]=S.days[d]||{}; S.days[d].postponed=(S.days[d].postponed||0)+n; }
@@ -2009,8 +2018,8 @@ function editSheet(id){
     '<label class="f" for="e-title">Что сделать<textarea id="e-title" style="min-height:60px">'+esc(t.title)+'</textarea></label>'+
     '<label class="f" for="e-note">Подробности<textarea id="e-note" style="min-height:60px">'+esc(t.note||'')+'</textarea></label>'+
     '<div class="grid2"><label class="f" for="e-sph">Сфера<select id="e-sph">'+sphOpts+'</select></label>'+
-    '<label class="f" for="e-due">Срок<input id="e-due" type="date" value="'+esc(t.due||'')+'"></label>'+
-    '<label class="f" for="e-time">Время<input id="e-time" type="time" value="'+esc(t.time||'')+'"></label>'+
+    '<label class="f" for="e-due">Срок<input id="e-due" type="date" lang="ru" value="'+esc(t.due||'')+'"></label>'+
+    '<label class="f" for="e-time">Время<input id="e-time" type="time" lang="ru" value="'+esc(t.time||'')+'"></label>'+
     '<span></span>'+
     '<label class="f" for="e-kind">Тип<select id="e-kind"><option value="main"'+(t.kind==='main'?' selected':'')+'>Главное</option><option value="small"'+(t.kind==='small'?' selected':'')+'>Мелочь</option><option value="wait"'+(t.kind==='wait'?' selected':'')+'>Жду от другого</option></select></label>'+
     '<label class="f" for="e-pr">Важность<select id="e-pr"><option value="1"'+(t.priority===1?' selected':'')+'>Высокая</option><option value="2"'+(t.priority===2?' selected':'')+'>Средняя</option><option value="3"'+(t.priority===3?' selected':'')+'>Низкая</option></select></label>'+
@@ -2113,7 +2122,6 @@ async function closeDay(){
       const prompt=ctxBlock()+'\n\nЭто вечерняя заметка пользователя о дне. Если в ней есть НОВЫЕ дела или обещания на будущее — выпиши их; если нет — пустой список. Ответь ТОЛЬКО JSON {"tasks":[...]} в формате {"title","sphere":"id","due","kind","who","priority","est"}. '+TASK_RULES+'\n\nЗаметка:\n'+note.slice(0,6000);
       const r=await cap.sample.json(prompt,{modelTier:'quick',cache:false});
       const list=arr(r&&r.tasks).filter(x=>x&&x.title).map(x=>normTask(x, sphere(x.sphere)?x.sphere:defaultSphere()));
-      list.forEach(t=>{ if(!t.due&&t.kind!=='wait') t.due=addDays(today(),1); });
       if(list.length){ S.tasks.push(...list); save(); render(); const ids=list.map(x=>x.id); toast('День закрыт. Из заметки добавила дел: '+list.length, ()=>{ S.tasks=S.tasks.filter(x=>!ids.includes(x.id)); save(); render(); }); return; }
     }catch(e){}
   }
