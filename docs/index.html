@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015163230';</script>
-<script src="supabase.js?v=20261015163230"></script>
-<script src="config.js?v=20261015163230"></script>
-<script src="backend.js?v=20261015163230"></script>
+<script>window.RITM_BUILD='20261015170648';</script>
+<script src="supabase.js?v=20261015170648"></script>
+<script src="config.js?v=20261015170648"></script>
+<script src="backend.js?v=20261015170648"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -303,6 +303,44 @@ body.dragging{overflow:hidden;touch-action:none}
 @media (prefers-reduced-motion:reduce){.sw .task{transition:none}}
 .md-li{display:block;padding-left:14px;position:relative}.md-li::before{content:"";position:absolute;left:2px;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--accent)}
 .tour-dots{display:flex;gap:6px}.tour-dots span{width:8px;height:8px;border-radius:50%;background:var(--line)}.tour-dots span.on{background:var(--accent);width:20px;border-radius:4px}
+.task-note{font-size:13px;line-height:1.35;color:var(--muted);margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-align:left}
+.w-note{display:block;font-size:12px;color:var(--muted);font-weight:400;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w-title{min-width:0}
+.dump-card{border:1px solid var(--line);border-radius:14px;padding:12px;margin:0 0 10px;background:var(--surface);display:grid;gap:8px}
+.dump-n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:13px;font-weight:700;display:grid;place-items:center;margin-top:4px}
+.dump-title{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:17px;font-weight:650;resize:none;padding:4px 0;color:var(--ink);field-sizing:content;min-height:30px}
+.dump-title:focus{outline:2px solid var(--ink);outline-offset:2px;border-radius:6px}
+.dump-ask{margin:0;font-size:13px;padding:8px 10px;border-radius:10px;background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.chip.sm{min-height:34px;padding:0 11px;font-size:13px}
+.dump-date,.dump-time{min-height:34px;border:1px solid var(--line);border-radius:999px;padding:0 10px;background:var(--surface);font:inherit;font-size:13px;color:var(--ink)}
+.sw .task{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.task.has-c{box-shadow:inset 3px 0 0 var(--c);padding-left:10px}
+.w-item.has-c{box-shadow:inset 3px 0 0 var(--c);padding-left:8px}
+.paper .d-item.task.has-c,.d-item.task.has-c{border-left-color:var(--c);box-shadow:inset 3px 0 0 var(--c)}
+.d-item[data-act]{cursor:pointer}
+.counter{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:6px 0 10px}
+.counter-n{display:flex;align-items:baseline;gap:4px}
+.counter-n b{font-size:28px;line-height:1;font-variant-numeric:tabular-nums}
+.counter-n span{font-size:13px;color:var(--muted)}
+.counter-bar{height:8px;border-radius:99px;background:var(--soft);overflow:hidden}
+.counter-bar i{display:block;height:100%;background:var(--good);border-radius:99px;transition:width .35s ease}
+.counter-t{font-size:12.5px;color:var(--muted)}
+.empty-day{display:grid;gap:10px;padding:10px 0}
+.pick-row{display:flex;align-items:center;gap:10px;min-height:44px;border-bottom:1px solid var(--line)}
+.btn.danger{color:#fff;background:var(--warn);border-color:var(--warn)}
+.color-btn{flex:none;width:34px;height:34px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
+.color-btn.none{background:repeating-linear-gradient(45deg,var(--surface) 0 5px,var(--soft) 5px 10px)}
+.palette{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;justify-items:center}
+.swatch{width:56px;height:56px;border-radius:50%;border:3px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
+.swatch[aria-pressed="true"]{box-shadow:0 0 0 3px var(--ink)}
+.act-card{border:1.5px solid var(--ink);border-radius:14px;padding:12px;display:grid;gap:8px;margin:4px 0 8px;background:var(--surface)}
+.act-list{margin:0;padding-left:4px;list-style:none;display:grid;gap:4px;font-size:14.5px}
+.day-chip{min-width:44px;justify-content:center}
+.dump-reply{border-top:1px dashed var(--line);padding-top:10px;display:grid;gap:8px}
+.undated{gap:8px}
+.und-row{display:grid;gap:6px;padding:8px 0;border-bottom:1px solid var(--line)}
+.und-row:last-of-type{border-bottom:0}
+.und-title{display:flex;align-items:center;gap:8px;text-align:left;font-weight:600;font-size:15.5px;background:none;border:0;padding:0;color:var(--ink)}
 </style>
 
 <style>html,body{margin:0}body{padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}</style>
@@ -359,7 +397,7 @@ const DEFAULT = () => ({
   spheres:[], goals:[],
   modules:{affirm:true,calendar:true,main:true,small:true,wait:true,habits:true,evening:true},
   rhythm:{wake:'07:30',brief:'08:45',workStart:'09:00',workEnd:'18:00',focusHours:5,remind:60,review:'20:00',sleep:'23:30',weekdaysOnly:true,note:''},
-  calendars:['primary'], remindCal:'primary', workMode:'auto', workOverride:null, life:{}, chat:[], habits:[], habitLog:{}, days:{}, tasks:[], affirm:{}
+  calendars:['primary'], remindCal:'primary', recur:[], briefPush:true, workMode:'auto', workOverride:null, life:{}, chat:[], habits:[], habitLog:{}, days:{}, tasks:[], affirm:{}
 });
 let S = DEFAULT();
 let ui = { tab:'today', group:'all', sub:null, filter:'all', ob:0, D:null, view:(()=>{ try{ return localStorage.getItem('ritm-view')||'day'; }catch(_){ return 'day'; } })(), week:0 };
@@ -369,6 +407,7 @@ let calList = { status:'idle', items:[], msg:'' };
 let saving = false;
 let pendingFocus = null;
 
+const AFFIRMS = ["Сначала главное. Остальное подождёт.", "Я делаю один шаг за раз — и этого достаточно.", "Мой фокус — моя сила.", "Я выбираю ясность вместо суеты.", "Сегодня я закрываю то, что двигает меня вперёд.", "Я спокойно справляюсь с тем, что приносит день.", "Я начинаю с самого важного дела.", "Мне не нужно успеть всё, чтобы день был хорошим.", "Я управляю своим временем, а не оно мной.", "Я выполняю обещания — себе и другим.", "Каждое закрытое дело освобождает голову.", "Я доверяю своему ритму.", "Я умею говорить «нет» лишнему.", "Я выбираю прогресс, а не идеальность.", "Сделано лучше, чем идеально.", "Я работаю спокойно, глубоко и с удовольствием.", "У меня хватает сил на главное.", "Я замечаю свои победы, даже маленькие.", "Я двигаюсь в своём темпе — и он правильный.", "Сегодня я делаю на один шаг больше, чем вчера.", "Я ясно вижу, что важно сейчас.", "Я легко начинаю сложные дела.", "Первые пять минут — самые трудные. Я начинаю.", "Я выбираю действие вместо тревоги.", "Мои решения становятся увереннее с каждым днём.", "Я достойна результата, к которому иду.", "Я умею концентрироваться.", "Я разбиваю большое на маленькие шаги.", "Я довожу дела до конца.", "Мне нравится чувство завершённости.", "Я держу слово.", "Я делаю то, что обещала, вовремя.", "Я не откладываю — я планирую.", "Я выбираю одно дело и отдаю ему всё внимание.", "Мой день устроен так, как удобно мне.", "Я сильнее, чем мне кажется.", "Я справлялась раньше — справлюсь и сейчас.", "Я умею находить решения.", "Трудности делают меня опытнее.", "Я спокойна в моменте давления.", "Я выдыхаю и продолжаю.", "Я выбираю, на что тратить энергию.", "Я отпускаю то, что не могу контролировать.", "Я влияю на то, что в моих руках.", "Я разрешаю себе отдыхать без чувства вины.", "Отдых — часть моей продуктивности.", "Я берегу свою энергию для главного.", "Я слышу своё тело и даю ему то, что нужно.", "Я сплю достаточно, чтобы думать ясно.", "Я пью воду и двигаюсь — это забота о себе.", "Я уверенно веду переговоры.", "Я спокойно слышу «нет» и ищу следующий шаг.", "Каждый отказ приближает меня к согласию.", "Я знаю ценность того, что предлагаю.", "Я говорю ясно и по делу.", "Клиенты чувствуют мою уверенность и заботу.", "Я задаю правильные вопросы.", "Я слушаю, чтобы понять, а не чтобы ответить.", "Я веду команду к результату спокойно и твёрдо.", "Я даю людям ясные задачи и доверие.", "Моя команда растёт вместе со мной.", "Я вижу сильные стороны в людях.", "Я хвалю конкретно и вовремя.", "Я говорю о проблемах прямо и уважительно.", "Я принимаю решения на основе фактов.", "Цифры — мои союзники.", "Я вижу возможности там, где другие видят проблемы.", "Я учусь быстрее, чем меняется мир.", "Каждый день я становлюсь профессиональнее.", "Мой опыт ценен.", "Я заслуживаю хорошего дохода за свою работу.", "Деньги приходят ко мне через пользу, которую я создаю.", "Я спокойно обращаюсь с деньгами.", "Я планирую финансы и чувствую опору.", "Мои цели реальны, и я к ним иду.", "Я помню, зачем я это делаю.", "Мои цели вдохновляют меня, а не давят.", "Я праздную прогресс.", "Я благодарна себе за усилия.", "Я благодарна за этот день.", "Я замечаю хорошее вокруг себя.", "Сегодня есть за что сказать спасибо.", "Я окружаю себя людьми, которые меня поддерживают.", "Я выбираю тёплые отношения.", "Я нахожу время для близких.", "Я присутствую в моменте с теми, кого люблю.", "Я выстраиваю границы спокойно и уверенно.", "Мои потребности важны.", "Я разрешаю себе просить о помощи.", "Я принимаю помощь с благодарностью.", "Я не обязана быть удобной для всех.", "Я выбираю себя — и это не эгоизм.", "Я отношусь к себе с той же добротой, что и к другим.", "Я прощаю себе ошибки и делаю выводы.", "Ошибка — это информация, а не приговор.", "Я пробую новое без страха оценки.", "Я разрешаю себе расти.", "Я уже на пути.", "Мой темп — мой выбор.", "Я выбираю спокойную уверенность.", "Тишина в голове начинается с порядка в делах.", "Я записываю — и отпускаю из головы.", "Мой план держит меня, когда мотивации мало.", "Дисциплина — это забота о будущей себе.", "Будущая я скажет мне спасибо за сегодня.", "Я делаю сегодня то, что облегчит завтра.", "Маленькие шаги каждый день дают большие результаты.", "Регулярность сильнее рывков.", "Я возвращаюсь к плану без самокритики.", "Если я сбилась — я просто продолжаю.", "Я начинаю день с намерения.", "Я заканчиваю день с благодарностью.", "Утро задаёт тон. Я выбираю спокойный тон.", "Я вхожу в день с ясной головой.", "Я знаю свои три главных дела на сегодня.", "Я защищаю время для глубокой работы.", "Уведомления подождут. Я в фокусе.", "Я отвечаю на сообщения тогда, когда удобно мне.", "Я не реагирую — я выбираю ответ.", "Я сохраняю спокойствие в споре.", "Я умею договариваться.", "Я ищу решение, в котором выигрывают обе стороны.", "Я говорю «да» только тому, что важно.", "Каждое моё «нет» защищает моё «да».", "Я уважаю своё время — и другие уважают его.", "Я приношу пользу просто тем, как работаю.", "Моя работа имеет значение.", "Я горжусь тем, что создаю.", "Я творю и решаю задачи с интересом.", "Мне любопытно, как это можно сделать лучше.", "Я улучшаю процессы, а не ругаю людей.", "Я строю системы, которые работают за меня.", "Автоматизация экономит мои силы для важного.", "Я делегирую то, что могут сделать другие.", "Я фокусируюсь на том, что умею лучше всех.", "Я принимаю перемены как новые возможности.", "Я гибкая и устойчивая одновременно.", "Я справляюсь с неопределённостью.", "Я делаю лучшее, что могу, с тем, что есть.", "Я не сравниваю себя с другими — только с собой вчерашней.", "Мой путь уникален.", "Я позволяю себе радоваться успехам.", "Я заслуживаю признания.", "Я открыта новым идеям.", "Я верю в свои способности.", "Я умею учиться на опыте.", "Я выбираю мысли, которые помогают.", "Я замечаю тревогу и возвращаюсь к дыханию.", "Вдох — я здесь. Выдох — я спокойна.", "Я в безопасности, и я справляюсь.", "Моё тело — мой союзник.", "Я двигаюсь, потому что люблю себя.", "Я питаюсь так, чтобы у меня была энергия.", "Я хожу к врачу вовремя — это забота о себе.", "Я выделяю время на прогулку.", "Я восстанавливаюсь и возвращаюсь сильнее.", "Я слышу свою интуицию.", "Я доверяю своему опыту и чутью.", "Я делаю выбор и иду дальше.", "Я не застреваю в сомнениях.", "Хорошее решение сейчас лучше идеального потом.", "Я легко переключаюсь между задачами, когда нужно.", "Я заканчиваю одно, прежде чем браться за другое.", "Я наполняю день смыслом, а не суетой.", "Я выбираю важное вместо срочного.", "Я вижу общую картину.", "Я держу в голове цель и иду к ней шаг за шагом.", "Каждый день приближает меня к мечте.", "Я создаю жизнь, которой хочу жить.", "Я автор своего дня.", "Я сама решаю, каким будет этот день.", "Я наполнена энергией и интересом.", "Я заряжаюсь от того, что делаю.", "Я нахожу радость в простых вещах.", "Я позволяю себе удовольствие от работы.", "Я легко знакомлюсь и выстраиваю связи.", "Люди охотно со мной сотрудничают.", "Я ценю людей и вижу их вклад.", "Я умею благодарить.", "Я поддерживаю, а не контролирую.", "Я даю обратную связь бережно и честно.", "Я принимаю обратную связь без обиды.", "Я расту через вопросы, а не через страх.", "Я встречаю сложный разговор подготовленной.", "Я заранее продумываю главное.", "Я подготовлена — значит, спокойна.", "Я прихожу на встречи с целью.", "После встречи я фиксирую договорённости.", "Я помню, что пообещала, — потому что записываю.", "Мой ассистент держит детали, а я держу курс.", "Я освобождаю голову для творчества.", "Я выбираю порядок, который поддерживает меня.", "Мой дом — место силы.", "Я поддерживаю порядок легко, понемногу.", "Я ценю своё время и время других.", "Я прихожу вовремя.", "Я планирую с запасом.", "Я оставляю буферы между делами.", "Я не перегружаю свой день.", "Реалистичный план — мой лучший друг.", "Я выполняю план, потому что он честный.", "Я выбираю 3 главных дела вместо 30.", "Я делаю меньше, но лучше.", "Качество важнее количества.", "Я замечаю, когда пора остановиться.", "Я заканчиваю работу вовремя.", "Вечер — время для меня и близких.", "Я разрешаю себе ничего не делать.", "Скука рождает новые идеи.", "Я читаю и узнаю новое каждую неделю.", "Я вкладываю в своё развитие.", "Мои навыки растут каждый месяц.", "Я становлюсь экспертом в своём деле.", "Я делюсь знаниями — и они умножаются.", "Я вдохновляю других своим примером.", "Я лидер, за которым хочется идти.", "Я спокойно беру ответственность.", "Я признаю ошибки и исправляю их.", "Я честна с собой.", "Я знаю свои ценности и живу по ним.", "Мои решения совпадают с моими ценностями.", "Я выбираю то, что важно мне, а не то, что ждут другие.", "Я в контакте со своими желаниями.", "Я знаю, чего хочу.", "Я прошу то, что мне нужно, прямо.", "Я заслуживаю хорошего.", "Я принимаю комплименты.", "Я радуюсь чужим успехам — и они вдохновляют меня.", "Мир полон возможностей для меня.", "Я замечаю шансы и пользуюсь ими.", "Я смелая, когда это нужно.", "Страх — знак, что я расту.", "Я делаю это, даже если немного страшно.", "Я выхожу из зоны комфорта маленькими шагами.", "Новое становится привычным.", "Я легко формирую полезные привычки.", "Привычки делают работу за меня.", "Я отмечаю галочку — и чувствую прогресс.", "Серия растёт, а вместе с ней — уверенность.", "Я выбираю постоянство.", "Я не бросаю начатое из-за одного пропуска.", "Сегодня — новый шанс.", "Каждое утро — чистый лист.", "Я благодарна за возможность начать заново.", "Я принимаю день таким, какой он есть.", "Я делаю всё возможное — и отпускаю результат.", "Я спокойна за то, что сделала.", "Мне достаточно того, что я сделала сегодня.", "Я засыпаю с лёгкой головой.", "Я позволяю себе быть в процессе.", "Я учусь любить путь, а не только финиш.", "Мне интересно, кем я стану через год.", "Я инвестирую время в то, что будет важно через 5 лет.", "Я думаю на шаг вперёд.", "Я готовлюсь заранее и не спешу.", "Я выбираю долгую игру.", "Я строю, а не тушу пожары.", "Хаос превращается в план, когда я его записываю.", "Я превращаю мысли в действия.", "Я перевожу идеи в конкретные шаги.", "У каждой задачи есть следующий шаг. Я знаю его.", "Я понимаю, какой результат хочу получить.", "Я формулирую цели ясно.", "Я измеряю прогресс и радуюсь ему.", "Я не боюсь цифр — я ими управляю.", "Я принимаю решения быстро, когда цена ошибки мала.", "Я думаю дольше, когда ставки высоки.", "Я различаю срочное и важное.", "Я выбираю, что не делать.", "Я убираю лишнее из своего дня.", "Пустое место в календаре — тоже ценность.", "Я наполняю жизнь тем, что люблю.", "Я помню о своих мечтах.", "Я позволяю себе мечтать масштабно.", "Я действую так, будто моя цель уже близко.", "Я веду себя как человек, которым хочу стать.", "Я выбираю привычки той, кем становлюсь.", "Я уже обладаю нужными качествами — я их развиваю.", "Я верю в свой успех.", "Я притягиваю нужных людей своим делом.", "Мои связи открывают новые двери.", "Я благодарна людям, которые рядом.", "Я замечаю заботу и отвечаю заботой.", "Я любима и умею любить.", "Я выбираю мир в отношениях.", "Я говорю о чувствах спокойно.", "Я понимаю свои эмоции.", "Эмоции приходят и уходят. Я остаюсь.", "Я даю себе время успокоиться перед ответом.", "Я выбираю мягкость к себе.", "Я разрешаю себе быть неидеальной.", "Мне не нужно никому ничего доказывать.", "Я ценна сама по себе.", "Мои результаты — не мера моей ценности.", "Я делаю работу хорошо, потому что мне не всё равно.", "Я забочусь о деталях, которые важны.", "Я вижу главное и не тону в мелочах.", "Мелочи я закрываю быстро и пачкой.", "Я разбираю входящие и чувствую лёгкость.", "Пустой список на сегодня — повод для гордости.", "Я замечаю, сколько уже сделала.", "Я заслуживаю отдыха после хорошей работы.", "Я восстанавливаю силы без чувства вины.", "Мои выходные — для жизни.", "Я провожу время с теми, кто важен.", "Я выбираю впечатления.", "Я путешествую и вдохновляюсь.", "Я создаю воспоминания.", "Я живу сейчас, а не потом.", "Я ценю этот момент.", "Я позволяю себе радость без причины.", "Я улыбаюсь чаще.", "Мой день наполнен смыслом.", "Я делаю мир чуть лучше своей работой.", "Я помогаю людям решать их задачи.", "Мне доверяют, и я оправдываю доверие.", "Я надёжный человек.", "Со мной легко работать.", "Я сохраняю спокойствие, и это заразительно.", "Я задаю тон в команде.", "Я создаю атмосферу, где хочется работать.", "Я праздную победы команды.", "Мы справляемся вместе.", "Я вижу, как растут мои люди, и горжусь ими.", "Я выстраиваю процессы, которые работают без меня.", "Я освобождаю время для стратегии.", "Я думаю о том, что будет через квартал.", "Я ставлю амбициозные, но реальные цели.", "Я план выполняю с запасом.", "Каждая сделка — это помощь клиенту.", "Я помогаю клиенту принять лучшее решение.", "Я продаю пользу, а не продукт.", "Я понимаю боль клиента и предлагаю решение.", "Я легко работаю с возражениями.", "Возражение — это вопрос, на который я знаю ответ.", "Я уверенно называю цену.", "Я довожу сделку до конца.", "Я возвращаюсь к клиентам вовремя.", "Мои follow-up всегда в срок.", "Я строю долгие отношения с клиентами.", "Довольный клиент приводит новых.", "Я учусь на каждом звонке.", "Каждый звонок делает меня сильнее.", "Я слушаю записи и расту.", "Я внедряю новое быстрее конкурентов.", "Я использую технологии, чтобы работать умнее.", "ИИ — мой помощник, а не замена.", "Я пробую, тестирую, улучшаю.", "Я не боюсь экспериментов.", "Неудачный тест — тоже результат.", "Я ищу то, что работает, и масштабирую.", "Я уверенно презентую свои идеи.", "Мой голос важен.", "Я говорю — и меня слышат.", "Я спокойно выступаю перед людьми.", "Я готова к сложным вопросам.", "Я умею сказать «я не знаю, но узнаю».", "Я любопытна и открыта.", "Я учусь у лучших.", "Я нахожу наставников и сама становлюсь наставником.", "Я делюсь опытом щедро.", "Я окружаю себя сильными людьми.", "Сильные люди рядом делают меня сильнее.", "Я выбираю среду, в которой расту.", "Я оставляю то, что меня тянет назад.", "Я легко отпускаю старое.", "Я освобождаю место для нового.", "Я разрешаю переменам случиться.", "Я принимаю новые роли с интересом.", "Я адаптируюсь быстро.", "Я сохраняю себя в любых обстоятельствах.", "Мой внутренний стержень крепкий.", "Я опираюсь на себя.", "У меня есть всё, чтобы начать.", "Я начинаю сейчас.", "Сейчас — лучшее время для первого шага.", "Я делаю первый шаг, и путь открывается.", "Я в движении.", "Я двигаюсь вперёд, даже медленно.", "Медленно — тоже вперёд.", "Мне достаточно сделать сегодняшнее.", "Я живу один день за раз.", "Сегодня я выбираю спокойствие и ясность.", "Сегодня я выбираю фокус.", "Сегодня я выбираю доброту к себе.", "Сегодня я выбираю смелость.", "Сегодня я выбираю радость в мелочах.", "Сегодня я выбираю порядок.", "Сегодня я выбираю здоровье.", "Сегодня я выбираю близких.", "Сегодня я выбираю рост.", "Сегодня я выбираю благодарность.", "Сегодня я закрываю хвосты.", "Сегодня я делаю то, что давно откладывала.", "Сегодня я звоню тому, кому давно хотела.", "Сегодня я забочусь о своём теле.", "Сегодня я учусь чему-то новому.", "Сегодня я хвалю себя за сделанное.", "Сегодня я отдыхаю осознанно.", "Сегодня я выхожу на прогулку.", "Сегодня я говорю спасибо трём людям.", "Сегодня я делаю одно дело для будущей себя.", "Сегодня я вкладываюсь в главную цель.", "Сегодня я завершаю, а не начинаю новое.", "Сегодня я освобождаю голову от лишнего.", "Сегодня я планирую реалистично.", "Сегодня я довольна результатом.", "Я выбираю верить в лучшее.", "Всё складывается для меня.", "У меня всё получается шаг за шагом.", "Я справлюсь с этим днём.", "Я готова к этому дню.", "Этот день — мой.", "Я заслуживаю спокойного дня.", "Я создаю спокойствие внутри себя.", "Порядок в делах — порядок в голове.", "Спокойная уверенность сильнее спешки.", "Я веду свой день.", "Решения принимаются ясно и без суеты.", "Я делаю то, что двигает вперёд.", "Я выбираю мягкость к себе и ясность в делах.", "Спокойствие — моя суперсила.", "Я заботливо распределяю силы.", "Каждое закрытое дело делает меня легче.", "Я выбираю долгосрочное над сиюминутным.", "Я замечаю свои сильные стороны.", "Я опираюсь на свои успехи.", "Я помню, через что уже прошла.", "Я горжусь своим путём.", "Я умею держать удар.", "Я восстанавливаюсь после неудач.", "Я учусь и иду дальше.", "Я не сдаюсь на полпути.", "Я нахожу способ.", "Где есть цель — есть и путь.", "Я задаю себе вопрос: что самое важное сейчас?", "Я делаю это — и только это.", "Я выключаю шум и слышу себя.", "Я держу внимание на одном.", "Я погружаюсь в работу и получаю удовольствие.", "Я в потоке.", "Мне легко сосредоточиться.", "Я завершаю начатое с удовольствием.", "Я ставлю галочку и иду дальше.", "Я ценю время, которое трачу на себя.", "Я вкладываю в здоровье — это лучшая инвестиция.", "Я выбираю сон вместо ещё одного дела.", "Я разрешаю себе сказать «на сегодня хватит».", "Я спокойна, когда что-то идёт не по плану.", "Изменение плана — тоже план.", "Я быстро перестраиваюсь.", "Я нахожу хорошее в любой ситуации.", "Я выбираю смотреть на решение, а не на проблему.", "Я задаю вопрос «как?» вместо «почему не получается?».", "Я ищу возможности для роста в каждой задаче.", "Я благодарна за вызовы — они делают меня сильнее.", "Я умею радоваться процессу.", "Я наслаждаюсь своей работой.", "Я выбираю дело, которое люблю.", "Я делаю любимое дело хорошо.", "Моя энергия растёт, когда я делаю важное.", "Я вдохновляюсь своими целями каждый день.", "Я верю: всё, что нужно, у меня уже есть.", "Я — источник своей мотивации.", "Я сама себе опора.", "Я выбираю жить осознанно.", "Я выбираю жить с удовольствием.", "Я выбираю жить в своём ритме.", "Я выбираю ясные договорённости.", "Я записываю договорённости сразу после разговора.", "Я освобождаю утро для самого важного.", "Я сначала делаю, потом проверяю почту.", "Мой календарь отражает мои приоритеты.", "Я ставлю время для себя в календарь, как встречу.", "Я уважаю свои планы так же, как чужие.", "Я держу фокус даже в шумный день.", "Я делаю паузу, прежде чем согласиться.", "Я честно оцениваю, сколько времени займёт дело.", "Я заканчиваю неделю с чувством порядка.", "Я начинаю неделю с ясным планом.", "Пятничный обзор делает понедельник лёгким.", "Я разбираю неделю и вижу свой рост.", "Я замечаю, что работает, и делаю больше этого.", "Я замечаю, что не работает, и меняю это.", "Я гибко меняю план без чувства вины.", "Мне хорошо в моей жизни.", "Я наполняю каждый день тем, что ценю.", "Я двигаюсь к целям с удовольствием.", "Я радуюсь, когда помогаю другим расти.", "Я легко прошу обратную связь.", "Я ценю честность — свою и чужую.", "Я выбираю говорить правду мягко.", "Я вкладываю силы туда, где вижу смысл.", "Я умею выбирать главное из многого.", "Я спокойно отношусь к тому, что не успела.", "Не успела сегодня — запланирую на завтра.", "Я заботлива к себе в трудный день.", "Трудный день — не трудная жизнь.", "Завтра будет новый ритм.", "Я благодарна себе за то, что не сдаюсь.", "Я принимаю себя целиком.", "Я развиваюсь каждый день, даже когда не замечаю.", "Я — человек, который доводит до результата."];
 const AFFIRM = {
   clean:['Спокойствие — моя суперсила.','Я делаю главное, остальное подождёт.','Мне не нужно успеть всё, чтобы день был хорошим.','Я выбираю мягкость к себе и ясность в делах.','Каждое закрытое дело делает меня легче.','Я доверяю своему ритму.','Сегодня я заботливо распределяю силы.'],
   oldmoney:['Сначала главное. Остальное потом.','Спокойная уверенность сильнее спешки.','Я веду свой день, а не он меня.','Порядок в делах — порядок в голове.','Решения принимаются ясно и без суеты.','Качество важнее количества.','Сегодня я делаю то, что двигает вперёд.']
@@ -386,6 +425,9 @@ function merge(saved){
   o.calendars=arr(s.calendars).filter(x=>typeof x==='string'); if(!o.calendars.length) o.calendars=['primary'];
   if(typeof o.remindCal!=='string') o.remindCal='primary';
   ['habitLog','days','affirm','life'].forEach(k=>o[k]=obj(s[k]));
+  o.recur=arr(s.recur).filter(r=>r&&r.id&&r.title&&arr(r.days).length).map(r=>Object.assign(r,{skip:obj(r.skip)}));
+  o.briefPush=s.briefPush!==false;
+  o.spheres.forEach(sp=>{ if(sp.color===undefined){ const n=String(sp.name||'').toLowerCase(); sp.color=/реактор/.test(n)?'#F2C94C':/контур/.test(n)?'#E5534B':/здоров|врач|личн|семь/.test(n)?'#4A90E2':''; } });
   o.chat=arr(s.chat).filter(m=>m&&m.content&&(m.role==='user'||m.role==='assistant')).slice(-20);
   o.tasks=o.tasks.filter(t=>t&&t.id&&t.title);
   if(!['clean','oldmoney'].includes(o.skin)) o.skin='clean';
@@ -421,6 +463,54 @@ const sphere = id => S.spheres.find(s=>s.id===id);
 const groupOf = t => (sphere(t.sphere)||{}).group || 'personal';
 const groupName = g => (S.groups.find(x=>x.id===g)||{}).name || 'Другое';
 const dotClass = g => g==='work'?'work':g==='personal'?'personal':'custom';
+const PALETTE=[['#F2C94C','Жёлтый'],['#E5534B','Красный'],['#4A90E2','Синий'],['#3FB57A','Зелёный'],['#9B6BDF','Фиолетовый'],['#F2994A','Оранжевый'],['#EC6FA8','Розовый'],['#8D99AE','Серый']];
+const sphColor = t => { const s=sphere(t&&t.sphere); return s&&s.color||''; };
+const dotHtml = (t,g) => { const c=sphColor(t); return '<span class="dot '+dotClass(g)+'"'+(c?' style="background:'+esc(c)+'"':'')+'></span>'; };
+const cStyle = t => { const c=sphColor(t); return c?' style="--c:'+esc(c)+'"':''; };
+/* лёгкая вибрация: Android — vibrate, iPhone — системный переключатель */
+let hapEl=null;
+function haptic(){
+  try{ if(navigator.vibrate){ navigator.vibrate(12); return; } }catch(_){}
+  try{ if(!hapEl){ hapEl=document.createElement('label'); hapEl.setAttribute('aria-hidden','true'); hapEl.style.cssText='position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none'; const i=document.createElement('input'); i.type='checkbox'; i.setAttribute('switch',''); i.tabIndex=-1; hapEl.appendChild(i); document.body.appendChild(hapEl); } hapEl.click(); }catch(_){}
+}
+/* ---------- повторяющиеся дела ---------- */
+const DOWN=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+function repText(days){ const d=arr(days).map(Number).sort(); const k=d.join(); if(k==='0,1,2,3,4,5,6') return 'каждый день'; if(k==='1,2,3,4,5') return 'по будням'; if(k==='0,6') return 'по выходным'; return [1,2,3,4,5,6,0].filter(x=>d.includes(x)).map(x=>DOWN[x].toLowerCase()).join(', '); }
+const findRecur = id => arr(S.recur).find(r=>r.id===id);
+function ensureRecur(){
+  if(!arr(S.recur).length) return false;
+  const t=today(); let changed=false;
+  const before=S.tasks.length;
+  S.tasks=S.tasks.filter(x=>!(x.recurId && !x.done && x.due && x.due<t));
+  if(S.tasks.length!==before) changed=true;
+  const have=new Set(S.tasks.filter(x=>x.recurId).map(x=>x.recurId+'|'+x.due));
+  for(const r of S.recur){
+    for(let i=0;i<14;i++){
+      const d=addDays(t,i); if(r.start && d<r.start) continue;
+      const [y,m,dd]=d.split('-').map(Number); if(!r.days.includes(new Date(y,m-1,dd).getDay())) continue;
+      if(r.skip[d] || have.has(r.id+'|'+d)) continue;
+      S.tasks.push({id:uid(), title:r.title, note:r.note||null, sphere:r.sphere, due:d, time:r.time||null, kind:r.kind||'main', priority:r.priority||2, est:r.est||30, who:null, done:false, created:Date.now(), postponed:0, source:'recur', recurId:r.id});
+      have.add(r.id+'|'+d); changed=true;
+    }
+  }
+  // старые отметки «пропустить» чистим
+  S.recur.forEach(r=>Object.keys(r.skip).forEach(k=>{ if(k<t){ delete r.skip[k]; } }));
+  return changed;
+}
+function makeRecur(t, days){
+  const r={id:'r-'+uid(), title:t.title, note:t.note||null, sphere:t.sphere, time:t.time||null, kind:t.kind||'main', priority:t.priority||2, est:t.est||30, days:days.slice(), start:today(), skip:{}};
+  S.recur=arr(S.recur); S.recur.push(r); return r;
+}
+function nextRepDay(days, from){ for(let i=0;i<8;i++){ const d=addDays(from,i); const [y,m,dd]=d.split('-').map(Number); if(days.includes(new Date(y,m-1,dd).getDay())) return d; } return from; }
+function removeTask(t){
+  if(!t) return; if(t.recurId && t.due){ const r=findRecur(t.recurId); if(r) r.skip[t.due]=true; }
+  S.tasks=S.tasks.filter(x=>x.id!==t.id);
+}
+function deleteWithUndo(id){
+  const t=findTask(id); if(!t) return; const r=t.recurId&&findRecur(t.recurId); const hadSkip=r&&r.skip[t.due];
+  removeTask(t); haptic(); save(); render();
+  toast('Удалено: '+t.title, ()=>{ if(!findTask(t.id)){ if(r&&!hadSkip) delete r.skip[t.due]; S.tasks.push(t); save(); render(); } });
+}
 const hasWork = () => S.spheres.some(s=>s.group==='work');
 function workActive(){
   if(!hasWork()) return false;
@@ -667,6 +757,7 @@ function render(){
   try{
     document.documentElement.setAttribute('data-skin', S.skin||'clean');
     if(!S.onboarded){ renderOnboarding(); return; }
+    if(ensureRecur()) save();
     const v = ui.tab==='today'?viewToday():ui.tab==='tasks'?viewTasks():ui.tab==='ai'?viewAssist():ui.tab==='dyn'?viewDyn():viewProfile();
     $('#app').innerHTML=v; renderDock(); if(pendingFocus){ const el=document.querySelector(pendingFocus); if(el) el.focus(); pendingFocus=null; }
   }catch(err){
@@ -677,15 +768,17 @@ function render(){
 function renderDock(){
   const tabs=[['today','Сегодня','today'],['tasks','Дела','list'],['ai','Ассистент','spark'],['dyn','Динамика','chart'],['me','Профиль','me']];
   const cur=$('#cap-in'); const keep=cur?cur.value:''; const foc=document.activeElement===cur;
-  $('#dock').innerHTML='<div class="dock"><div class="dock-inner">'+(ui.tab==='me'||ui.tab==='ai'?'':
+  $('#dock').innerHTML='<div class="dock"><div class="dock-inner">'+(ui.tab==='ai'?'':
     '<form class="capture" id="cap-form" autocomplete="off"><label for="cap-in" class="srt">Быстрая запись голосом или текстом</label><input id="cap-in" type="text" enterkeyhint="send" placeholder="'+(workActive()?'Рабочее дело: нажми и продиктуй':'Нажми и продиктуй, что сделать и когда')+'" value="'+esc(keep)+'"><button class="go" type="submit" aria-label="Добавить">'+ICON.send+'</button></form>')+
     '<nav class="tabs" aria-label="Разделы">'+tabs.map(([k,n,i])=>'<button data-act="tab" data-v="'+k+'" '+(ui.tab===k?'aria-current="page"':'')+'>'+ICON[i]+'<span>'+n+'</span></button>').join('')+'</nav>'+
   '</div></div>';
   if(foc){ const n=$('#cap-in'); if(n) n.focus(); }
 }
+function notePrev(t){ if(!t.note) return ''; const s=String(t.note).replace(/\s*\n\s*-\s*/g,' · ').replace(/^-\s*/,'').replace(/\s+/g,' ').trim(); return '<div class="task-note">'+esc(s.length>110?s.slice(0,108)+'…':s)+'</div>'; }
 function taskRow(t){
   const g=groupOf(t); const s=sphere(t.sphere); const meta=[];
-  meta.push('<span class="tag"><span class="dot '+dotClass(g)+'"></span>'+esc(s?s.name:'—')+'</span>');
+  meta.push('<span class="tag">'+dotHtml(t,g)+esc(s?s.name:'—')+'</span>');
+  if(t.recurId){ const r=findRecur(t.recurId); if(r) meta.push('<span>· ↻ '+esc(repText(r.days))+'</span>'); }
   if(t.due) meta.push('<span>· '+esc(human(t.due))+'</span>');
   if(t.reminded&&!t.done) meta.push('<span>· напомню</span>');
   if(t.kind==='wait') meta.push('<span>· жду от '+esc(t.who||'—')+'</span>');
@@ -694,12 +787,12 @@ function taskRow(t){
   const stuck=isStuck(t)?'<span class="pill warn">залипло</span>':'';
   const pr = t.priority===1&&!t.done?'<span class="pill">важно</span>':'';
   const id=esc(t.id), title=esc(t.title);
-  return '<div class="sw" data-sw="'+id+'"><div class="sw-act" aria-hidden="true"><button tabindex="-1" data-act="mv-open" data-id="'+id+'">Перенести</button><button tabindex="-1" class="del" data-act="sw-del" data-id="'+id+'">Удалить</button></div><div class="task'+(t.done?' done':'')+(t.time?' timed':'')+'"><button class="check" data-act="done" data-id="'+id+'" aria-pressed="'+!!t.done+'" aria-label="'+(t.done?'Вернуть в работу':'Сделано')+': '+title+'">'+(t.done?ICON.check:'')+'</button>'+(t.time?'<span class="t-time">'+esc(t.time)+'</span>':'')+
-    '<button class="task-main" data-act="edit" data-id="'+id+'" aria-label="Изменить: '+title+'"><div class="task-title">'+title+'</div><div class="meta">'+meta.join('')+'</div></button>'+
+  return '<div class="sw" data-sw="'+id+'"><div class="sw-act" aria-hidden="true"><button tabindex="-1" data-act="mv-open" data-id="'+id+'">Перенести</button><button tabindex="-1" class="del" data-act="sw-del" data-id="'+id+'">Удалить</button></div><div class="task'+(t.done?' done':'')+(t.time?' timed':'')+(sphColor(t)?' has-c':'')+'"'+cStyle(t)+'><button class="check" data-act="done" data-id="'+id+'" aria-pressed="'+!!t.done+'" aria-label="'+(t.done?'Вернуть в работу':'Сделано')+': '+title+'">'+(t.done?ICON.check:'')+'</button>'+(t.time?'<span class="t-time">'+esc(t.time)+'</span>':'')+
+    '<button class="task-main" data-act="edit" data-id="'+id+'" aria-label="Изменить: '+title+'"><div class="task-title">'+title+'</div>'+notePrev(t)+'<div class="meta">'+meta.join('')+'</div></button>'+
     '<div class="row" style="gap:4px;flex:none">'+pr+stuck+(t.done?'':'<button class="icon-btn" data-act="later" data-id="'+id+'" aria-label="На завтра: '+title+'" title="На завтра">'+ICON.later+'</button>')+'</div></div></div>';
 }
 function greeting(){ const h=new Date().getHours(); return h<5?'Доброй ночи':h<12?'Доброе утро':h<18?'Добрый день':'Добрый вечер'; }
-function affirmation(){ const t=today(); if(S.affirm[t]) return S.affirm[t]; const list=AFFIRM[S.skin]||AFFIRM.clean; const n=Math.floor(Date.now()/86400000); return list[n%list.length]; }
+function affirmation(){ const t=today(); if(S.affirm[t]) return S.affirm[t]; const [y,m,d]=t.split('-').map(Number); const n=Math.floor(Date.UTC(y,m-1,d)/86400000); return AFFIRMS[(n*263+41)%AFFIRMS.length]; }
 function plural(n,a,b,c){ const m10=n%10, m100=n%100; const w=(m10===1&&m100!==11)?a:(m10>=2&&m10<=4&&(m100<10||m100>=20))?b:c; return n+' '+w; }
 function fmtH(min){ const h=Math.floor(min/60), m=min%60; return h? h+' ч'+(m?' '+m+' мин':'') : m+' мин'; }
 function block(title, inner, extra){ return '<section class="card block"><div class="block-head"><h2 style="font-size:22px">'+title+'</h2>'+(extra||'')+'</div><div>'+inner+'</div></section>'; }
@@ -739,18 +832,19 @@ function viewWeek(wa){
     if(!items.length && !done.length) h+='<li class="w-empty">свободно</li>';
     items.forEach(it=>{
       if(it.k==='e') h+='<li class="w-item ev"><span class="w-time">'+esc(it.time)+'</span><span class="w-title">'+esc(it.e.title)+'</span></li>';
-      else { const x=it.x; const over=x.due<d; h+='<li class="w-item task'+(over?' over':'')+'" data-drag="'+esc(x.id)+'"><button class="check sm" data-act="done" data-id="'+esc(x.id)+'" aria-label="Сделано: '+esc(x.title)+'"></button><span class="w-time">'+esc(x.time||'')+'</span><button class="w-title" data-act="mv-open" data-id="'+esc(x.id)+'">'+esc(x.title)+(over?' <em>просрочено</em>':'')+'</button></li>'; }
+      else { const x=it.x; const over=x.due<d; h+='<li class="w-item task'+(over?' over':'')+(sphColor(x)?' has-c':'')+'"'+cStyle(x)+' data-drag="'+esc(x.id)+'"><button class="check sm" data-act="done" data-id="'+esc(x.id)+'" aria-label="Сделано: '+esc(x.title)+'"></button><span class="w-time">'+esc(x.time||'')+'</span><button class="w-title" data-act="mv-open" data-id="'+esc(x.id)+'">'+esc(x.title)+(over?' <em>просрочено</em>':'')+(x.note?'<span class="w-note">'+esc(String(x.note).replace(/\s+/g,' ').slice(0,80))+'</span>':'')+'</button></li>'; }
     });
     done.slice(0,4).forEach(x=>{ h+='<li class="w-item done"><span class="w-time">✓</span><span class="w-title">'+esc(x.title)+'</span></li>'; });
     h+='</ul></section>';
   }
   const nodate=S.tasks.filter(x=>!x.done&&!x.due&&x.kind!=='wait'&&(!wa||groupOf(x)==='work'));
-  if(nodate.length){ h+='<section class="wpage nodate" data-dropday="none"><div class="wpage-head static"><span class="wp-wd">Без даты</span><span class="wp-c">'+nodate.length+'</span></div><ul class="wlist">'+nodate.map(x=>'<li class="w-item task" data-drag="'+esc(x.id)+'"><button class="check sm" data-act="done" data-id="'+esc(x.id)+'" aria-label="Сделано: '+esc(x.title)+'"></button><span class="w-time"></span><button class="w-title" data-act="mv-open" data-id="'+esc(x.id)+'">'+esc(x.title)+'</button></li>').join('')+'</ul></section>'; }
+  if(nodate.length){ h+='<section class="wpage nodate" data-dropday="none"><div class="wpage-head static"><span class="wp-wd">Без даты</span><span class="wp-c">'+nodate.length+'</span></div><ul class="wlist">'+nodate.map(x=>'<li class="w-item task'+(sphColor(x)?' has-c':'')+'"'+cStyle(x)+' data-drag="'+esc(x.id)+'"><button class="check sm" data-act="done" data-id="'+esc(x.id)+'" aria-label="Сделано: '+esc(x.title)+'"></button><span class="w-time"></span><button class="w-title" data-act="mv-open" data-id="'+esc(x.id)+'">'+esc(x.title)+(x.note?'<span class="w-note">'+esc(String(x.note).replace(/\s+/g,' ').slice(0,80))+'</span>':'')+'</button></li>').join('')+'</ul></section>'; }
   return h;
 }
 function moveTask(id, day){
   const x=findTask(id); if(!x) return;
   const prev=x.due; x.due = day==='none'?null:day; if(prev && x.due && x.due>prev) x.postponed=(x.postponed||0)+1;
+  if(x.recurId && prev && prev!==x.due){ const r=findRecur(x.recurId); if(r) r.skip[prev]=true; x.recurId=null; }
   save(); render();
   toast('Перенесла: '+x.title+' — '+(x.due?dayLabel(x.due):'без даты'), ()=>{ const y=findTask(id); if(y){ y.due=prev; save(); render(); } });
   if(x.due && x.time && (cap.push||cap.mcp)) createReminder(x, true);
@@ -761,7 +855,13 @@ function moveSheet(id){
   let chips='';
   for(let i=0;i<7;i++){ const d=addDays(st,i); if(d<t) continue; const [y,m,dd]=d.split('-').map(Number); chips+='<button class="chip" data-act="mv-set" data-id="'+esc(id)+'" data-v="'+d+'" aria-pressed="'+(x.due===d)+'">'+WDS[new Date(y,m-1,dd).getDay()]+' '+dd+'</button>'; }
   chips+='<button class="chip" data-act="mv-set" data-id="'+esc(id)+'" data-v="'+addDays(st,7)+'">След. пн</button><button class="chip" data-act="mv-set" data-id="'+esc(id)+'" data-v="none">Без даты</button>';
-  openSheet('<div class="row between"><h2 id="sheet-h">Перенести</h2><button class="btn ghost" data-act="close-sheet">Закрыть</button></div><p style="margin:0;font-weight:600;font-size:17px">'+esc(x.title)+(x.time?' <span class="muted">· '+esc(x.time)+'</span>':'')+'</p><div class="row wrap">'+chips+'</div><div class="row wrap"><button class="btn" data-act="edit" data-id="'+esc(id)+'">Изменить</button><button class="btn ghost" data-act="mv-del" data-id="'+esc(id)+'" style="color:var(--warn)">Удалить</button></div>');
+  const r=x.recurId&&findRecur(x.recurId);
+  openSheet('<div class="row between"><h2 id="sheet-h">Дело</h2><button class="btn ghost" data-act="close-sheet">Закрыть</button></div>'+
+    '<p style="margin:0;font-weight:650;font-size:18px">'+esc(x.title)+'</p>'+(x.note?'<p class="muted" style="margin:0;font-size:14px;white-space:pre-line">'+esc(x.note)+'</p>':'')+(r?'<p class="muted" style="margin:0;font-size:13px">↻ '+esc(repText(r.days))+'</p>':'')+
+    '<button class="btn primary block-btn" data-act="mv-done" data-id="'+esc(id)+'">'+(x.done?'Вернуть в работу':'✓ Сделано')+'</button>'+
+    '<div class="eyebrow">Перенести на день</div><div class="row wrap">'+chips+'</div>'+
+    '<div class="eyebrow">Время</div><div class="row" style="gap:8px"><input id="mv-time" type="time" value="'+esc(x.time||'')+'" aria-label="Время" style="flex:1"><button class="btn" data-act="mv-time" data-id="'+esc(id)+'" style="flex:none">Поставить</button></div>'+
+    '<div class="grid2"><button class="btn" data-act="edit" data-id="'+esc(id)+'">Изменить</button><button class="btn danger" data-act="mv-del" data-id="'+esc(id)+'">Удалить</button></div>');
 }
 /* свайп влево по делу: перенести / удалить */
 (function(){
@@ -791,6 +891,19 @@ function moveSheet(id){
   document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end);
   document.addEventListener('click', e=>{ if(window.__ritmSwipe && Date.now()-window.__ritmSwipe<350 && e.target.closest('.task')){ e.stopPropagation(); e.preventDefault(); } }, true);
 })();
+/* долгое нажатие на дело в списке → меню с «Удалить» */
+(function(){
+  let timer=null, sx=0, sy=0;
+  document.addEventListener('pointerdown', e=>{
+    const sw=e.target.closest&&e.target.closest('.sw'); if(!sw || e.target.closest('.check,.sw-act,.icon-btn')) return;
+    sx=e.clientX; sy=e.clientY; clearTimeout(timer);
+    timer=setTimeout(()=>{ timer=null; window.__ritmSwipe=Date.now()+300; haptic(); moveSheet(sw.getAttribute('data-sw')); }, 480);
+  }, {passive:true});
+  document.addEventListener('pointermove', e=>{ if(timer && (Math.abs(e.clientX-sx)>8||Math.abs(e.clientY-sy)>8)){ clearTimeout(timer); timer=null; } }, {passive:true});
+  const stop=()=>{ clearTimeout(timer); timer=null; };
+  document.addEventListener('pointerup', stop); document.addEventListener('pointercancel', stop);
+  document.addEventListener('contextmenu', e=>{ if(e.target.closest&&e.target.closest('.sw,[data-drag]')) e.preventDefault(); });
+})();
 /* перетаскивание долгим нажатием */
 (function(){
   let drag=null, timer=null, sx=0, sy=0;
@@ -802,7 +915,7 @@ function moveSheet(id){
       const r=li.getBoundingClientRect();
       const g=li.cloneNode(true); g.className+=' ghost'; g.style.width=r.width+'px'; g.style.left=r.left+'px'; g.style.top=r.top+'px'; document.body.appendChild(g);
       drag={id:li.getAttribute('data-drag'), g, dx:sx-r.left, dy:sy-r.top, over:null}; li.classList.add('lifted');
-      if(navigator.vibrate) try{ navigator.vibrate(15); }catch(_){}
+      haptic();
       document.body.classList.add('dragging');
     }, 350);
   }, {passive:true});
@@ -838,13 +951,19 @@ function viewToday(){
   const doneToday=S.tasks.filter(x=>x.done && x.doneAt && dstr(new Date(x.doneAt))===t).length;
   let h='<div class="stack" style="gap:16px">';
   h+='<div class="hello"><div class="eyebrow">'+WD[d.getDay()]+', '+d.getDate()+' '+MONTHS[d.getMonth()]+'</div><h1 tabindex="-1" id="page-h">'+greeting()+(S.name?', '+esc(S.name):'')+'</h1>'+
-     (M.affirm?'<div class="affirm-line"><p>'+esc(affirmation())+'</p>'+(cap.sample?'<button class="btn ghost" data-act="affirm-new" aria-label="Другая фраза дня">Другая</button>':'')+'</div>':'')+'</div>';
+     (M.affirm?'<div class="affirm-line"><p>'+esc(affirmation())+'</p>'+'<button class="btn ghost" data-act="affirm-new" aria-label="Другая фраза дня">Другая</button>'+'</div>':'')+'</div>';
   h+='<div class="seg view-seg" role="group" aria-label="Вид"><button data-act="view" data-v="day" aria-pressed="'+(ui.view!=='week')+'">День</button><button data-act="view" data-v="week" aria-pressed="'+(ui.view==='week')+'">Неделя</button></div>';
   if(ui.view==='week'){ h+=viewWeek(wa); return h+'</div>'; }
   h+=weekStrip(wa);
   if(hasWork()) h+='<div class="workbar"><button class="toggle" data-act="workmode" aria-pressed="'+wa+'">'+(wa?'Сейчас работаю':'Показываю всё')+'</button><span class="muted" style="font-size:12.5px;text-align:right">'+(wa&&hiddenPersonal?'Личных скрыто: '+hiddenPersonal:S.workOverride&&S.workOverride.date===t?'Вручную до конца дня':S.workMode==='auto'?'Авто: '+esc(S.rhythm.workStart)+'–'+esc(S.rhythm.workEnd):S.workMode==='on'?'Всегда включён':'Выключен')+'</span></div>';
   const undated=S.tasks.filter(x=>!x.done&&!x.due&&x.kind!=='wait'&&(!wa||groupOf(x)==='work'));
-  if(isToday&&undated.length) h+='<div class="banner" role="status" style="border-color:var(--ctl)"><b>Без даты: '+plural(undated.length,'дело','дела','дел')+'</b><span class="muted" style="font-size:14px">'+undated.slice(0,3).map(x=>esc(x.title)).join('; ')+(undated.length>3?' …':'')+'</span><div><button class="btn primary" data-act="ask-all">Расставить даты</button></div></div>';
+  if(isToday&&undated.length){
+    const T0=today(); const dw=new Date().getDay(); const toMon=(1-dw+7)%7||7;
+    const opts=[[T0,'Сегодня'],[addDays(T0,1),'Завтра'],[addDays(T0,2),WDS[(dw+2)%7]],[addDays(T0,toMon),'Пн']];
+    h+='<section class="card block undated" aria-labelledby="h-und"><div class="block-head"><h2 id="h-und" style="font-size:20px">Без даты · '+undated.length+'</h2><button class="btn ghost" data-act="ask-all">По одному</button></div><p class="muted" style="margin:0;font-size:13px">Нажми день — дело встанет в план.</p>'+
+      undated.slice(0,ui.undAll?50:5).map(x=>'<div class="und-row"'+cStyle(x)+'><button class="und-title" data-act="mv-open" data-id="'+esc(x.id)+'">'+dotHtml(x,groupOf(x))+'<span>'+esc(x.title)+'</span></button><div class="row wrap" style="gap:6px">'+opts.map(([d,l])=>'<button class="chip sm" data-act="und-set" data-id="'+esc(x.id)+'" data-v="'+d+'">'+l+'</button>').join('')+'<button class="chip sm" data-act="mv-open" data-id="'+esc(x.id)+'">…</button></div></div>').join('')+
+      (undated.length>5&&!ui.undAll?'<button class="btn ghost" data-act="und-all">Показать все ('+undated.length+')</button>':'')+'</section>';
+  }
   if(isToday){
     const load=[...mains,...smalls].reduce((a,x)=>a+(x.est||(x.kind==='small'?10:30)),0);
     const capMin=(Number(S.rhythm.focusHours)||5)*60;
@@ -861,7 +980,19 @@ function viewToday(){
   if(mU.length) plan+='<div class="sub-h">Главное'+(wa?' · работа':'')+'</div>'+mU.map(taskRow).join('');
   if(sU.length) plan+='<div class="sub-h">Мелочи</div>'+sU.map(taskRow).join('');
   if(M.wait && waits.length) plan+='<div class="sub-h">Жду ответа</div>'+waits.map(taskRow).join('');
-  if(!mains.length && !smalls.length) plan+='<div class="empty">'+(isToday?'На сегодня дел нет. Продиктуй в строке внизу, что сделать и когда.':'На этот день пока ничего. Продиктуй «'+esc(dayLabel(sel))+' …» в строке внизу.')+'</div>';
+  if(!mains.length && !smalls.length){
+    if(isToday){
+      const und=S.tasks.filter(x=>!x.done&&!x.due&&x.kind!=='wait'&&(!wa||groupOf(x)==='work')).sort(rank).slice(0,3);
+      const soon=S.tasks.filter(x=>!x.done&&x.due&&x.due>t&&x.due<=addDays(t,7)&&x.kind!=='wait'&&(!wa||groupOf(x)==='work')).sort((a,b)=>a.due.localeCompare(b.due)).slice(0,3);
+      plan+='<div class="empty-day"><p style="margin:0;font-weight:650">'+(doneToday?'Всё на сегодня сделано. Можно выдохнуть.':'На сегодня дел нет.')+'</p>';
+      const pick=und.concat(soon).slice(0,4);
+      if(pick.length) plan+='<p class="muted" style="margin:0;font-size:13.5px">Можно взять что-то заранее:</p>'+pick.map(x=>'<div class="pick-row">'+dotHtml(x,groupOf(x))+'<span style="flex:1;min-width:0">'+esc(x.title)+'<span class="muted" style="font-size:12.5px"> · '+esc(x.due?dayLabel(x.due):'без даты')+'</span></span><button class="chip sm" data-act="take-today" data-id="'+esc(x.id)+'">На сегодня</button></div>').join('');
+      plan+='<div class="row wrap">'+(cap.sample?'<button class="chip" data-act="go-ask" data-v="У меня сегодня свободный день. Что из моих дел и целей лучше всего сделать сегодня? Предложи 3 дела.">Что сделать сегодня?</button>':'')+'<button class="chip" data-act="new-task">+ Дело</button></div></div>';
+    } else plan+='<div class="empty">На этот день пока ничего. Продиктуй «'+esc(dayLabel(sel))+' …» в строке внизу.</div>';
+  }
+  const doneDay=isToday?doneToday:S.tasks.filter(x=>x.done&&x.due===sel).length;
+  const totalDay=mains.length+smalls.length+doneDay;
+  if(totalDay) plan='<div class="counter" role="img" aria-label="Сделано '+doneDay+' из '+totalDay+'"><div class="counter-n"><b>'+doneDay+'</b><span>из '+totalDay+'</span></div><div class="counter-bar"><i style="width:'+Math.round(doneDay/totalDay*100)+'%"></i></div><span class="counter-t">'+(doneDay===totalDay?'всё сделано ✓':'сделано')+'</span></div>'+plan;
   h+='<section class="card block" aria-labelledby="h-tasks"><div class="block-head"><h2 id="h-tasks" style="font-size:24px">Дела на '+esc(dayLabel(sel))+'</h2><span class="muted" style="font-size:13px">'+(mains.length+smalls.length?plural(mains.length+smalls.length,'дело','дела','дел'):'')+(overdue?' · просрочено '+overdue:'')+(isToday&&doneToday?' · сделано '+doneToday:'')+'</span></div><div>'+plan+'</div>'+(isToday?'':'<button class="btn" data-act="day" data-v="'+t+'">Вернуться к сегодня</button>')+'</section>';
   /* 2. Календарь-ежедневник */
   if(M.calendar) h+=diary(sel, wa);
@@ -877,7 +1008,7 @@ function diary(day, wa){
   const from=Math.max(0,Math.floor((toMin(S.rhythm.wake)??420)/60)); let to=Math.min(24,Math.ceil((toMin(S.rhythm.sleep)??1380)/60)); if(to<=from) to=24;
   const items=[];
   (c.events||[]).forEach(e=>{ if(e.time==='весь день') return; const m=toMin(e.time); items.push({m, end:toMin(e.end)||m+60, kind:'event', title:e.title, sub:e.cal||''}); });
-  S.tasks.filter(x=>!x.done&&x.due===day&&x.time&&(!wa||groupOf(x)==='work')).forEach(x=>{ const m=toMin(x.time); items.push({m, end:m+(x.est||30), kind:'task', title:x.title, id:x.id, sub:(sphere(x.sphere)||{}).name||''}); });
+  S.tasks.filter(x=>!x.done&&x.due===day&&x.time&&(!wa||groupOf(x)==='work')).forEach(x=>{ const m=toMin(x.time); items.push({m, end:m+(x.est||30), kind:'task', title:x.title, id:x.id, sub:(sphere(x.sphere)||{}).name||'', c:sphColor(x)}); });
   const allDay=(c.events||[]).filter(e=>e.time==='весь день');
   const markers=[[toMin(S.rhythm.brief),'Утренний план'],[toMin(S.rhythm.workStart),'Начало работы'],[toMin(S.rhythm.workEnd),'Конец работы'],[toMin(S.rhythm.review),'Итоги дня']].filter(x=>x[0]!=null);
   const nowM=new Date().getHours()*60+new Date().getMinutes();
@@ -887,7 +1018,7 @@ function diary(day, wa){
     const mk=markers.filter(x=>Math.floor(x[0]/60)===hr);
     const busy=items.some(i=>i.m<(hr+1)*60 && i.end>hr*60);
     const isNow=isToday && Math.floor(nowM/60)===hr;
-    let cell=inHour.map(i=>'<div class="d-item '+i.kind+'"><span class="d-t">'+pad(Math.floor(i.m/60))+':'+pad(i.m%60)+(i.end&&i.kind==='event'?'–'+pad(Math.floor(i.end/60)%24)+':'+pad(i.end%60):'')+'</span><span class="d-title">'+esc(i.title)+'</span>'+(i.sub?'<span class="d-sub">'+esc(i.sub)+'</span>':'')+'</div>').join('');
+    let cell=inHour.map(i=>'<div class="d-item '+i.kind+(i.c?' has-c':'')+'"'+(i.c?' style="--c:'+esc(i.c)+'"':'')+(i.id?' data-act="mv-open" data-id="'+esc(i.id)+'" role="button" tabindex="0"':'')+'><span class="d-t">'+pad(Math.floor(i.m/60))+':'+pad(i.m%60)+(i.end&&i.kind==='event'?'–'+pad(Math.floor(i.end/60)%24)+':'+pad(i.end%60):'')+'</span><span class="d-title">'+esc(i.title)+'</span>'+(i.sub?'<span class="d-sub">'+esc(i.sub)+'</span>':'')+'</div>').join('');
     cell+=mk.map(x=>'<div class="d-mark">'+esc(x[1])+'</div>').join('');
     rows+='<li class="d-row'+(isNow?' now':'')+(busy?' busy':'')+'"><span class="d-h">'+pad(hr)+':00</span><div class="d-cell">'+(cell||'')+(isNow?'<span class="d-now" aria-label="Сейчас">сейчас</span>':'')+'</div></li>';
   }
@@ -931,7 +1062,7 @@ function lifeContext(){
 function tasksContext(){
   const t=today();
   const open=S.tasks.filter(x=>!x.done);
-  const line=x=>'- '+x.title+' ['+((sphere(x.sphere)||{}).name||'—')+(x.due?', '+x.due+(x.time?' '+x.time:''):', без срока')+(x.kind==='wait'?', жду от '+(x.who||'—'):'')+(x.priority===1?', важно':'')+((x.postponed||0)>=2?', переносилось '+x.postponed:'')+']';
+  const line=x=>'- #'+x.id+' '+x.title+' ['+((sphere(x.sphere)||{}).name||'—')+(x.due?', '+x.due+(x.time?' '+x.time:''):', без срока')+(x.kind==='wait'?', жду от '+(x.who||'—'):'')+(x.priority===1?', важно':'')+((x.postponed||0)>=2?', переносилось '+x.postponed:'')+']';
   const todayL=open.filter(x=>x.due&&x.due<=t).sort(rank).slice(0,25).map(line);
   const week=open.filter(x=>x.due&&x.due>t&&x.due<=addDays(t,7)).sort(rank).slice(0,25).map(line);
   const nodate=open.filter(x=>!x.due).slice(0,15).map(line);
@@ -943,15 +1074,20 @@ function tasksContext(){
   return 'Сегодня и просрочено:\n'+(todayL.join('\n')||'—')+'\nВстречи сегодня:\n'+(ev.join('\n')||'—')+'\nБлижайшие 7 дней:\n'+(week.join('\n')||'—')+'\nБез срока:\n'+(nodate.join('\n')||'—')+
     '\nЗа неделю: сделано '+doneW+', перенесено '+postW+(moods.length?', настроение (1–5): '+moods.join(','):'');
 }
+function actCard(m, idx){
+  let h='<div class="act-card"><div class="eyebrow">'+(m.applied?'Сделано ✓':m.applied===null?'Отменено':'Сделать в плане')+'</div><ul class="act-list">'+m.actions.map(a=>'<li>'+esc(actLabel(a))+'</li>').join('')+'</ul>';
+  if(!m.applied && m.applied!==null) h+='<div class="row wrap"><button class="btn primary" data-act="act-apply" data-v="'+idx+'">Сделать'+(m.actions.length>1?' всё ('+m.actions.length+')':'')+'</button><button class="btn ghost" data-act="act-skip" data-v="'+idx+'">Не надо</button></div>';
+  return h+'</div>';
+}
 function viewAssist(){
   const filled=lifeFilled();
   let h='<div class="stack" style="gap:16px"><h1 tabindex="-1" id="page-h">Ассистент</h1>';
   // chat
   const msgs=arr(S.chat).slice(-12);
   h+='<section class="card block" aria-labelledby="h-chat"><h2 id="h-chat" style="font-size:22px">Спроси меня</h2><p class="muted" style="margin:0;font-size:13.5px">Я знаю твои дела, цели и всё, что ты рассказала о себе. Спроси, с чего начать день, как разгрузить неделю, что подготовить к встрече.</p>';
-  if(msgs.length) h+='<div class="chat" role="log" aria-live="polite">'+msgs.map(m=>'<div class="msg '+(m.role==='user'?'me':'ai')+'">'+(m.role==='user'?esc(m.content):md(m.content))+'</div>').join('')+(assist.busy?'<div class="msg ai" id="ai-stream">'+esc(assist.stream||'Думаю…')+'</div>':'')+'</div>';
+  if(msgs.length) h+='<div class="chat" role="log" aria-live="polite">'+msgs.map((m,mi)=>'<div class="msg '+(m.role==='user'?'me':'ai')+'">'+(m.role==='user'?esc(m.content):md(m.content))+'</div>'+(m.actions&&m.actions.length?actCard(m, S.chat.length-msgs.length+mi):'')).join('')+(assist.busy?'<div class="msg ai" id="ai-stream">'+esc(assist.stream||'Думаю…')+'</div>':'')+'</div>';
   else if(assist.busy) h+='<div class="chat"><div class="msg ai" id="ai-stream">'+esc(assist.stream||'Думаю…')+'</div></div>';
-  if(!msgs.length && !assist.busy) h+='<div class="row wrap">'+['С чего начать сегодня?','Как разгрузить эту неделю?','Что я давно откладываю?','Помоги спланировать завтра'].map(q=>'<button class="chip" data-act="ask-q" data-v="'+esc(q)+'">'+esc(q)+'</button>').join('')+'</div>';
+  if(!msgs.length && !assist.busy) h+='<div class="row wrap">'+['С чего начать сегодня?','Разгрузи мне эту неделю','Есть ли у меня записи на завтра?','Когда лучше сходить к врачу?','Перенеси всё несрочное на завтра'].map(q=>'<button class="chip" data-act="ask-q" data-v="'+esc(q)+'">'+esc(q)+'</button>').join('')+'</div>';
   if(assist.err) h+='<p role="alert" style="margin:0;color:var(--warn);font-weight:600">'+esc(assist.err)+'</p>';
   h+='<form id="chat-form" class="stack" style="gap:8px" autocomplete="off"><label for="chat-in" class="srt">Вопрос ассистенту</label><textarea id="chat-in" style="min-height:70px" placeholder="Нажми и продиктуй вопрос">'+esc(assist.draft||'')+'</textarea><div class="row wrap"><button class="btn primary" type="submit" '+(assist.busy||!cap.sample?'disabled':'')+'>'+(assist.busy?'Отвечаю…':'Спросить')+'</button>'+(assist.busy?'<button class="btn" type="button" data-act="ask-stop">Стоп</button>':'')+(msgs.length&&!assist.busy?'<button class="btn" type="button" data-act="ask-tasks">Сделать задачи из ответа</button><button class="btn ghost" type="button" data-act="ask-clear">Новый разговор</button>':'')+'</div></form>';
   if(!cap.sample) h+='<p class="muted" style="margin:0">Ассистент сейчас недоступен. Проверь интернет и попробуй ещё раз.</p>';
@@ -963,16 +1099,49 @@ function viewAssist(){
   return h+'</div>';
 }
 let assist={busy:false,stream:'',err:'',draft:'',ctl:null};
+function parseActions(text){
+  let actions=[];
+  const m=text.match(/```\s*actions\s*([\s\S]*?)```/i) || text.match(/```\s*json\s*(\[[\s\S]*?"op"[\s\S]*?\])\s*```/i);
+  if(m){ try{ const j=JSON.parse(m[1].trim()); actions=arr(j).filter(a=>a&&['add','move','done','delete','repeat'].includes(a.op)).slice(0,20); }catch(e){} text=text.replace(m[0],'').trim(); }
+  actions=actions.filter(a=>a.op==='add'?!!a.title:!!findTask(String(a.id||'').replace(/^#/,''))).map(a=>Object.assign({},a,{id:a.id?String(a.id).replace(/^#/,''):undefined}));
+  return {text, actions};
+}
+function actLabel(a){
+  const t=a.id&&findTask(a.id); const nm=t?t.title:(a.title||'');
+  const when=(a.due?dayLabel(a.due):'')+(a.time?' в '+a.time:'');
+  if(a.op==='add') return '＋ '+nm+(when?' — '+when:'');
+  if(a.op==='move') return '→ '+nm+' — '+(when||'без даты');
+  if(a.op==='done') return '✓ '+nm;
+  if(a.op==='delete') return '✕ Удалить: '+nm;
+  if(a.op==='repeat') return '↻ '+nm+' — '+repText(a.days);
+  return nm;
+}
+function applyActions(list){
+  let n=0; const added=[];
+  list.forEach(a=>{
+    const due=/^\d{4}-\d{2}-\d{2}$/.test(a.due||'')?a.due:null, time=isHM(a.time)?a.time:null;
+    if(a.op==='add'){ const t=normTask({title:a.title,note:a.note,due,time,kind:a.kind||'main'}, defaultSphere()); t.source='assistant'; S.tasks.push(t); added.push(t); n++; return; }
+    const t=findTask(a.id); if(!t) return;
+    if(a.op==='move'){ const prev=t.due; t.due=due; if('time' in a) t.time=time; if(t.recurId&&prev&&prev!==due){ const r=findRecur(t.recurId); if(r) r.skip[prev]=true; t.recurId=null; } t.reminded=false; if(t.time) added.push(t); n++; }
+    else if(a.op==='done'){ t.done=true; t.doneAt=Date.now(); n++; }
+    else if(a.op==='delete'){ removeTask(t); n++; }
+    else if(a.op==='repeat'){ const d=arr(a.days).map(Number).filter(x=>x>=0&&x<=6); if(d.length){ applyRepeat(t,[...new Set(d)]); n++; } }
+  });
+  if(n) haptic();
+  save(); render(); afterAdd(added);
+  return n;
+}
 async function askAssistant(q){
   q=String(q||'').trim(); if(!q||assist.busy||!cap.sample) return;
   S.chat=arr(S.chat); S.chat.push({role:'user',content:q.slice(0,4000)}); S.chat=S.chat.slice(-20); assist.draft=''; assist.err=''; assist.busy=true; assist.stream=''; save(); render();
-  const rules='Ты — личный ассистент и «операционный директор жизни» пользователя в приложении-планировщике Ритм. '+dateCtx()+' Отвечай по-русски, коротко и по делу, списками, как умный близкий помощник. Опирайся на контекст ниже, не выдумывай фактов о человеке. Если советуешь действия — формулируй их конкретно, с датой. Учитывай загрузку, цели и баланс работы и личного. Тон: '+(S.skin==='oldmoney'?'сдержанный, уверенный':'тёплый, заботливый')+'. Не ставь диагнозов и не заменяй врача или психолога.\n\nКОНТЕКСТ ЖИЗНИ:\n'+lifeContext()+'\n\nДЕЛА И КАЛЕНДАРЬ:\n'+tasksContext();
-  const turns=[{role:'user',content:rules}].concat(S.chat.map(m=>({role:m.role,content:m.content})));
+  const rules='Ты — личный ассистент и «операционный директор жизни» пользователя в приложении-планировщике Ритм. '+dateCtx()+' Отвечай по-русски, коротко и по делу, списками, как умный близкий помощник. Опирайся на контекст ниже, не выдумывай фактов о человеке. Если советуешь действия — формулируй их конкретно, с датой. Учитывай загрузку, цели и баланс работы и личного. Тон: '+(S.skin==='oldmoney'?'сдержанный, уверенный':'тёплый, заботливый')+'. Не ставь диагнозов и не заменяй врача или психолога.\n\nДЕЙСТВИЯ. Ты умеешь менять план сам. Если человек просит добавить, перенести, поставить время, отметить сделанным или удалить дела — или ты предлагаешь конкретные изменения плана — в самом конце ответа добавь блок:\n```actions\n[{"op":"add","title":"…","due":"YYYY-MM-DD|null","time":"HH:MM|null","note":"…|null","kind":"main|small"},{"op":"move","id":"…","due":"YYYY-MM-DD|null","time":"HH:MM|null"},{"op":"done","id":"…"},{"op":"delete","id":"…"},{"op":"repeat","id":"…","days":[1,3]}]\n```\nid бери из списка дел (после #). В тексте ответа коротко скажи, что предлагаешь сделать — человек подтвердит одной кнопкой. Не добавляй блок, если менять нечего.\n\nКОНТЕКСТ ЖИЗНИ:\n'+lifeContext()+'\n\nДЕЛА И КАЛЕНДАРЬ:\n'+tasksContext();
+  const turns=[{role:'user',content:rules}].concat(S.chat.map(m=>({role:m.role,content:m.content+(m.actions?'\n[предложены действия: '+m.actions.length+(m.applied?', применены':m.applied===null?', отклонены':'')+']':'')})));
   // merge leading user turns is fine (platform reads consecutive same-role turns as one)
   assist.ctl=new AbortController();
   try{
     const r=await cap.sample(turns,{cache:false,signal:assist.ctl.signal,onText:({text})=>{ assist.stream=text; const el=$('#ai-stream'); if(el) el.textContent=text; }});
-    S.chat.push({role:'assistant',content:r.text}); S.chat=S.chat.slice(-20);
+    const pa=parseActions(r.text||'');
+    S.chat.push(Object.assign({role:'assistant',content:pa.text||'Готово, вот что предлагаю:'}, pa.actions.length?{actions:pa.actions,applied:false}:{})); S.chat=S.chat.slice(-20);
   }catch(e){
     if(e&&e.text) { S.chat.push({role:'assistant',content:e.text+' …'}); }
     if(!(e&&e.code==='cancelled')) assist.err=aiError(e);
@@ -1055,6 +1224,12 @@ async function loadCalList(){
   render();
 }
 function addMin(date,time,mins){ const [y,mo,d]=date.split('-').map(Number); const [h,mi]=time.split(':').map(Number); const x=new Date(y,mo-1,d,h,mi+mins); return dstr(x)+'T'+pad(x.getHours())+':'+pad(x.getMinutes())+':00'; }
+async function scheduleBrief(){
+  if(!cap.push || !window.RITM_PUSH || !window.RITM_PUSH.scheduleBrief) return;
+  const tm=isHM(S.rhythm.brief)?S.rhythm.brief:'08:45';
+  const days=S.briefPush?Array.from({length:7},(_,i)=>addDays(today(),i)).map(d=>({date:d,time:tm})):[];
+  try{ await window.RITM_PUSH.scheduleBrief(days); }catch(e){}
+}
 async function createReminder(t, quiet){
   if(!t.due||!t.time) return false;
   if(cap.push && window.RITM_PUSH){
@@ -1089,7 +1264,7 @@ function connView(){
   if(window.RITM_PUSH){
     const st=cap.pushState||'off';
     const msg={on:'Включены ✓ Напомню за '+esc(S.rhythm.remind)+' мин до дела и в момент дела — даже если Ритм закрыт.',off:'Пуш от Ритма прямо на экран телефона, даже когда приложение закрыто.','need-install':'Сначала установи Ритм на экран «Домой»: Safari → «Поделиться» → «На экран Домой». Потом открой Ритм с иконки и вернись сюда — iPhone присылает уведомления только так.',denied:'Уведомления запрещены. Включи: Настройки iPhone → Уведомления → Ритм → Допуск уведомлений.',unsupported:'Нужен iOS 16.4 или новее: обнови iPhone в Настройках.'}[st]||'';
-    h+='<div class="block" style="gap:8px;border-top:1px solid var(--line);padding-top:12px"><div class="row between"><b>Напоминания на телефон</b><span class="pill">'+(st==='on'?'включены':'выключены')+'</span></div><p class="muted" style="margin:0;font-size:13.5px">'+msg+'</p>'+(st==='off'?'<button class="btn primary" data-act="push-on">Включить напоминания</button>':'')+(st==='on'?'<button class="btn" data-act="push-test">Прислать проверочное</button>':'')+'</div>';
+    h+='<div class="block" style="gap:8px;border-top:1px solid var(--line);padding-top:12px"><div class="row between"><b>Напоминания на телефон</b><span class="pill">'+(st==='on'?'включены':'выключены')+'</span></div><p class="muted" style="margin:0;font-size:13.5px">'+msg+'</p>'+(st==='off'?'<button class="btn primary" data-act="push-on">Включить напоминания</button>':'')+(st==='on'?'<button class="btn" data-act="push-test">Прислать проверочное</button><div class="row between" style="margin-top:4px"><span><b>Утренний план</b><span class="muted" style="display:block;font-size:13px">Пуш в '+esc(S.rhythm.brief)+': главные дела дня и встречи. Время меняется в «Мой ритм».</span></span><button class="toggle" data-act="brief-toggle" aria-pressed="'+!!S.briefPush+'">'+(S.briefPush?'Вкл':'Выкл')+'</button></div>':'')+'</div>';
   } else {
   h+='<div class="block" style="gap:6px;border-top:1px solid var(--line);padding-top:12px"><b>Уведомления на iPhone</b><p class="muted" style="margin:0;font-size:13.5px">Напоминания приходят пушем из календаря. Включи один из вариантов (один раз):</p><ol style="margin:0;padding-left:20px;font-size:14px;line-height:1.6"><li>Установи приложение «Google Календарь» и разреши уведомления, <b>или</b></li><li>Настройки iPhone → Календарь → Учётные записи → Добавить → Google, затем Настройки → Уведомления → Календарь → Разрешить.</li></ol></div>';
   }
@@ -1152,7 +1327,7 @@ function viewProfile(){
   h+=connView();
   h+='<section class="card block"><h2 style="font-size:22px">Блоки экрана «Сегодня»</h2><div class="row wrap">'+mods.map(([k,n])=>'<button class="chip" data-act="mod" data-k="'+k+'" aria-pressed="'+!!S.modules[k]+'">'+n+'</button>').join('')+'</div></section>';
   h+='<section class="card block"><h2 style="font-size:22px">Мой ритм</h2>'+rhythmFields(S.rhythm,'pf')+'<div class="eyebrow">Режим «Сейчас работаю»</div><div class="seg"><button data-act="wm" data-v="auto" aria-pressed="'+(S.workMode==='auto')+'">По расписанию</button><button data-act="wm" data-v="on" aria-pressed="'+(S.workMode==='on')+'">Всегда</button><button data-act="wm" data-v="off" aria-pressed="'+(S.workMode==='off')+'">Выключен</button></div></section>';
-  h+='<section class="card block"><h2 style="font-size:22px">Сферы</h2>'+S.spheres.map((s,i)=>'<div class="sph-row"><input type="text" data-pf-sph="'+i+'" aria-label="Название сферы" value="'+esc(s.name)+'"><select data-pf-grp="'+i+'" aria-label="Вкладка для '+esc(s.name)+'" style="max-width:40%">'+S.groups.map(g=>'<option value="'+esc(g.id)+'"'+(g.id===s.group?' selected':'')+'>'+esc(g.name)+'</option>').join('')+'</select></div>').join('')+'<button class="btn" data-act="pf-sph-add">+ Сфера</button></section>';
+  h+='<section class="card block"><h2 style="font-size:22px">Сферы и цвета</h2><p class="muted" style="margin:0;font-size:13.5px">Нажми на кружок, чтобы выбрать цвет или убрать его. Цвет видно у дел, в неделе и в ежедневнике.</p>'+S.spheres.map((s,i)=>'<div class="sph-row"><button class="color-btn'+(s.color?'':' none')+'" data-act="sph-color" data-i="'+i+'" aria-label="Цвет сферы '+esc(s.name)+'"'+(s.color?' style="background:'+esc(s.color)+'"':'')+'></button><input type="text" data-pf-sph="'+i+'" aria-label="Название сферы" value="'+esc(s.name)+'"><select data-pf-grp="'+i+'" aria-label="Вкладка для '+esc(s.name)+'" style="max-width:40%">'+S.groups.map(g=>'<option value="'+esc(g.id)+'"'+(g.id===s.group?' selected':'')+'>'+esc(g.name)+'</option>').join('')+'</select></div>').join('')+'<button class="btn" data-act="pf-sph-add">+ Сфера</button></section>';
   h+='<section class="card block"><h2 style="font-size:22px">Привычки</h2>'+(S.habits.length?S.habits.map(hb=>'<div class="habit"><span style="font-weight:600">'+esc(hb.name)+'</span><button class="btn ghost" data-act="hab-del" data-id="'+esc(hb.id)+'">Убрать</button></div>').join(''):'<div class="empty">Пока нет привычек.</div>')+'<div class="row"><input type="text" id="pf-hab" placeholder="Новая привычка" aria-label="Новая привычка"><button class="btn" data-act="hab-add" style="flex:none">Добавить</button></div></section>';
   h+='<button class="btn primary block-btn" data-act="pf-save">Сохранить профиль</button>';
   h+='<section class="card block"><h2 style="font-size:22px">Иконка на iPhone</h2><ol style="margin:0;padding-left:20px;line-height:1.7"><li>Открой сайт Ритма в Safari.</li><li>Нажми «Поделиться» внизу экрана.</li><li>Выбери «На экран Домой» → «Добавить».</li></ol><p class="muted" style="font-size:13px;margin:0">Данные хранятся в твоём аккаунте: на телефоне и компьютере одни и те же дела.</p><button class="btn" data-act="sign-out">Выйти из аккаунта</button></section>';
@@ -1175,8 +1350,19 @@ const RU_NUM={'один':1,'одну':1,'два':2,'две':2,'три':3,'чет
 function parseRu(src, now){
   now=now||new Date();
   let s=' '+String(src||'').replace(/([,!?;])/g,' $1 ').replace(/\.(?!\d)/g,' . ').replace(/\s+/g,' ').trim()+' ';
-  const T=dstr(now); let due=null, time=null;
+  const T=dstr(now); let due=null, time=null, repeat=null;
   const cut=re=>{ s=s.replace(re,' '); };
+  // повтор: каждый день, по будням, по выходным, каждый понедельник, по вторникам и четвергам
+  { let mm;
+    if((mm=s.match(/\s(каждый\sдень|ежедневно|каждое\sутро|каждый\sвечер)\s/i))){ repeat=[0,1,2,3,4,5,6]; cut(mm[0]); }
+    else if((mm=s.match(/\s(по\sбудням|в\sбудни|каждый\sбудний\sдень)\s/i))){ repeat=[1,2,3,4,5]; cut(mm[0]); }
+    else if((mm=s.match(/\s(по\sвыходным|в\sвыходные|каждые\sвыходные)\s/i))){ repeat=[0,6]; cut(mm[0]); }
+    else {
+      const DOWRE=['воскресень','понедельник','вторник','сред','четверг','пятниц','суббот'];
+      const m2=s.match(/\s(?:каждый|каждую|каждое|по)\s((?:(?:понедельник|вторник|сред|четверг|пятниц|суббот|воскресень)[а-яё]*(?:\s?,\s?|\sи\s|\s)?)+)/i);
+      if(m2){ const days=[]; DOWRE.forEach((w,i)=>{ if(new RegExp(w,'i').test(m2[1])) days.push(i); }); if(days.length){ repeat=days; cut(m2[0].replace(/\s?$/,'')+' '); s=' '+s+' '; } }
+    }
+  }
   // относительные дни
   let m;
   if(/\s(?:на\s)?послезавтра\s/i.test(s)){ due=addDays(T,2); cut(/\s(?:на\s)?послезавтра\s/i); }
@@ -1209,16 +1395,102 @@ function parseRu(src, now){
   if(title) title=title.charAt(0).toUpperCase()+title.slice(1);
   const words=title.split(' ').filter(Boolean).length;
   const multi=/[;\n]|\s(?:потом|а также|и ещё|и еще|ещё надо|еще надо)\s/i.test(' '+src+' ') || words>14;
-  return { title: title||String(src).trim(), due, time, multi, found: !!(due||time) };
+  return { title: title||String(src).trim(), due, time, repeat, multi:multi&&!repeat?multi:(multi&&words>14), found: !!(due||time||repeat) };
 }
 function futureDate(now, d, mo){ let y=now.getFullYear(); let s=y+'-'+pad(mo)+'-'+pad(d); if(s<dstr(now)) s=(y+1)+'-'+pad(mo)+'-'+pad(d); return s; }
 
+/* ---------- «Выгрузи голову»: длинная диктовка → отдельные дела с описанием ---------- */
+async function aiDump(text){
+  const prompt = ctxBlock()+'\nСфера по умолчанию: '+(defaultSphere()||'нет')+
+  '\n\nЧеловек надиктовал голосом «полотно» — всё, что нужно сделать. Разбери его на отдельные ДЕЛА.\n'+
+  'Правила:\n'+
+  '1. Отдельное дело = отдельное обязательство или результат (сделать что-то одно, ответить конкретному человеку, отправить, позвонить). Если человеку нужно что-то сообщить другому человеку — это отдельное дело «Ответить/Написать <кому> про <что>».\n'+
+  '2. Шаги и детали ОДНОГО дела не дроби на дела — положи их в note: короткие пункты, каждый с новой строки через «- ». Сохрани все детали, причины и имена из речи (кто, почему, что именно).\n'+
+  '3. title — 3–8 слов, начинается с глагола, понятно без описания.\n'+
+  '4. Дата и время — только если названы. Не названо — due null. Не выдумывай сроки.\n'+
+  '5a. Если дело регулярное («каждый понедельник», «по будням», «каждый день») — repeat: массив дней недели (0 вс, 1 пн … 6 сб), иначе null.\n'+
+  '5. Если для дела важно уточнить срок или смысл — добавь короткий вопрос в ask этого дела (например «Когда сделать?» или «Ответить Георгию письменно или созвоном?»). Иначе ask null.\n'+
+  '6. Убери слова-паразиты и оговорки, не теряй смысл.\n'+
+  'Ответь ТОЛЬКО JSON {"tasks":[{"title":"...","note":"- шаг\\n- шаг или null","sphere":"id сферы","due":"YYYY-MM-DD или null","time":"HH:MM или null","kind":"main|small|wait","who":"имя или null","priority":2,"est":30,"repeat":null,"ask":"вопрос или null"}]}. '+TASK_RULES+
+  '\n\nТекст:\n'+text.slice(0,12000);
+  const r = await cap.sample.json(prompt,{modelTier:'default',cache:false});
+  return arr(r&&r.tasks).filter(x=>x&&x.title).map(x=>{ const t=normTask(x, sphere(x.sphere)?x.sphere:defaultSphere()); t.ask=x.ask&&String(x.ask).trim()!=='null'?String(x.ask).slice(0,200):null; const rp=arr(x.repeat).map(Number).filter(n=>n>=0&&n<=6); t.repeat=rp.length?[...new Set(rp)]:null; return t; });
+}
+let dump={list:[], src:'', reply:'', busy:false};
+function dumpDateChips(i,t){
+  const T=today(); const opts=[[T,'Сегодня'],[addDays(T,1),'Завтра'],[addDays(T,2),WDS[(new Date().getDay()+2)%7]+' '+Number(addDays(T,2).slice(8))]];
+  const dow=new Date().getDay(); const toMon=(1-dow+7)%7||7; opts.push([addDays(T,toMon),'Пн '+Number(addDays(T,toMon).slice(8))]);
+  return '<div class="row wrap" style="gap:6px">'+opts.map(([d,l])=>'<button class="chip sm" data-act="dump-due" data-i="'+i+'" data-v="'+d+'" aria-pressed="'+(t.due===d)+'">'+esc(l)+'</button>').join('')+
+    '<button class="chip sm" data-act="dump-due" data-i="'+i+'" data-v="" aria-pressed="'+(!t.due)+'">Без даты</button><input type="date" class="dump-date" data-dump-date="'+i+'" value="'+esc(t.due||'')+'" aria-label="Другая дата"><input type="time" class="dump-time" data-dump-time="'+i+'" value="'+esc(t.time||'')+'" aria-label="Время"></div>';
+}
+function dumpCollect(){
+  document.querySelectorAll('[data-dump-title]').forEach(el=>{ const t=dump.list[Number(el.getAttribute('data-dump-title'))]; if(t) t.title=el.value.trim()||t.title; });
+  document.querySelectorAll('[data-dump-note]').forEach(el=>{ const t=dump.list[Number(el.getAttribute('data-dump-note'))]; if(t) t.note=el.value.trim()||null; });
+  document.querySelectorAll('[data-dump-date]').forEach(el=>{ const t=dump.list[Number(el.getAttribute('data-dump-date'))]; if(t && el.value) t.due=el.value; });
+  document.querySelectorAll('[data-dump-time]').forEach(el=>{ const t=dump.list[Number(el.getAttribute('data-dump-time'))]; if(t) t.time=el.value||null; });
+}
+function dumpSheet(){
+  const L=dump.list;
+  const noDate=L.filter(t=>!t.due&&!t.repeat).length;
+  let h='<div class="row between"><h2 id="sheet-h">'+(L.length===1?'Новое дело':'Разобрала на '+plural(L.length,'дело','дела','дел'))+'</h2><button class="btn ghost" data-act="close-sheet">Отмена</button></div>'+
+    '<p class="muted" style="margin:0;font-size:14px">'+(noDate?'Когда сделать? Нажми день у '+(L.length===1?'дела':'каждого дела')+' или ответь голосом внизу. Можно оставить без даты.':'Проверь названия, описание и даты.')+'</p>';
+  L.forEach((t,i)=>{
+    h+='<div class="dump-card"><div class="row" style="gap:8px;align-items:flex-start"><span class="dump-n">'+(i+1)+'</span><textarea class="dump-title" rows="1" data-dump-title="'+i+'" aria-label="Название дела">'+esc(t.title)+'</textarea><button class="icon-btn" data-act="dump-del" data-i="'+i+'" aria-label="Убрать дело">'+ICON.x+'</button></div>'+
+      ((t.ask||(!t.due&&!t.repeat))?'<p class="dump-ask">'+esc(t.ask||'Когда сделать?')+'</p>':'')+(t.repeat?'<p class="muted" style="margin:0;font-size:13px">↻ '+esc(repText(t.repeat))+'</p>':'')+
+      dumpDateChips(i,t)+
+      '<label class="f" style="font-size:13px">Описание<textarea data-dump-note="'+i+'" rows="3" placeholder="Детали, шаги, кому и зачем">'+esc(t.note||'')+'</textarea></label></div>';
+  });
+  if(!L.length) h+='<div class="empty">Не нашла дел. Попробуй сказать иначе.</div>';
+  if(L.length) h+='<div class="dump-reply"><label class="f" for="dump-reply" style="font-size:13px">Ответить голосом'+(L.length>1?' — например: «первое на завтра в 10, второе в пятницу»':' — например: «в пятницу в 15:00»')+'<textarea id="dump-reply" rows="2" placeholder="Нажми «Говорить» и ответь">'+esc(dump.reply||'')+'</textarea></label>'+(dump.busy?'<div class="thinking" role="status"><span class="spin"></span>Расставляю…</div>':'<button class="btn" data-act="dump-reply">Применить ответ</button>')+'</div>';
+  h+='<button class="btn primary block-btn" data-act="dump-save"'+(L.length?'':' disabled')+'>Добавить '+plural(L.length,'дело','дела','дел')+'</button>';
+  openSheet(h, sh=>{ const r=sh.querySelector('#dump-reply'); if(r) r.oninput=()=>{ dump.reply=r.value; }; });
+}
+async function dumpReply(){
+  dumpCollect(); const ta=$('#dump-reply'); const ans=String((ta&&ta.value)||dump.reply||'').trim(); if(!ans) { if(ta) ta.focus(); return; }
+  const L=dump.list;
+  if(L.length===1){ const p=parseRu(ans); if(p.due||p.time||p.repeat){ const t=L[0]; if(p.due) t.due=p.due; if(p.time){ t.time=p.time; if(!t.due) t.due=p.due||today(); } if(p.repeat) t.repeat=p.repeat; t.ask=null; dump.reply=''; dumpSheet(); return; } }
+  if(!cap.sample){ toast('Не поняла дату — нажми день кнопкой.'); return; }
+  dump.busy=true; dumpSheet();
+  try{
+    const r=await cap.sample.json(dateCtx()+'\nСписок дел (i — номер):\n'+L.map((t,i)=>JSON.stringify({i,title:t.title,due:t.due||null,time:t.time||null})).join('\n')+'\n\nЧеловек ответил голосом, когда что делать или что поправить:\n«'+ans.slice(0,2000)+'»\n\nВерни изменения: для каждого упомянутого дела — новые due (YYYY-MM-DD), time (HH:MM) и/или title, если человек просил переименовать; repeat — дни недели 0–6, если сказал «каждый …». Номера считай с 1 так, как говорит человек («первое» = i 0). Ответь ТОЛЬКО JSON {"tasks":[{"i":0,"due":"YYYY-MM-DD|null","time":"HH:MM|null","title":"…|null","repeat":null}]}',{modelTier:'quick',cache:false});
+    arr(r&&r.tasks).forEach(x=>{ const t=L[Number(x.i)]; if(!t) return; if(/^\d{4}-\d{2}-\d{2}$/.test(x.due||'')) t.due=x.due; if(isHM(x.time)){ t.time=x.time; if(!t.due) t.due=today(); } if(x.title&&String(x.title)!=='null') t.title=String(x.title).slice(0,200); const rp=arr(x.repeat).map(Number).filter(n=>n>=0&&n<=6); if(rp.length) t.repeat=[...new Set(rp)]; t.ask=null; });
+    dump.reply='';
+  }catch(e){ toast(aiError(e)); }
+  dump.busy=false; if(sheetOpen) dumpSheet();
+}
+async function brainDump(text){
+  const inp=$('#cap-in'); if(inp){ inp.value=''; inp.disabled=true; inp.placeholder='Разбираю на дела…'; }
+  openSheet('<div class="thinking" role="status"><span class="spin"></span>Разбираю на дела… это до 20 секунд</div>');
+  let list=[];
+  try{ list=await aiDump(text); if(!list.length) throw new Error('пусто'); }catch(e){ closeSheet(); if(inp){ inp.disabled=false; inp.placeholder='Нажми и продиктуй, что сделать и когда'; } toast(aiError(e)+' Сохранила текст одним делом.'); const p=parseRu(text); const t=normTask({title:p.title.slice(0,90), due:p.due, time:p.time, note:text.slice(0,1000)}, defaultSphere()); S.tasks.push(t); save(); render(); return; }
+  if(inp){ inp.disabled=false; inp.placeholder='Нажми и продиктуй, что сделать и когда'; }
+  dump={list, src:text, reply:'', busy:false}; dumpSheet();
+}
 /* ---------- actions ---------- */
 async function quickAdd(text){
   text=text.trim(); if(!text) return;
   const inp=$('#cap-in');
   const p=parseRu(text);
   let list=[], refine=false;
+  if(p.multi && cap.sample){ return brainDump(text); }
+  if(p.repeat){
+    const t=normTask({title:p.title.length>90?p.title.slice(0,90)+'…':p.title, time:p.time, kind:'main', priority:2}, defaultSphere());
+    const r=makeRecur(t, p.repeat); if(inp) inp.value='';
+    ensureRecur(); save(); render(); haptic();
+    toast('Повтор: '+t.title+' — '+repText(p.repeat)+(p.time?' в '+p.time:''), ()=>{ S.recur=S.recur.filter(x=>x.id!==r.id); S.tasks=S.tasks.filter(x=>x.recurId!==r.id); save(); render(); });
+    if(p.time && (cap.push||cap.mcp)) S.tasks.filter(x=>x.recurId===r.id && x.due<=addDays(today(),1)).forEach(x=>createReminder(x,true));
+    return;
+  }
+  if(!p.multi && !p.due && !p.time){
+    // дата не названа — сразу спрашиваем, когда сделать (кнопкой или голосом)
+    const t=normTask({title:p.title.length>90?p.title.slice(0,90)+'…':p.title, priority:2}, defaultSphere()); t.source='voice';
+    if(inp) inp.value='';
+    dump={list:[t], src:text, reply:'', busy:false}; dumpSheet();
+    if(cap.sample){ const snap=t.title; aiTasks(text).then(r=>{ if(!r.length||dump.src!==text||!sheetOpen) return; dumpCollect(); const x=dump.list[0]; if(!x||x.title!==snap) return;
+      if(r.length>1){ dump.list=r.map(y=>{ y.source='voice'; return y; }); } else { const a=r[0]; x.title=a.title||x.title; x.sphere=a.sphere||x.sphere; x.kind=a.kind||x.kind; x.priority=a.priority||x.priority; x.est=a.est||x.est; x.who=a.who||x.who; if(a.note&&!x.note) x.note=a.note; if(a.due&&!x.due) x.due=a.due; if(a.time&&!x.time) x.time=a.time; }
+      dumpSheet(); }).catch(()=>{}); }
+    return;
+  }
   if(!p.multi){
     // мгновенно: разбор на телефоне, ИИ потом уточнит формулировку и сферу
     list=[normTask({title:p.title.length>90?p.title.slice(0,90)+'…':p.title, due:p.due, time:p.time, priority:2}, defaultSphere())];
@@ -1268,19 +1540,26 @@ function askDate(ids){
 }
 function toggleDone(id){
   const t=findTask(id); if(!t) return;
-  t.done=!t.done; t.doneAt=t.done?Date.now():null; save(); render();
+  t.done=!t.done; t.doneAt=t.done?Date.now():null; if(t.done) haptic(); save(); render();
   if(t.done) toast('Готово: '+t.title, ()=>{ const x=findTask(id); if(x){ x.done=false; x.doneAt=null; save(); render(); } });
 }
 function bumpPostponed(n){ const d=today(); S.days[d]=S.days[d]||{}; S.days[d].postponed=(S.days[d].postponed||0)+n; }
 function postpone(id){
   const t=findTask(id); if(!t) return;
   const prev=t.due; t.due=addDays(today(),1); t.postponed=(t.postponed||0)+1; bumpPostponed(1);
+  if(t.recurId && prev){ const r=findRecur(t.recurId); if(r) r.skip[prev]=true; t.recurId=null; }
   save(); render();
   toast('Перенесла на завтра', ()=>{ const x=findTask(id); if(x){ x.due=prev; x.postponed=Math.max(0,(x.postponed||1)-1); bumpPostponed(-1); save(); render(); } });
+}
+let erep=[];
+function repChips(){
+  const pre=[['1,2,3,4,5,6,0','Каждый день'],['1,2,3,4,5','По будням'],['','Не повторять']];
+  return '<div class="row wrap" style="gap:6px">'+[1,2,3,4,5,6,0].map(d=>'<button class="chip sm day-chip" data-act="e-rep" data-v="'+d+'" aria-pressed="'+erep.includes(d)+'">'+DOWN[d]+'</button>').join('')+'</div><div class="row wrap" style="gap:6px;margin-top:6px">'+pre.map(([v,l])=>'<button class="chip sm" data-act="e-rep-set" data-v="'+v+'" aria-pressed="'+(erep.slice().sort().join()===v.split(',').filter(Boolean).map(Number).sort().join())+'">'+l+'</button>').join('')+'</div>';
 }
 function editSheet(id){
   const isNew=!id; const t=isNew?{id:uid(),title:'',sphere:defaultSphere(),due:today(),kind:'main',priority:2,est:30,who:''}:findTask(id);
   if(!t) return;
+  const rr=t.recurId&&findRecur(t.recurId); erep=rr?rr.days.slice():[];
   const sphOpts=S.spheres.map(s=>'<option value="'+esc(s.id)+'"'+(s.id===t.sphere?' selected':'')+'>'+esc(s.name)+'</option>').join('')+(sphere(t.sphere)||!t.sphere?'':'<option value="'+esc(t.sphere)+'" selected>— без сферы —</option>');
   openSheet('<div class="row between"><h2 id="sheet-h">'+(isNew?'Новое дело':'Дело')+'</h2><button class="btn ghost" data-act="close-sheet">Закрыть</button></div>'+
     '<label class="f" for="e-title">Что сделать<textarea id="e-title" style="min-height:60px">'+esc(t.title)+'</textarea></label>'+
@@ -1294,16 +1573,36 @@ function editSheet(id){
     '<label class="f" for="e-est">Минут на дело<input id="e-est" type="number" inputmode="numeric" min="5" max="480" value="'+esc(t.est||30)+'"></label>'+
     '<label class="f" for="e-who">От кого жду<input id="e-who" type="text" value="'+esc(t.who||'')+'" placeholder="Если тип «Жду»"></label></div>'+
     '<div class="row wrap"><button class="chip" data-act="e-quick" data-v="0">Сегодня</button><button class="chip" data-act="e-quick" data-v="1">Завтра</button><button class="chip" data-act="e-quick" data-v="7">Через неделю</button><button class="chip" data-act="e-quick" data-v="none">Без срока</button></div>'+
+    '<div class="eyebrow">Повторять</div><div id="e-rep">'+repChips()+'</div>'+
     '<button class="btn primary block-btn" data-act="e-save" data-id="'+esc(t.id)+'" data-new="'+isNew+'">Сохранить</button>'+
     (isNew?'':'<div id="del-zone">'+delBtn(t.id)+'</div>'));
 }
-const delBtn = id => '<button class="btn ghost" data-act="e-del" data-id="'+esc(id)+'" style="color:var(--warn)">Удалить дело</button>';
+const delBtn = id => '<button class="btn danger block-btn" data-act="e-del" data-id="'+esc(id)+'">Удалить дело</button>';
+function applyRepeat(t, days){
+  if(!t) return;
+  const r=t.recurId&&findRecur(t.recurId); const T=today();
+  if(!days.length){
+    if(r){ S.recur=S.recur.filter(x=>x.id!==r.id); S.tasks=S.tasks.filter(x=>!(x.recurId===r.id && !x.done && x.id!==t.id)); t.recurId=null; }
+    return;
+  }
+  if(r){
+    Object.assign(r,{title:t.title, note:t.note, sphere:t.sphere, time:t.time, kind:t.kind, priority:t.priority, est:t.est, days});
+    S.tasks=S.tasks.filter(x=>{ if(x.recurId!==r.id||x.done||x.id===t.id) return true; const [y,m,dd]=x.due.split('-').map(Number); return days.includes(new Date(y,m-1,dd).getDay()); });
+    S.tasks.forEach(x=>{ if(x.recurId===r.id && !x.done && x.id!==t.id){ x.title=t.title; x.note=t.note; x.sphere=t.sphere; x.time=t.time; x.kind=t.kind; } });
+  } else {
+    const nr=makeRecur(t, days); t.recurId=nr.id;
+    const [y,m,dd]=(t.due||T).split('-').map(Number);
+    if(!t.due || t.due<T || !days.includes(new Date(y,m-1,dd).getDay())) t.due=nextRepDay(days, T);
+  }
+  ensureRecur();
+}
 function saveEdit(id,isNew){
   const title=$('#e-title').value.trim(); if(!title){ $('#e-title').focus(); return; }
   const time=($('#e-time')||{}).value||null; const wantRem=!!($('#e-rem')&&$('#e-rem').checked&&!$('#e-rem').disabled);
   const data={title, time, note:(($('#e-note')||{}).value||'').trim()||null, sphere:$('#e-sph').value, due:$('#e-due').value||null, kind:$('#e-kind').value, priority:Number($('#e-pr').value), est:Math.max(5,Math.min(480,Number($('#e-est').value)||30)), who:$('#e-who').value.trim()||null};
   if(isNew) S.tasks.push({id,done:false,created:Date.now(),postponed:0,source:'manual',...data});
   else { const t=findTask(id); if(!t){ closeSheet(); toast('Это дело уже удалено'); render(); return; } Object.assign(t,data); }
+  applyRepeat(findTask(id), erep.slice());
   save(); closeSheet(); render();
   const tt=findTask(id);
   if(tt && wantRem && tt.due && tt.time){ createReminder(tt).then(ok=>{ if(ok){ render(); toast('Сохранено. Напомню '+human(tt.due)+' в '+tt.time+' и за '+S.rhythm.remind+' мин до.'); } }); }
@@ -1392,9 +1691,9 @@ document.addEventListener('click', async e=>{
     case 'new-task': editSheet(null); break;
     case 'e-quick': { const el=$('#e-due'); if(el) el.value = v==='none'?'':addDays(today(),Number(v)); break; }
     case 'e-save': saveEdit(id, b.getAttribute('data-new')==='true'); break;
-    case 'e-del': $('#del-zone').innerHTML='<div class="row wrap"><span style="font-weight:600">Удалить насовсем?</span><button class="btn" data-act="e-del-yes" data-id="'+esc(id)+'" style="color:var(--warn)">Удалить</button><button class="btn ghost" data-act="e-del-no" data-id="'+esc(id)+'">Нет</button></div>'; break;
-    case 'e-del-no': $('#del-zone').innerHTML=delBtn(id); break;
-    case 'e-del-yes': { const t=findTask(id); S.tasks=S.tasks.filter(x=>x.id!==id); save(); closeSheet(); render(); if(t) toast('Удалено', ()=>{ if(!findTask(t.id)){ S.tasks.push(t); save(); render(); } }); break; }
+    case 'e-rep': { const d=Number(v); const i=erep.indexOf(d); if(i>=0) erep.splice(i,1); else erep.push(d); $('#e-rep').innerHTML=repChips(); break; }
+    case 'e-rep-set': erep=String(v||'').split(',').filter(Boolean).map(Number); $('#e-rep').innerHTML=repChips(); break;
+    case 'e-del': case 'e-del-yes': closeSheet(); deleteWithUndo(id); break;
     case 'group': ui.group=v; ui.sub=null; render(); break;
     case 'group-add': openSheet('<h2 id="sheet-h">Новая вкладка</h2><label class="f" for="g-name">Название<input id="g-name" type="text" placeholder="Например, Учёба"></label><button class="btn primary block-btn" data-act="group-save">Добавить</button><p class="muted" style="font-size:13px;margin:0">В ней сразу появится одноимённая сфера.</p>'); break;
     case 'group-save': { const n=$('#g-name').value.trim(); if(!n) return; const gid='g-'+uid(); S.groups.push({id:gid,name:n}); S.spheres.push({id:'s-'+uid(),name:n,group:gid}); save(); closeSheet(); ui.group=gid; render(); break; }
@@ -1402,14 +1701,9 @@ document.addEventListener('click', async e=>{
     case 'filter': ui.filter=v; render(); break;
     case 'workmode': { const now=workActive(); S.workOverride={date:today(), on:!now}; save(); render(); toast(now?'Показываю все дела до конца дня':'Рабочий режим до конца дня: личное скрыто'); break; }
     case 'wm': pfCollect(); S.workMode=v; S.workOverride=null; save(); render(); break;
-    case 'habit': { const t=today(); S.habitLog[t]=S.habitLog[t]||{}; S.habitLog[t][id]=!S.habitLog[t][id]; save(); render(); break; }
+    case 'habit': { const t=today(); S.habitLog[t]=S.habitLog[t]||{}; S.habitLog[t][id]=!S.habitLog[t][id]; if(S.habitLog[t][id]) haptic(); save(); render(); break; }
     case 'ev-habit': { const t=today(); S.habitLog[t]=S.habitLog[t]||{}; S.habitLog[t][id]=!S.habitLog[t][id]; save(); eveningSheet(); render(); break; }
-    case 'affirm-new': {
-      b.disabled=true; b.textContent='…';
-      try{ const r=await cap.sample.json('Напиши одну короткую аффирмацию на день на русском, до 12 слов, без эмодзи. Тон: '+(S.skin==='oldmoney'?'сдержанный, уверенный, взрослый':'мягкий, тёплый, заботливый')+'. Сегодня у человека: '+(S.tasks.filter(x=>!x.done&&x.due&&x.due<=today()).slice(0,4).map(x=>x.title).join('; ')||'свободный день')+'. Ответь ТОЛЬКО JSON {"text":"..."}',{modelTier:'quick',cache:false});
-        const txt=String(r&&r.text||'').trim().replace(/^["«]+|["»]+$/g,''); if(txt){ S.affirm[today()]=txt; save(); } }
-      catch(err){ toast(aiError(err)); }
-      render(); break; }
+    case 'affirm-new': { const cur=affirmation(); let x=cur, k=0; while(x===cur&&k<10){ x=AFFIRMS[Math.floor(Math.random()*AFFIRMS.length)]; k++; } S.affirm={}; S.affirm[today()]=x; save(); render(); break; }
     case 'overload-move': { const ids=(b.getAttribute('data-ids')||'').split(',').filter(Boolean); let n=0; ids.forEach(x=>{ const t=findTask(x); if(t){ t.due=addDays(today(),1); t.postponed=(t.postponed||0)+1; n++; }}); bumpPostponed(n); save(); render(); toast('Перенесла на завтра: '+n); break; }
     case 'overload-keep': { const d=today(); S.days[d]=S.days[d]||{}; S.days[d].overloadDismissed=true; save(); render(); break; }
     case 'cal-retry': calDays={}; loadCalendar(true); break;
@@ -1420,6 +1714,8 @@ document.addEventListener('click', async e=>{
     case 'ask-q': askAssistant(v); break;
     case 'ask-stop': if(assist.ctl) assist.ctl.abort(); break;
     case 'ask-clear': S.chat=[]; save(); render(); break;
+    case 'act-apply': { const m=S.chat[Number(v)]; if(!m||!m.actions||m.applied) break; const n=applyActions(m.actions); m.applied=true; save(); render(); toast('Готово: '+plural(n,'изменение','изменения','изменений')); break; }
+    case 'act-skip': { const m=S.chat[Number(v)]; if(m){ m.applied=null; save(); render(); } break; }
     case 'ask-tasks': { const last=arr(S.chat).filter(m=>m.role==='assistant').pop(); if(!last||!cap.sample) break; b.disabled=true; try{ const list=await aiTasks('Из этого совета ассистента выпиши конкретные дела, которые пользователь решил сделать:\n'+last.content); if(list.length){ S.tasks.push(...list); save(); render(); toast('Добавила дел: '+list.length); const nd=list.filter(x=>!x.due&&x.kind!=='wait'); if(nd.length) askDate(nd.map(x=>x.id)); } else toast('Не нашла конкретных дел в ответе'); }catch(err){ toast(aiError(err)); } b.disabled=false; break; }
     case 'life-open': lifeEdit={k:v,busy:false,err:'',text:''}; lifeSheet(); break;
     case 'life-save': { const ta=$('#life-in'); if(ta) lifeEdit.text=ta.value; lifeSave(); break; }
@@ -1427,15 +1723,29 @@ document.addEventListener('click', async e=>{
     case 'ask-all': askDate(S.tasks.filter(x=>!x.done&&!x.due&&x.kind!=='wait').map(x=>x.id)); break;
     case 'conn-load': if(ui.tab==='me') pfCollect(); else obCollect(); loadCalList(); break;
     case 'conn-cal': { if(ui.tab==='me') pfCollect(); else obCollect(); const i=S.calendars.indexOf(v); if(i>=0){ if(S.calendars.length>1) S.calendars.splice(i,1); else { toast('Оставь хотя бы один календарь'); break; } } else S.calendars.push(v); save(); render(); loadCalendar(true); break; }
+    case 'dump-due': { dumpCollect(); const t=dump.list[Number(b.getAttribute('data-i'))]; if(t){ t.due=v||null; if(!v) t.time=null; } dumpSheet(); break; }
+    case 'dump-reply': dumpReply(); break;
+    case 'dump-del': { dumpCollect(); dump.list.splice(Number(b.getAttribute('data-i')),1); dumpSheet(); break; }
+    case 'dump-save': { dumpCollect(); const L=dump.list.map(t=>{ const c={...t}; delete c.ask; delete c.repeat; c.source='voice'; return c; }); S.tasks.push(...L);
+      dump.list.forEach((t,i)=>{ if(t.repeat){ const x=L[i]; const r=makeRecur(x, t.repeat); x.recurId=r.id; x.due=x.due||nextRepDay(t.repeat, today()); } }); ensureRecur(); haptic(); save(); closeSheet(); render();
+      const ids=L.map(x=>x.id); toast('Добавила дел: '+L.length, ()=>{ S.tasks=S.tasks.filter(x=>!ids.includes(x.id)); save(); render(); });
+      const timed=L.filter(x=>x.due&&x.time); if(timed.length && (cap.push||cap.mcp)){ for(const t of timed) await createReminder(t,true); render(); }
+      dump={list:[],src:'',reply:'',busy:false}; break; }
     case 'tour': tourSheet(Number(v)); break;
     case 'tour-end': S.tourDone=true; save(); closeSheet(); break;
     case 'view': ui.view=b.getAttribute('data-v'); try{ localStorage.setItem('ritm-view', ui.view); }catch(_){} render(); break;
     case 'wk': ui.week=(ui.week||0)+Number(b.getAttribute('data-v')); render(); break;
     case 'day-open': ui.view='day'; ui.day=b.getAttribute('data-v'); try{ localStorage.setItem('ritm-view','day'); }catch(_){} render(); window.scrollTo(0,0); break;
     case 'mv-open': if(window.__ritmDragEnd && Date.now()-window.__ritmDragEnd<400) break; moveSheet(id); break;
-    case 'sw-del': case 'mv-del': { closeSheet(); const t=findTask(id); S.tasks=S.tasks.filter(x=>x.id!==id); save(); render(); if(t) toast('Удалено: '+t.title, ()=>{ if(!findTask(t.id)){ S.tasks.push(t); save(); render(); } }); break; }
+    case 'sw-del': case 'mv-del': closeSheet(); deleteWithUndo(id); break;
+    case 'mv-done': closeSheet(); toggleDone(id); break;
+    case 'mv-time': { const v2=($('#mv-time')||{}).value||null; const x=findTask(id); if(x){ x.time=v2; x.reminded=false; if(!x.due) x.due=today(); save(); closeSheet(); render(); toast(v2?'Время: '+v2:'Время убрано'); if(x.time&&(cap.push||cap.mcp)) createReminder(x,true); } break; }
+    case 'und-set': { const x=findTask(id); if(x){ x.due=v; haptic(); save(); render(); toast(x.title+' — '+dayLabel(v), ()=>{ const y=findTask(id); if(y){ y.due=null; save(); render(); } }); } break; }
+    case 'und-all': ui.undAll=true; render(); break;
+    case 'take-today': { const x=findTask(id); if(x){ x.due=today(); save(); render(); toast('Взяла на сегодня: '+x.title); } break; }
+    case 'go-ask': ui.tab='ai'; render(); askAssistant(v); break;
     case 'mv-set': closeSheet(); moveTask(id, b.getAttribute('data-v')); break;
-    case 'push-on': { b.disabled=true; b.textContent='Секунду…'; try{ await window.RITM_PUSH.enable(); cap.pushState='on'; cap.push=true; toast('Напоминания включены ✓'); const fut=S.tasks.filter(x=>!x.done&&x.due&&x.time&&x.due>=today()); for(const x of fut) await createReminder(x,true); }catch(e){ cap.pushState=(e&&e.code==='denied')?'denied':'off'; toast(cap.pushState==='denied'?'Уведомления не разрешены. Настройки iPhone → Уведомления → Ритм.':'Не получилось включить. Открой Ритм с иконки на экране «Домой» и попробуй ещё раз.', null, true); } render(); break; }
+    case 'push-on': { b.disabled=true; b.textContent='Секунду…'; try{ await window.RITM_PUSH.enable(); cap.pushState='on'; cap.push=true; toast('Напоминания включены ✓'); scheduleBrief(); const fut=S.tasks.filter(x=>!x.done&&x.due&&x.time&&x.due>=today()); for(const x of fut) await createReminder(x,true); }catch(e){ cap.pushState=(e&&e.code==='denied')?'denied':'off'; toast(cap.pushState==='denied'?'Уведомления не разрешены. Настройки iPhone → Уведомления → Ритм.':'Не получилось включить. Открой Ритм с иконки на экране «Домой» и попробуй ещё раз.', null, true); } render(); break; }
     case 'push-test': { b.disabled=true; try{ const n=await window.RITM_PUSH.test(); toast(n?'Отправила — уведомление придёт через пару секунд':'Не нашла телефон для уведомлений. Нажми «Включить напоминания» ещё раз.', null, !n); if(!n){ cap.pushState='off'; cap.push=false; render(); } }catch(e){ toast('Не получилось отправить. Попробуй ещё раз.', null, true); } b.disabled=false; break; }
     case 'conn-test': { const d=new Date(Date.now()+3*60000); const t={id:'test',title:'Проверка напоминания из Ритма',due:dstr(d),time:pad(d.getHours())+':'+pad(d.getMinutes())}; b.disabled=true; const prev=S.rhythm.remind; const input={summary:'‼️ '+t.title,startTime:t.due+'T'+t.time+':00',endTime:addMin(t.due,t.time,15),description:'Тест из Ритма. Можно удалить.',overrideReminders:[{method:'popup',minutes:1}]}; if(S.remindCal&&S.remindCal!=='primary') input.calendarId=S.remindCal; if(!cap.mcp){ toast('Google Календарь подключим следующим шагом.'); b.disabled=false; break; } try{ await cap.mcp.callTool('Google Calendar','create_event',input,{cache:false}); toast('Тестовое событие на '+t.time+' создано. Уведомление придёт через ~2 минуты.', null, true); }catch(err){ toast('Не получилось создать тест. Проверь подключение календаря.', null, true); } b.disabled=false; break; }
     case 'meeting': meetingSheet(); break;
@@ -1444,13 +1754,17 @@ document.addEventListener('click', async e=>{
     case 'm-add': { const list=meet.res.tasks.filter(t=>!t._skip).map(t=>{ const c={...t}; delete c._skip; return c; }); if(!list.length) return; S.tasks.push(...list); save(); meet={text:'',busy:false,res:null,err:'',token:meet.token+1}; closeSheet(); render(); toast('Добавила из встречи: '+list.length); break; }
     case 'm-reset': meet={text:'',busy:false,res:null,err:'',token:meet.token+1}; meetingSheet(); break;
     case 'evening': eve={mood:(S.days[today()]||{}).mood||0, note:(S.days[today()]||{}).note||''}; eveningSheet(); break;
-    case 'ev-done': { const t=findTask(id); if(t){ t.done=true; t.doneAt=Date.now(); save(); } eveningSheet(); render(); break; }
+    case 'ev-done': { const t=findTask(id); if(t){ t.done=true; t.doneAt=Date.now(); haptic(); save(); } eveningSheet(); render(); break; }
     case 'ev-later': { const t=findTask(id); if(t){ t.due=addDays(today(),1); t.postponed=(t.postponed||0)+1; bumpPostponed(1); save(); } eveningSheet(); render(); break; }
     case 'ev-mood': eve.mood=Number(v); eveningSheet(); break;
     case 'ev-close': closeDay(); break;
     case 'skin': pfCollect(); S.skin=v; save(); render(); break;
     case 'mod': { pfCollect(); const k=b.getAttribute('data-k'); S.modules[k]=!S.modules[k]; save(); render(); if(k==='calendar'&&S.modules.calendar) loadCalendar(); break; }
-    case 'pf-save': pfCollect(); save(true); render(); toast('Профиль сохранён'); break;
+    case 'pf-save': pfCollect(); save(true); render(); scheduleBrief(); toast('Профиль сохранён'); break;
+    case 'sph-color': { pfCollect(); const i=Number(b.getAttribute('data-i')); const s=S.spheres[i]; if(!s) break;
+      openSheet('<div class="row between"><h2 id="sheet-h">Цвет: '+esc(s.name)+'</h2><button class="btn ghost" data-act="close-sheet">Закрыть</button></div><div class="palette">'+PALETTE.map(([c,n])=>'<button class="swatch" data-act="sph-color-set" data-i="'+i+'" data-v="'+c+'" aria-pressed="'+(s.color===c)+'" aria-label="'+n+'" style="background:'+c+'"></button>').join('')+'</div><button class="btn block-btn" data-act="sph-color-set" data-i="'+i+'" data-v="">Без цвета</button>'); break; }
+    case 'sph-color-set': { const s=S.spheres[Number(b.getAttribute('data-i'))]; if(s){ s.color=v||''; save(); } closeSheet(); render(); break; }
+    case 'brief-toggle': pfCollect(); S.briefPush=!S.briefPush; save(); render(); scheduleBrief(); toast(S.briefPush?'Утренний план будет приходить в '+S.rhythm.brief:'Утренний план выключен'); break;
     case 'pf-sph-add': pfCollect(); S.spheres.push({id:'s-'+uid(),name:'Новая сфера',group:'personal'}); save(); render(); break;
     case 'hab-add': { pfCollect(); const n=$('#pf-hab').value.trim(); if(!n) return; S.habits.push({id:'h-'+uid(),name:n}); save(); render(); break; }
     case 'hab-del': pfCollect(); S.habits=S.habits.filter(x=>x.id!==id); save(); render(); break;
@@ -1493,7 +1807,7 @@ async function pull(){
   }catch(e){}
 }
 /* ---------- голос: запись и распознавание ---------- */
-const MIC_FIELDS=['cap-in','ob-story','chat-in','life-in','m-text','ev-note','e-note','rv-fix'];
+const MIC_FIELDS=['dump-reply','cap-in','ob-story','chat-in','life-in','m-text','ev-note','e-note','rv-fix'];
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 const inFrame=(()=>{ try{ return window.top!==window.self; }catch(e){ return true; } })();
 let voice={id:null,rec:null,media:null,chunks:[],stopping:false,base:''};
@@ -1522,6 +1836,7 @@ function micFail(msg){ voice.id=null; voice.rec=null; setMicUI(); toast(msg, nul
 function voiceDone(){
   const id=voice.id; voice.id=null; voice.rec=null; voice.media=null; setMicUI();
   const el=document.getElementById(id);
+  if(id==='dump-reply' && el && el.value.trim()){ dump.reply=el.value; dumpReply(); return; }
   if(id==='cap-in' && el && el.value.trim()){ const f=$('#cap-form'); if(f) f.requestSubmit?f.requestSubmit():f.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})); }
 }
 function startSR(id){
@@ -1583,6 +1898,7 @@ new MutationObserver(()=>ensureMics()).observe(document.body,{childList:true,sub
   }
   if(!(ui.D && ui.ob>0)) render();
   if(S.onboarded) loadCalendar();
+  if(S.onboarded) scheduleBrief();
   if(S.onboarded && !S.tourDone && !(ui.D)) setTimeout(()=>tourSheet(0),800);
   document.addEventListener('visibilitychange', ()=>{
     if(document.visibilityState==='hidden'){ if(saveT) flush(); }

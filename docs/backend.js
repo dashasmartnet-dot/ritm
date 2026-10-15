@@ -243,6 +243,15 @@ window.RITM_PUSH = {
     var r = await fetch(FN('push'), { method:'POST', headers:{ 'Content-Type':'application/json', Authorization:'Bearer '+t, apikey: CFG.supabaseAnonKey }, body: JSON.stringify({ test:true }) });
     var j = await r.json(); return j.sent || 0;
   },
+  scheduleBrief: async function(days){
+    await sb.from('reminders').delete().like('task_id', 'brief:%').is('sent_at', null);
+    var now = new Date();
+    var rows = (days||[]).map(function(d){ var at = new Date(d.date+'T'+d.time+':00'); return { user_id: session.user.id, task_id: 'brief:'+d.date, title: 'План на день', due: d.date, at_time: d.time, fire_at: at.toISOString() }; }).filter(function(r){ return new Date(r.fire_at) > now; });
+    if(!rows.length) return true;
+    var q = await sb.from('reminders').insert(rows);
+    if(q.error) throw err('db_error', q.error.message);
+    return true;
+  },
   schedule: async function(task, minutes){
     if(!task.due || !task.time) return false;
     var at = new Date(task.due+'T'+task.time+':00');

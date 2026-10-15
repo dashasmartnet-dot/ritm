@@ -51,6 +51,25 @@ Deno.serve(async (req) => {
     for (const r of due || []) {
       if (!(r.user_id in states)) { const { data } = await admin.from("states").select("data").eq("user_id", r.user_id).maybeSingle(); states[r.user_id] = data?.data || null; }
       const tasks = (states[r.user_id]?.tasks || []) as any[];
+      if (String(r.task_id).startsWith("brief:")) {
+        const st = states[r.user_id] || {};
+        if (st.briefPush !== false) {
+          const day = r.due as string;
+          const open = tasks.filter((x) => !x.done && x.kind !== "wait" && x.due && x.due <= day);
+          const pr = (x: any) => (x.priority || 2);
+          const timed = open.filter((x) => x.time && x.due === day).sort((a, b) => a.time.localeCompare(b.time));
+          const key = open.filter((x) => x.kind === "main" && !(x.time && x.due === day)).sort((a, b) => pr(a) - pr(b)).slice(0, 3);
+          const small = open.filter((x) => x.kind === "small").length;
+          const parts: string[] = [];
+          if (key.length) parts.push("Главное: " + key.map((x) => x.title).join(" · "));
+          if (timed.length) parts.push("По времени: " + timed.slice(0, 3).map((x) => x.time + " " + x.title).join(" · "));
+          if (small) parts.push("Мелочей: " + small);
+          const body = parts.length ? parts.join("\n") : "На сегодня дел нет. Загляни — можно взять что-то заранее.";
+          sent += await sendTo(r.user_id, { title: "План на день" + (open.length ? " · " + open.length : ""), body, tag: "brief" }, keys);
+        }
+        await admin.from("reminders").update({ sent_at: now.toISOString() }).eq("id", r.id);
+        continue;
+      }
       const t = tasks.find((x) => x.id === r.task_id);
       const still = t && !t.done && t.due === r.due && (t.time || null) === (r.at_time || null);
       if (still) {
