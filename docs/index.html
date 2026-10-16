@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Ритм</title>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; media-src 'self' blob:; base-uri 'none'; form-action 'self'">
 <meta name="referrer" content="no-referrer">
@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261016121116';</script>
-<script src="supabase.js?v=20261016121116"></script>
-<script src="config.js?v=20261016121116"></script>
-<script src="backend.js?v=20261016121116"></script>
+<script>window.RITM_BUILD='20261016122737';</script>
+<script src="supabase.js?v=20261016122737"></script>
+<script src="config.js?v=20261016122737"></script>
+<script src="backend.js?v=20261016122737"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -936,6 +936,8 @@ button:active,.ios-r:active{transform:scale(.97)}
   button:active,.ios-r:active,.check:active{transform:none}
 }
 html,body{overscroll-behavior-y:none}
+html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+input,textarea,select{font-size:max(16px,1em)}
 
 /* ===== Интерфейсы: общий выбор ===== */
 .if-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -1346,10 +1348,7 @@ function renderOnboarding(){
   if(st===0){
     body='<div class="eyebrow">Ритм · личный ассистент</div><h1>Голова свободна, дела под контролем</h1>'+
     '<p class="muted" style="font-size:16px;margin:0">Расскажи о себе голосом — ассистент сам соберёт твои сферы, ритм дня, привычки и первые дела. Дальше просто диктуешь, что появилось и что сделано.</p>'+
-    '<div class="eyebrow">Выбери стиль</div><div class="grid2">'+
-      '<button class="skin-card" data-act="ob-skin" data-v="clean" aria-pressed="'+(D.skin==='clean')+'"><div class="swatches" aria-hidden="true"><i style="background:#F7EFE8"></i><i style="background:#EED9CF"></i><i style="background:#8C4A3C"></i></div><b style="font-family:var(--display);font-size:22px">Clean girl</b><span class="muted" style="font-size:13px">Беж и пудра, мягкий тон</span></button>'+
-      '<button class="skin-card" data-act="ob-skin" data-v="oldmoney" aria-pressed="'+(D.skin==='oldmoney')+'"><div class="swatches" aria-hidden="true"><i style="background:#F3EEE4"></i><i style="background:#14213D"></i><i style="background:#A8843E"></i></div><b style="font-family:var(--display);font-size:22px">Old money</b><span class="muted" style="font-size:13px">Синий и золото, сдержанно</span></button>'+
-    '</div>';
+    '';
     foot='<span></span><button class="btn primary" data-act="ob-go1" style="min-width:60%">Дальше</button>';
   } else if(st===1){
     body='<div class="eyebrow">Ритм · голосовой ежедневник</div><h1 style="font-size:34px">Надиктуй всё, что сейчас в голове</h1>'+
@@ -2286,7 +2285,7 @@ function viewProfile(){
   const mods=[['affirm','Настрой дня'],['calendar','Календарь'],['main','Главные дела'],['small','Мелочи'],['wait','Жду ответа'],['habits','Каждый день'],['evening','Итоги дня']];
   let h='<div class="stack" style="gap:16px"><h1>Профиль</h1>';
   h+='<section class="card block if-sec"><h2 style="font-size:20px">Интерфейс</h2><p class="muted" style="margin:0">Выбери, как выглядит экран «Сегодня». Дела и настройки не меняются — можно переключать сколько угодно.</p>'+ifacePicker()+'</section>';
-  h+='<section class="card block"><label class="f" for="pf-name">Имя<input id="pf-name" type="text" value="'+esc(S.name)+'"></label><div class="eyebrow">Стиль</div><div class="seg"><button data-act="skin" data-v="clean" aria-pressed="'+(S.skin==='clean')+'">Clean girl</button><button data-act="skin" data-v="oldmoney" aria-pressed="'+(S.skin==='oldmoney')+'">Old money</button></div></section>';
+  h+='<section class="card block"><label class="f" for="pf-name">Имя<input id="pf-name" type="text" value="'+esc(S.name)+'"></label></section>';
   h+='<section class="card block"><h2 style="font-size:22px">Начать заново</h2><p class="muted" style="margin:0">Расскажи заново о себе, целях и ритме — ассистент обновит сферы, ритм и привычки. Дела останутся.</p><button class="btn primary" data-act="reonboard">Рассказать о себе заново</button><div id="reset-zone" class="stack" style="gap:8px"><button class="btn ghost" data-act="reset-ask" style="color:var(--warn)">Стереть всё и начать с нуля</button></div></section>';
   h+=connView();
   h+='<section class="card block"><h2 style="font-size:22px">Блоки экрана «Сегодня»</h2><div class="row wrap">'+mods.map(([k,n])=>'<button class="chip" data-act="mod" data-k="'+k+'" aria-pressed="'+!!S.modules[k]+'">'+n+'</button>').join('')+'</div></section>';
@@ -3356,6 +3355,9 @@ async function pull(){
     } else if(S.updatedAt) flush();
   }catch(e){}
 }
+/* без приближения: двойное нажатие и щипок не увеличивают экран */
+document.addEventListener('gesturestart', e=>e.preventDefault(), {passive:false});
+document.addEventListener('dblclick', e=>e.preventDefault(), {passive:false});
 /* ---------- голос: запись и распознавание ---------- */
 const MIC_FIELDS=['hab-new','ctl-in','dump-reply','cap-in','ob-story','life-in','m-text','ev-note','e-note','rv-fix'];
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
