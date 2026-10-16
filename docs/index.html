@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261016133115';</script>
-<script src="supabase.js?v=20261016133115"></script>
-<script src="config.js?v=20261016133115"></script>
-<script src="backend.js?v=20261016133115"></script>
+<script>window.RITM_BUILD='20261016135014';</script>
+<script src="supabase.js?v=20261016135014"></script>
+<script src="config.js?v=20261016135014"></script>
+<script src="backend.js?v=20261016135014"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -3356,7 +3356,7 @@ async function splitSteps(){
 
 /* ---------- ЗАХВАТ: круг-микрофон → шторка ---------- */
 function capSheet(startMic){
-  ui.capOpen=true;
+  ui.capOpen=true; if(SR && !inFrame) micWarm();
   openSheet('<form id="cap-form" class="cap" autocomplete="off"><h2 id="sheet-h" class="cap-t">Скажи или напиши</h2><label for="cap-in" class="srt">Что сделать</label><textarea id="cap-in" rows="3" enterkeyhint="done" placeholder="Добавить: «завтра в 11 созвон с Олей». Изменить: «перенеси МВД на понедельник», «удали звонок маме», «я сделала договор»"></textarea><div class="cap-row"><button type="button" class="btn ghost" data-act="close-sheet">Отмена</button><span style="flex:1"></span><button type="submit" class="btn primary go">Готово</button></div></form>');
   if(startMic && SR && !inFrame){ try{ micToggle('cap-in'); }catch(_){} } else setTimeout(()=>{ const t=$('#cap-in'); if(t) t.focus(); },200);
 }
@@ -3479,7 +3479,17 @@ function stopSR(){
   setTimeout(()=>{ try{ rec.abort(); }catch(e){} }, 400);
   voiceDone();
 }
+/* одно разрешение на запуск: сначала получаем доступ к микрофону (iPhone спрашивает один раз),
+   сразу отпускаем его, а распознавание речи дальше работает по уже выданному разрешению */
+let micGrant=null, micOk=false;
+function micWarm(){
+  if(micGrant) return micGrant;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) return Promise.resolve(false);
+  micGrant=navigator.mediaDevices.getUserMedia({audio:true}).then(st=>{ try{ st.getTracks().forEach(t=>t.stop()); }catch(_){} micOk=true; return true; }).catch(e=>{ micGrant=null; return false; });
+  return micGrant;
+}
 function micToggle(id){
+  if(!voice.id && SR && !inFrame && !S.micRec && !micOk && navigator.mediaDevices){ micWarm().then(()=>{ micOk=true; micToggle(id); }); return; }
   if(voice.id){ const same=voice.id===id; if(voice.rec){ stopSR(); } else if(voice.media){ voice.media.stop(); } if(same) return; }
   const el=document.getElementById(id); voice.base=el?el.value:''; voice.lastId=id;
   const canRec=!inFrame && window.RITM_TRANSCRIBE && navigator.mediaDevices && window.MediaRecorder;
