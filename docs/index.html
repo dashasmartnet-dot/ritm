@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261016132349';</script>
-<script src="supabase.js?v=20261016132349"></script>
-<script src="config.js?v=20261016132349"></script>
-<script src="backend.js?v=20261016132349"></script>
+<script>window.RITM_BUILD='20261016132445';</script>
+<script src="supabase.js?v=20261016132445"></script>
+<script src="config.js?v=20261016132445"></script>
+<script src="backend.js?v=20261016132445"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -942,6 +942,9 @@ input,textarea,select{font-size:max(16px,1em)}
 html{height:100%;overflow:hidden}
 body{height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:none}
 .dock{transform:translateZ(0)}
+/* подсказка вверху экрана — компактная, не растягивается на весь экран */
+.toast.top{bottom:auto!important;height:auto!important;max-height:40vh}
+.toast{height:auto;align-items:center}
 
 /* ===== Интерфейсы: общий выбор ===== */
 .if-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -3422,7 +3425,7 @@ function startSR(id){
   rec.onresult=e=>{ if(voice.rec!==rec) return; let interim=''; for(let i=e.resultIndex;i<e.results.length;i++){ const r=e.results[i]; if(r.isFinal) finalTxt+=r[0].transcript+' '; else interim+=r[0].transcript; } fieldSet(id,(finalTxt+interim).trim()); if(id==='chat-in'&&talk.on){ clearTimeout(voice.sil); voice.sil=setTimeout(()=>{ if(voice.rec===rec){ try{ rec.stop(); }catch(_){} } }, 1500); } };
   rec.onerror=e=>{ const c=e&&e.error; if(c==='no-speech'||c==='aborted') return;
     if((c==='not-allowed'||c==='service-not-allowed') && window.RITM_TRANSCRIBE && !inFrame){ voice.rec=null; startRecorder(id); return; }
-    micFail(c==='not-allowed'||c==='service-not-allowed'?(inFrame?'Здесь запись недоступна. Нажми на поле и на микрофон на клавиатуре iPhone.':'Разреши доступ к микрофону: Настройки iPhone → Safari → Микрофон.'):'Не получилось распознать речь. Попробуй ещё раз.'); };
+    micFail(c==='not-allowed'||c==='service-not-allowed'?(inFrame?'Здесь запись недоступна. Нажми на поле и на микрофон на клавиатуре iPhone.':'Микрофон выключен для Ритма. Открой Настройки iPhone → Приложения → Safari → Микрофон → «Разрешить», потом закрой и открой Ритм.'):'Не получилось распознать речь. Попробуй ещё раз.'); };
   rec.onend=()=>{ if(voice.id===id && voice.rec===rec) voiceDone(); };
   voice.rec=rec; voice.id=id; setMicUI();
   try{ rec.start(); }catch(e){ micFail('Не получилось включить микрофон.'); }
@@ -3439,7 +3442,7 @@ async function startRecorder(id){
       try{ const text=await window.RITM_TRANSCRIBE(blob); fieldSet(id,String(text||'').trim()); }catch(e){ toast('Не получилось распознать запись. Попробуй ещё раз.', null, true); }
       if(b){ b.disabled=false; delete b.dataset.st; } voiceDone(); };
     voice.media=mr; voice.id=id; setMicUI(); mr.start(); if(id==='chat-in'&&talk.on) silenceWatch(stream, mr);
-  }catch(e){ try{ console.warn('mic',e&&e.name,e&&e.message); }catch(_){} micFail(inFrame?'Здесь запись недоступна. Нажми на поле и на микрофон на клавиатуре iPhone.':'Разреши доступ к микрофону: Настройки iPhone → Safari → Микрофон.'); }
+  }catch(e){ try{ console.warn('mic',e&&e.name,e&&e.message); }catch(_){} micFail(inFrame?'Здесь запись недоступна. Нажми на поле и на микрофон на клавиатуре iPhone.':'Микрофон выключен для Ритма. Открой Настройки iPhone → Приложения → Safari → Микрофон → «Разрешить», потом закрой и открой Ритм.'); }
 }
 /* один поток микрофона на весь запуск: iPhone спрашивает разрешение один раз, а не при каждом нажатии */
 let micStream=null, micTimer=null;
