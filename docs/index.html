@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261016122737';</script>
-<script src="supabase.js?v=20261016122737"></script>
-<script src="config.js?v=20261016122737"></script>
-<script src="backend.js?v=20261016122737"></script>
+<script>window.RITM_BUILD='20261016125138';</script>
+<script src="supabase.js?v=20261016125138"></script>
+<script src="config.js?v=20261016125138"></script>
+<script src="backend.js?v=20261016125138"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -1979,9 +1979,25 @@ function talkTap(){ if(!talk.on){ talkStart(); return; } if(talk.phase==='speak'
 let assist={busy:false,stream:'',err:'',draft:'',ctl:null};
 /* ---------- озвучка ---------- */
 const TTS=window.speechSynthesis; let ttsOn=false, ttsVoice=null;
-function pickVoice(){ if(!TTS) return null; const vs=TTS.getVoices().filter(v=>/^ru/i.test(v.lang)); return vs.find(v=>/Milena|Милена|Katya|Катя|premium|enhanced/i.test(v.name))||vs[0]||null; }
+function pickVoice(){ if(!TTS) return null; const vs=TTS.getVoices().filter(v=>/^ru/i.test(v.lang)); const sc=v=>(/premium|премиум/i.test(v.name)?40:0)+(/enhanced|улучш/i.test(v.name)?30:0)+(/Milena|Милена/i.test(v.name)?10:0)+(/Katya|Катя/i.test(v.name)?8:0)+(v.localService?2:0); return vs.sort((a,b)=>sc(b)-sc(a))[0]||null; }
 if(TTS){ try{ TTS.onvoiceschanged=()=>{ ttsVoice=pickVoice(); }; ttsVoice=pickVoice(); }catch(_){} }
-function plainText(s){ return String(s||'').replace(/```[\s\S]*?```/g,' ').replace(/[*_#>`~]/g,'').replace(/^\s*[-•]\s*/gm,'').replace(/\[(.*?)\]\(.*?\)/g,'$1').replace(/(\d{1,2}):00/g,'$1 ноль ноль').replace(/\s+\n/g,'\n').trim(); }
+const MON_G=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const WD_FULL={пн:'понедельник',вт:'вторник',ср:'среда',чт:'четверг',пт:'пятница',сб:'суббота',вс:'воскресенье'};
+const B0='(?<![\\p{L}\\d])', B1='(?![\\p{L}\\d])';
+const wre=(w,f)=>new RegExp(B0+w+B1,'gu'+(f||''));
+const SAY_ABBR=[['ЖКХ','жэкаха'],['КП','коммерческое предложение'],['УК','управляющей компании'],['ТСЖ','тэсэжэ'],['ЖСК','жэсэка'],['МВД','эмвэдэ'],['АМО','амо'],['CRM','си ар эм'],['ИИ','искусственный интеллект'],['ок','окей','i'],['т\\.\\s?е\\.','то есть'],['т\\.\\s?д\\.','так далее'],['мин','минут'],['ч\\.','часа']].map(([w,r,f])=>[wre(w,f),r]);
+const MON3=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+function plainText(s){
+  let t=String(s||'').replace(/```[\s\S]*?```/g,' ').replace(/<[^>]+>/g,' ').replace(/https?:\/\/\S+/g,' ').replace(/\[(.*?)\]\(.*?\)/g,'$1');
+  t=t.replace(/#[\w-]{3,}/g,'').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{20E3}]/gu,'').replace(/[＋✓✕↻→←•·]/g,' ').replace(/[*_#>`~|\\/{}\[\]«»"“”()]/g,' ').replace(/^\s*[-–—]\s*/gm,'').replace(/\s[–—-]\s/g,', ');
+  t=t.replace(wre('(пн|вт|ср|чт|пт|сб|вс)\\.?','i'),m=>WD_FULL[m.replace('.','').toLowerCase()]);
+  t=t.replace(new RegExp(B0+'(\\d{1,2})\\s?(янв|фев|мар|апр|мая|май|июн|июл|авг|сент|сен|окт|ноя|дек)\\p{L}*\\.?','giu'),(m,d,mo)=>{ let k=mo.toLowerCase(); if(k==='мая') k='май'; return d+' '+MON_G[MON3.indexOf(k.slice(0,3))]; });
+  t=t.replace(/(^|[^\d.])(\d{1,2})\.(\d{2})(?:\.\d{2,4})?(?![\d])/g,(m,p,d,mo)=>(+mo>=1&&+mo<=12)?p+d+' '+MON_G[+mo-1]:m);
+  t=t.replace(/(\d{1,2}):00(?!\d)/g,'$1').replace(/(\d{1,2}):(\d{2})(?!\d)/g,'$1 $2');
+  SAY_ABBR.forEach(([re,w])=>{ t=t.replace(re,w); });
+  t=t.replace(/:\s*/g,', ').replace(/;\s*/g,', ').replace(/[ \t]{2,}/g,' ').replace(/\s+([,.!?])/g,'$1').replace(/,(\s*,)+/g,',').replace(/^\s*,\s*/gm,'').replace(/\s+\n/g,'\n');
+  return t.trim();
+}
 let ttsAudio=null, ttsNeuralOff=!/[?&]neural=1/.test(location.search), ttsJob=0, ttsAbort=null;
 function sysSpeak(parts, onend, job){
   if(!TTS){ ttsOn=false; renderSpeak(); if(onend) onend(); return; }
@@ -2064,7 +2080,7 @@ async function askAssistant(q){
   S.chat=arr(S.chat); S.chat.push({role:'user',content:q.slice(0,4000)}); S.chat=S.chat.slice(-20); assist.draft='';
   if(BRIEF_RE.test(q) && q.length<80 && !/неделю|завтра|месяц/i.test(q)){ const txt=briefText(); S.chat.push({role:'assistant',content:txt}); save(); render(); if(talk.on){ talkSet('speak'); speak(txt, voiceNext); } return; }
   assist.err=''; assist.busy=true; assist.stream=''; if(talk.on) talk.phase='think'; save(); render();
-  const rules='Ты — личный ассистент и «операционный директор жизни» пользователя в приложении-планировщике Ритм. '+dateCtx()+' Отвечай по-русски, коротко и по делу, списками, как умный близкий помощник. Опирайся на контекст ниже, не выдумывай фактов о человеке. Если советуешь действия — формулируй их конкретно, с датой. Учитывай загрузку, цели и баланс работы и личного. Тон: '+(S.skin==='oldmoney'?'сдержанный, уверенный':'тёплый, заботливый')+'. Не ставь диагнозов и не заменяй врача или психолога.'+(talk.on?' Сейчас ГОЛОСОВОЙ РЕЖИМ: человек слушает, а не читает. Говори живо, как разговор, без списков, звёздочек и заголовков, 3–7 предложений; называй дела и время словами; рассказывай подробнее, что есть в плане и что важно; в конце задай короткий уточняющий вопрос или предложи следующий шаг.':'')+'\n\nФОРМАТ: простой текст для телефона. Никаких таблиц, HTML, <br>, заголовков и эмодзи-цифр. Максимум 8 коротких строк. Если раскладываешь дела по дням — по строке на день: «Пн 19 окт: 10:00 Снять швы; Отчёт по Контуру». Называй дни только из ближайших 14 дней по календарю ниже.\nСТРОГО: работай только с делами из списка ниже. Не придумывай новых дел, звонков, подъёмов, зарядок, отдыха и «итогов дня». Новое дело (op add) — только если человек сам попросил добавить. Если дел мало — так и скажи.\nКАЛЕНДАРЬ: '+[0,1,2,3,4,5,6,7,8,9,10,11,12,13].map(k=>{ const dd=addDays(today(),k); const [yy,mm,dn]=dd.split('-').map(Number); return WDS[new Date(yy,mm-1,dn).getDay()]+' '+dn+'.'+pad(mm)+'='+dd; }).join(', ')+'\n\nДЕЙСТВИЯ. Ты умеешь менять план сам. Если человек просит добавить, перенести, поставить время, отметить сделанным или удалить дела — или ты предлагаешь конкретные изменения плана — в самом конце ответа добавь блок:\n```actions\n[{"op":"add","title":"…","due":"YYYY-MM-DD|null","time":"HH:MM|null","note":"…|null","kind":"main|small"},{"op":"move","id":"…","due":"YYYY-MM-DD|null","time":"HH:MM|null"},{"op":"done","id":"…"},{"op":"delete","id":"…"},{"op":"repeat","id":"…","days":[1,3]}]\n```\nid бери из списка дел (после #). Одно-три изменения применяются сразу (человек может отменить) — тогда коротко скажи, что сделала. Если изменений больше или удаляешь несколько дел — человек сначала подтвердит, тогда скажи, что предлагаешь. Не добавляй блок, если менять нечего.\n\nКОНТЕКСТ ЖИЗНИ:\n'+lifeContext()+'\n\nДЕЛА И КАЛЕНДАРЬ:\n'+tasksContext();
+  const rules='Ты — личный ассистент и «операционный директор жизни» пользователя в приложении-планировщике Ритм. '+dateCtx()+' Отвечай по-русски, коротко и по делу, списками, как умный близкий помощник. Опирайся на контекст ниже, не выдумывай фактов о человеке. Если советуешь действия — формулируй их конкретно, с датой. Учитывай загрузку, цели и баланс работы и личного. Тон: '+(S.skin==='oldmoney'?'сдержанный, уверенный':'тёплый, заботливый')+'. Не ставь диагнозов и не заменяй врача или психолога.'+(talk.on?' Сейчас ГОЛОСОВОЙ РЕЖИМ: тебя слушают, а не читают. Говори как живой человек по телефону — подруга-ассистентка: тепло, просто, разговорными фразами, на «ты». 2–5 коротких предложений. Без списков, двоеточий, скобок, слэшей, кавычек, эмодзи, id и сокращений — пиши слова полностью, как их произносят («коммерческое предложение», а не «КП»; «в десять утра», а не «10:00»; «в пятницу», а не «пт»). Не перечисляй всё подряд: назови главное и спроси, рассказать ли остальное. Без канцелярита и фраз вроде «Ваш план на сегодня включает». Можно начать с «Так», «Смотри», «Окей». В конце — один короткий вопрос или следующий шаг.':'')+'\n\nФОРМАТ: простой текст для телефона. Никаких таблиц, HTML, <br>, заголовков и эмодзи-цифр. Максимум 8 коротких строк. Если раскладываешь дела по дням — по строке на день: «Пн 19 окт: 10:00 Снять швы; Отчёт по Контуру». Называй дни только из ближайших 14 дней по календарю ниже.\nСТРОГО: работай только с делами из списка ниже. Не придумывай новых дел, звонков, подъёмов, зарядок, отдыха и «итогов дня». Новое дело (op add) — только если человек сам попросил добавить. Если дел мало — так и скажи.\nКАЛЕНДАРЬ: '+[0,1,2,3,4,5,6,7,8,9,10,11,12,13].map(k=>{ const dd=addDays(today(),k); const [yy,mm,dn]=dd.split('-').map(Number); return WDS[new Date(yy,mm-1,dn).getDay()]+' '+dn+'.'+pad(mm)+'='+dd; }).join(', ')+'\n\nДЕЙСТВИЯ. Ты умеешь менять план сам. Если человек просит добавить, перенести, поставить время, отметить сделанным или удалить дела — или ты предлагаешь конкретные изменения плана — в самом конце ответа добавь блок:\n```actions\n[{"op":"add","title":"…","due":"YYYY-MM-DD|null","time":"HH:MM|null","note":"…|null","kind":"main|small"},{"op":"move","id":"…","due":"YYYY-MM-DD|null","time":"HH:MM|null"},{"op":"done","id":"…"},{"op":"delete","id":"…"},{"op":"repeat","id":"…","days":[1,3]}]\n```\nid бери из списка дел (после #). Одно-три изменения применяются сразу (человек может отменить) — тогда коротко скажи, что сделала. Если изменений больше или удаляешь несколько дел — человек сначала подтвердит, тогда скажи, что предлагаешь. Не добавляй блок, если менять нечего.\n\nКОНТЕКСТ ЖИЗНИ:\n'+lifeContext()+'\n\nДЕЛА И КАЛЕНДАРЬ:\n'+tasksContext();
   const turns=[{role:'user',content:rules}].concat(S.chat.map(m=>({role:m.role,content:m.content+(m.actions?'\n[предложены действия: '+m.actions.length+(m.applied?', применены':m.applied===null?', отклонены':'')+']':'')})));
   // merge leading user turns is fine (platform reads consecutive same-role turns as one)
   assist.ctl=new AbortController();
@@ -2285,7 +2301,7 @@ function viewProfile(){
   const mods=[['affirm','Настрой дня'],['calendar','Календарь'],['main','Главные дела'],['small','Мелочи'],['wait','Жду ответа'],['habits','Каждый день'],['evening','Итоги дня']];
   let h='<div class="stack" style="gap:16px"><h1>Профиль</h1>';
   h+='<section class="card block if-sec"><h2 style="font-size:20px">Интерфейс</h2><p class="muted" style="margin:0">Выбери, как выглядит экран «Сегодня». Дела и настройки не меняются — можно переключать сколько угодно.</p>'+ifacePicker()+'</section>';
-  h+='<section class="card block"><label class="f" for="pf-name">Имя<input id="pf-name" type="text" value="'+esc(S.name)+'"></label></section>';
+  h+='<section class="card block"><label class="f" for="pf-name">Имя<input id="pf-name" type="text" value="'+esc(S.name)+'"></label><a class="btn ghost" href="./mic-test.html" style="display:flex;justify-content:center;margin-top:8px;text-decoration:none">Проверка микрофона</a></section>';
   h+='<section class="card block"><h2 style="font-size:22px">Начать заново</h2><p class="muted" style="margin:0">Расскажи заново о себе, целях и ритме — ассистент обновит сферы, ритм и привычки. Дела останутся.</p><button class="btn primary" data-act="reonboard">Рассказать о себе заново</button><div id="reset-zone" class="stack" style="gap:8px"><button class="btn ghost" data-act="reset-ask" style="color:var(--warn)">Стереть всё и начать с нуля</button></div></section>';
   h+=connView();
   h+='<section class="card block"><h2 style="font-size:22px">Блоки экрана «Сегодня»</h2><div class="row wrap">'+mods.map(([k,n])=>'<button class="chip" data-act="mod" data-k="'+k+'" aria-pressed="'+!!S.modules[k]+'">'+n+'</button>').join('')+'</div></section>';
@@ -3418,7 +3434,7 @@ async function startRecorder(id){
       try{ const text=await window.RITM_TRANSCRIBE(blob); fieldSet(id,String(text||'').trim()); }catch(e){ toast('Не получилось распознать запись. Попробуй ещё раз.', null, true); }
       if(b){ b.disabled=false; delete b.dataset.st; } voiceDone(); };
     voice.media=mr; voice.id=id; setMicUI(); mr.start(); if(id==='chat-in'&&talk.on) silenceWatch(stream, mr);
-  }catch(e){ micFail(inFrame?'Здесь запись недоступна. Нажми на поле и на микрофон на клавиатуре iPhone.':'Разреши доступ к микрофону: Настройки iPhone → Safari → Микрофон.'); }
+  }catch(e){ try{ console.warn('mic',e&&e.name,e&&e.message); }catch(_){} micFail(inFrame?'Здесь запись недоступна. Нажми на поле и на микрофон на клавиатуре iPhone.':'Разреши доступ к микрофону: Настройки iPhone → Safari → Микрофон.'); }
 }
 /* один поток микрофона на весь запуск: iPhone спрашивает разрешение один раз, а не при каждом нажатии */
 let micStream=null, micTimer=null;
@@ -3446,8 +3462,8 @@ function micToggle(id){
   if(voice.id){ const same=voice.id===id; if(voice.rec){ stopSR(); } else if(voice.media){ voice.media.stop(); } if(same) return; }
   const el=document.getElementById(id); voice.base=el?el.value:''; voice.lastId=id;
   const canRec=!inFrame && window.RITM_TRANSCRIBE && navigator.mediaDevices && window.MediaRecorder;
-  if(canRec && (isStandalone || !SR || micStream)) startRecorder(id);
-  else if(SR && !inFrame) startSR(id);
+  if(SR && !inFrame && !S.micRec) startSR(id);
+  else if(canRec) startRecorder(id);
   else if(!inFrame && window.RITM_TRANSCRIBE && navigator.mediaDevices && window.MediaRecorder) startRecorder(id);
   else if(SR) startSR(id);
   else { if(el) el.focus(); toast('Нажми на микрофон на клавиатуре iPhone и говори.', null, true); }

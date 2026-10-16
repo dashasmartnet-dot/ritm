@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Ритм — проверка микрофона</title>
+<style>
+:root{--bg:#F7F3EE;--ink:#2A211C;--muted:#6E645D;--acc:#C8553D;--ok:#34A853;--bad:#D92D20}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,system-ui,sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px 40px;touch-action:manipulation}
+h1{font-size:26px;margin:8px 0 4px}p{color:var(--muted);margin:0 0 16px}
+button{display:block;width:100%;min-height:52px;margin:0 0 10px;border:0;border-radius:14px;background:#fff;color:var(--ink);font:600 17px -apple-system,system-ui;text-align:left;padding:0 16px}
+button.main{background:var(--acc);color:#fff;text-align:center}
+#log{background:#fff;border-radius:14px;padding:12px 14px;font:13px/1.45 ui-monospace,Menlo,monospace;white-space:pre-wrap;min-height:80px}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+</style></head><body>
+<a href="./" style="color:#C8553D;font-weight:600;text-decoration:none">‹ Назад в Ритм</a><h1>Проверка микрофона</h1>
+<p>Нажимай кнопки по очереди сверху вниз. Каждый раз, когда iPhone спросит разрешение, нажимай «Разрешить» и отмечай кнопкой «Спросил разрешение». В конце нажми «Скопировать отчёт» и пришли его в чат.</p>
+<button data-t="gum">1. Микрофон (запись) — первый раз</button>
+<button data-t="gum2">2. Микрофон — второй раз, тот же поток</button>
+<button data-t="rec">3. Записать 3 секунды и прослушать</button>
+<button data-t="rec2">4. Записать ещё раз (второй раз подряд)</button>
+<button data-t="sr">5. Распознавание речи — скажи «привет»</button>
+<button data-t="sr2">6. Распознавание ещё раз</button>
+<button data-t="asked" style="background:#FFE9DC">Спросил разрешение (отметить)</button>
+<button class="main" data-t="copy">Скопировать отчёт</button>
+<div id="log"></div>
+<script>
+const L=document.getElementById('log'); let stream=null, prompts=0;
+const log=(m,c)=>{ const d=document.createElement('div'); if(c) d.className=c; d.textContent=new Date().toLocaleTimeString('ru-RU')+' '+m; L.appendChild(d); };
+log('Режим: '+((navigator.standalone||matchMedia('(display-mode: standalone)').matches)?'приложение с иконки':'Safari')+' · '+navigator.userAgent.replace(/^.*?\(|\).*$/g,'').slice(0,60));
+log('SpeechRecognition: '+(!!(window.SpeechRecognition||window.webkitSpeechRecognition))+' · MediaRecorder: '+(!!window.MediaRecorder));
+async function gum(){ const t0=Date.now(); try{ if(!stream||!stream.getAudioTracks().some(t=>t.readyState==='live')) stream=await navigator.mediaDevices.getUserMedia({audio:true}); const tr=stream.getAudioTracks()[0]; log('Микрофон OK за '+(Date.now()-t0)+' мс · трек '+tr.readyState+(tr.muted?' (заглушён)':''),'ok'); }catch(e){ log('Микрофон ОШИБКА: '+e.name+' '+e.message,'bad'); } }
+function rec(){ return new Promise(async res=>{ await gum(); if(!stream) return res(); const mime=['audio/mp4','audio/webm;codecs=opus','audio/webm'].find(m=>MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m))||''; let ch=[]; let mr; try{ mr=new MediaRecorder(stream,mime?{mimeType:mime}:undefined); }catch(e){ log('MediaRecorder ОШИБКА: '+e.name+' '+e.message,'bad'); return res(); }
+  mr.ondataavailable=e=>{ if(e.data&&e.data.size) ch.push(e.data); }; mr.onerror=e=>log('Запись ошибка: '+(e.error&&e.error.name),'bad');
+  mr.onstop=()=>{ const b=new Blob(ch,{type:mr.mimeType||mime}); log('Запись: '+b.size+' байт, '+(b.type||'?'), b.size>1000?'ok':'bad'); try{ const a=new Audio(URL.createObjectURL(b)); a.play().catch(e=>log('Прослушать не вышло: '+e.name,'bad')); }catch(_){} res(); };
+  mr.start(); log('Говори 3 секунды…'); setTimeout(()=>{ try{ mr.stop(); }catch(_){} },3000); }); }
+function sr(){ const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR) return log('Распознавания нет','bad'); const r=new SR(); r.lang='ru-RU'; r.interimResults=false; let got=false; const t0=Date.now();
+  r.onresult=e=>{ got=true; log('Услышал: «'+e.results[0][0].transcript+'» за '+(Date.now()-t0)+' мс','ok'); };
+  r.onerror=e=>log('Распознавание ошибка: '+e.error,'bad'); r.onend=()=>{ if(!got) log('Распознавание закончилось без текста'); };
+  try{ r.start(); log('Слушаю…'); }catch(e){ log('Распознавание не запустилось: '+e.name,'bad'); } }
+document.addEventListener('click',async e=>{ const b=e.target.closest('button'); if(!b) return; const t=b.dataset.t;
+  if(t==='gum'||t==='gum2') gum(); else if(t==='rec'||t==='rec2') rec(); else if(t==='sr'||t==='sr2') sr();
+  else if(t==='asked'){ prompts++; log('— iPhone спросил разрешение (всего '+prompts+')'); }
+  else if(t==='copy'){ const txt='Отчёт микрофона\n'+L.innerText; try{ await navigator.clipboard.writeText(txt); b.textContent='Скопировано — вставь в чат'; }catch(_){ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); b.textContent='Скопировано — вставь в чат'; } }
+});
+document.addEventListener('visibilitychange',()=>log('Экран: '+(document.hidden?'скрыт':'снова виден')));
+</script></body></html>
