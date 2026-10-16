@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261016125138';</script>
-<script src="supabase.js?v=20261016125138"></script>
-<script src="config.js?v=20261016125138"></script>
-<script src="backend.js?v=20261016125138"></script>
+<script>window.RITM_BUILD='20261016132349';</script>
+<script src="supabase.js?v=20261016132349"></script>
+<script src="config.js?v=20261016132349"></script>
+<script src="backend.js?v=20261016132349"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -938,6 +938,10 @@ button:active,.ios-r:active{transform:scale(.97)}
 html,body{overscroll-behavior-y:none}
 html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 input,textarea,select{font-size:max(16px,1em)}
+/* прокручивается только содержимое, окно стоит на месте — нижняя панель не «плавает» на iPhone */
+html{height:100%;overflow:hidden}
+body{height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:none}
+.dock{transform:translateZ(0)}
 
 /* ===== Интерфейсы: общий выбор ===== */
 .if-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -1450,7 +1454,7 @@ async function obBuild(fix){
     }
     D.built=true; if(fix) D.fix=''; ui.ob=2;
   }catch(e){ if(token!==D.token) return; D.err=aiError(e); }
-  D.busy=false; render(); if(!fix) window.scrollTo(0,0);
+  D.busy=false; render(); if(!fix) SCR().scrollTo(0,0);
 }
 function md(t){
   t=String(t||'').replace(/<br\s*\/?>/gi,'\n').replace(/[\u0030-\u0039]\uFE0F?\u20E3/g,m=>m[0]+'.').replace(/^\s*\|?[-:| ]{6,}\|?\s*$/gm,'').replace(/^\s*-{3,}\s*$/gm,'').replace(/^\s*\|(.*)\|\s*$/gm,(m,a)=>a.split('|').map(x=>x.trim()).filter(Boolean).join(' · '));
@@ -1484,7 +1488,7 @@ function coach(i){
   if(!el){ coach(i+1); return; }
   const fixed=getComputedStyle(el.closest('#dock,#ctl-fab')||el).position==='fixed'||!!el.closest('#dock');
   const safeTop=parseFloat(getComputedStyle(document.body).paddingTop)||0;
-  if(!fixed){ const r0=el.getBoundingClientRect(); if(r0.height>innerHeight*0.4){ window.scrollBy(0, r0.top-safeTop-16); } else el.scrollIntoView({block:'center'}); }
+  if(!fixed){ const r0=el.getBoundingClientRect(); if(r0.height>innerHeight*0.4){ SCR().scrollBy(0, r0.top-safeTop-16); } else el.scrollIntoView({block:'center'}); }
   setTimeout(()=>{
     const r=el.getBoundingClientRect(); const pad=8, CH=250;
     let c=document.getElementById('coach'); if(!c){ c=document.createElement('div'); c.id='coach'; document.body.appendChild(c); }
@@ -1519,7 +1523,7 @@ function obFinish(){
   S.habits=D.habits.map(n=>({id:keepH.get(n)||'h-'+uid(),name:n}));
   S.tasks.forEach(t=>{ if(!sphere(t.sphere)) t.sphere=fb; });
   S.tasks.push(...D.tasks.filter(t=>!t._skip).map(t=>{ const c={...t}; delete c._skip; if(!ids.has(c.sphere)) c.sphere=fb; return c; }));
-  const firstTime=!S.tourDone; S.onboarded=true; ui.D=null; ui.reob=false; ui.tab='today'; save(true); render(); loadCalendar(); window.scrollTo(0,0); setTimeout(()=>pushAsk(firstTime||(S.tourV||0)<3),450);
+  const firstTime=!S.tourDone; S.onboarded=true; ui.D=null; ui.reob=false; ui.tab='today'; save(true); render(); loadCalendar(); SCR().scrollTo(0,0); setTimeout(()=>pushAsk(firstTime||(S.tourV||0)<3),450);
 }
 
 /* ---------- main render ---------- */
@@ -1768,7 +1772,7 @@ function moveSheetOld(id){
     if(zone){ zone.classList.add('drop'); drag.over=zone; }
     drag.lastY=e.clientY;
     if(zone&&zone.hasAttribute('data-hour')){ const r=zone.getBoundingClientRect(); const q=Math.max(0,Math.min(3,Math.floor((e.clientY-r.top)/r.height*4))); zone.setAttribute('data-preview', pad(Number(zone.getAttribute('data-hour')))+':'+pad(q*15)); }
-    if(zone&&zone.id==='drop-del'){} else if(e.clientY<90) window.scrollBy(0,-14); else if(e.clientY>innerHeight-210&&e.clientY<innerHeight-110) window.scrollBy(0,14);
+    if(zone&&zone.id==='drop-del'){} else if(e.clientY<90) SCR().scrollBy(0,-14); else if(e.clientY>innerHeight-210&&e.clientY<innerHeight-110) SCR().scrollBy(0,14);
   }, {passive:false});
   function end(){
     clear(); if(!drag) return;
@@ -2805,7 +2809,7 @@ document.addEventListener('click', async e=>{
   switch(a){
     case 'hard-reset': try{ localStorage.removeItem('ritm-cache'); }catch(x){} location.reload(); break;
     case 'close-sheet': closeSheet(); break;
-    case 'tab': if(ui.tab==='me'){ pfCollect(); save(); } if(ui.tab==='dyn'&&ui.meSec==='settings'){ try{ pfCollect(); save(); }catch(_){} } ui.tab=v; if(v==='today') ui.day=today(); if(v==='dyn') ui.meSec='about'; window.scrollTo(0,0); render(); pendingFocus=null; { const h=$('#page-h')||$('#app h1'); if(h){ h.setAttribute('tabindex','-1'); h.focus(); } } break;
+    case 'tab': if(ui.tab==='me'){ pfCollect(); save(); } if(ui.tab==='dyn'&&ui.meSec==='settings'){ try{ pfCollect(); save(); }catch(_){} } ui.tab=v; if(v==='today') ui.day=today(); if(v==='dyn') ui.meSec='about'; SCR().scrollTo(0,0); render(); pendingFocus=null; { const h=$('#page-h')||$('#app h1'); if(h){ h.setAttribute('tabindex','-1'); h.focus(); } } break;
     case 'done': toggleDone(id); break;
     case 'later': postpone(id); break;
     case 'edit': if(id&&findTask(id)) taskSheet(id); else editSheet(id); break;
@@ -2905,11 +2909,11 @@ document.addEventListener('click', async e=>{
     case 'nudge-skip': { const d=today(); S.days[d]=S.days[d]||{}; S.days[d].nudgeOff=true; save(); render(); break; }
     case 'reset-ask': { const z=$('#reset-zone'); if(z) z.innerHTML='<p style="margin:0;font-weight:700;color:var(--warn)">Стереть все дела, привычки, «Мою жизнь» и настройки? Это нельзя отменить.</p><div class="row wrap"><button class="btn danger" data-act="reset-all">Да, стереть всё</button><button class="btn ghost" data-act="reset-no">Нет</button></div>'; break; }
     case 'reset-no': render(); break;
-    case 'reset-all': { const sk=S.skin; S=DEFAULT(); S.skin=sk; S.updatedAt=Date.now(); calDays={}; save(true); closeSheet(); ui={...ui, tab:'today', D:null, ob:0, reob:false, view:'day', week:0, mon:null, day:null}; render(); window.scrollTo(0,0); toast('Всё стёрто. Давай знакомиться заново'); if(window.RITM_PUSH&&window.RITM_PUSH.scheduleBrief&&cap.push){ try{ window.RITM_PUSH.scheduleBrief([]); }catch(_){} } break; }
+    case 'reset-all': { const sk=S.skin; S=DEFAULT(); S.skin=sk; S.updatedAt=Date.now(); calDays={}; save(true); closeSheet(); ui={...ui, tab:'today', D:null, ob:0, reob:false, view:'day', week:0, mon:null, day:null}; render(); SCR().scrollTo(0,0); toast('Всё стёрто. Давай знакомиться заново'); if(window.RITM_PUSH&&window.RITM_PUSH.scheduleBrief&&cap.push){ try{ window.RITM_PUSH.scheduleBrief([]); }catch(_){} } break; }
     case 'mon-toggle': ui.monOpen=!ui.monOpen; if(ui.monOpen) ui.mon=weekStart(ui.week||0).slice(0,7); render(); break;
     case 'mon': { const [yy,mm]=(ui.mon||today().slice(0,7)).split('-').map(Number); const dd=new Date(yy,mm-1+Number(v),1); ui.mon=dd.getFullYear()+'-'+pad(dd.getMonth()+1); render(); break; }
     case 'mon-pick': { const cur=weekStart(0); const [a,b2,c]=cur.split('-').map(Number); const [x1,x2,x3]=v.split('-').map(Number); const diff=Math.round((new Date(x1,x2-1,x3)-new Date(a,b2-1,c))/86400000); ui.week=Math.floor(diff/7); ui.monOpen=false; haptic(); render(); break; }
-    case 'day-open': ui.tab='tasks'; ui.tview='day'; ui.day=b.getAttribute('data-v'); try{ localStorage.setItem('ritm-tview','day'); }catch(_){} render(); window.scrollTo(0,0); break;
+    case 'day-open': ui.tab='tasks'; ui.tview='day'; ui.day=b.getAttribute('data-v'); try{ localStorage.setItem('ritm-tview','day'); }catch(_){} render(); SCR().scrollTo(0,0); break;
     case 'mv-open': if(window.__ritmDragEnd && Date.now()-window.__ritmDragEnd<400) break; moveSheet(id); break;
     case 'sw-del': case 'mv-del': closeSheet(); deleteWithUndo(id); break;
     case 'mv-done': closeSheet(); toggleDone(id); break;
@@ -2954,14 +2958,14 @@ document.addEventListener('click', async e=>{
     case 'hab-rem': { pfCollect(); S.habRemind=S.habRemind||{on:false,time:'20:00'}; S.habRemind.on=!S.habRemind.on; save(); render(); scheduleBrief(); toast(S.habRemind.on?'Напомню в '+S.habRemind.time+', если что-то не отмечено'+(cap.push?'':'. Включи напоминания на телефон выше'):'Напоминание выключено'); break; }
     case 'hab-del': pfCollect(); S.habits=S.habits.filter(x=>x.id!==id); save(); render(); break;
     case 'clean-done': { pfCollect(); const lim=Date.now()-30*86400000; const before=S.tasks.length; S.tasks=S.tasks.filter(x=>!(x.done&&(x.doneAt||0)<lim)); save(); render(); toast('Убрано: '+(before-S.tasks.length)); break; }
-    case 'reonboard': pfCollect(); save(); ui.D=null; ui.ob=1; ui.reob=true; S.onboarded=false; render(); window.scrollTo(0,0); break;
+    case 'reonboard': pfCollect(); save(); ui.D=null; ui.ob=1; ui.reob=true; S.onboarded=false; render(); SCR().scrollTo(0,0); break;
     /* onboarding */
     case 'ob-skin': obCollect(); D.skin=v; render(); break;
-    case 'ob-go1': obCollect(); ui.ob=1; render(); window.scrollTo(0,0); break;
+    case 'ob-go1': obCollect(); ui.ob=1; render(); SCR().scrollTo(0,0); break;
     case 'ob-back': obCollect(); D.err=''; ui.ob=Math.max(1,ui.ob-1); render(); break;
     case 'ob-cancel': ui.D=null; ui.reob=false; S.onboarded=true; ui.tab='today'; render(); break;
     case 'ob-build': obBuild(false); break;
-    case 'ob-manual': obCollect(); D.err=''; D.built=false; ui.ob=2; render(); window.scrollTo(0,0); break;
+    case 'ob-manual': obCollect(); D.err=''; D.built=false; ui.ob=2; render(); SCR().scrollTo(0,0); break;
     case 'ob-fix': obBuild(true); break;
     case 'ob-finish': obFinish(); break;
     case 'rv-grp': { obCollect(); const s=D.spheres[Number(b.getAttribute('data-i'))]; if(s) s.group=s.group==='work'?'personal':'work'; render(); break; }
@@ -2986,9 +2990,9 @@ function pinDock(){
 function fixDock(){ pinDock(); requestAnimationFrame(pinDock); [60,250,600,1200].forEach(t=>setTimeout(pinDock,t)); }
 if(window.visualViewport){ window.visualViewport.addEventListener('resize', pinDock); window.visualViewport.addEventListener('scroll', pinDock); }
 window.addEventListener('resize', pinDock);
-window.addEventListener('scroll', pinDock, {passive:true});
+document.body.addEventListener('scroll', pinDock, {passive:true});
 /* iPhone: после закрытия клавиатуры страница иногда остаётся «сдвинутой» — возвращаем её на место */
-function unshift(){ if(kbOpen()) return; const y=Math.max(0, Math.min(window.scrollY, document.documentElement.scrollHeight-window.innerHeight)); window.scrollTo(0, y+1); window.scrollTo(0, y); fixDock(); }
+function unshift(){ if(kbOpen()) return; if(window.scrollY||window.scrollX) window.scrollTo(0,0); fixDock(); }
 document.addEventListener('focusout', ()=>{ setTimeout(unshift, 60); setTimeout(unshift, 350); });
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) setTimeout(unshift, 100); });
 document.addEventListener('focusout', ()=>{ setTimeout(fixDock,50); });
@@ -3371,6 +3375,7 @@ async function pull(){
     } else if(S.updatedAt) flush();
   }catch(e){}
 }
+function SCR(){ const b=document.body; return { scrollTo:(x,y)=>{ b.scrollTop=y; try{ if(window.scrollY) window.scrollTo(0,0); }catch(_){} }, scrollBy:(x,y)=>{ b.scrollTop+=y; } }; }
 /* без приближения: двойное нажатие и щипок не увеличивают экран */
 document.addEventListener('gesturestart', e=>e.preventDefault(), {passive:false});
 document.addEventListener('dblclick', e=>e.preventDefault(), {passive:false});
