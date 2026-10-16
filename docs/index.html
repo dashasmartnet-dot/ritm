@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261016132755';</script>
-<script src="supabase.js?v=20261016132755"></script>
-<script src="config.js?v=20261016132755"></script>
-<script src="backend.js?v=20261016132755"></script>
+<script>window.RITM_BUILD='20261016133115';</script>
+<script src="supabase.js?v=20261016133115"></script>
+<script src="config.js?v=20261016133115"></script>
+<script src="backend.js?v=20261016133115"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -948,6 +948,12 @@ body{height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:to
 /* полоса под часами и батареей: контент не просвечивает под статус-баром */
 body::before{content:"";position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:55;pointer-events:none}
 .app{padding-top:max(12px, calc(env(safe-area-inset-top,0px) + 8px))}
+.me-more summary{list-style:none;cursor:pointer;color:var(--accent);font-weight:600;padding:6px 4px;min-height:44px;display:flex;align-items:center}
+.me-more summary::-webkit-details-marker{display:none}
+.me-more[open] summary{margin-bottom:8px}
+.sugg.wrap{flex-wrap:wrap;overflow:visible}
+.ai-help{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-radius:16px;background:var(--surface);border:.5px solid var(--line);font-size:15px}
+.ai-help b{font-size:16px}
 
 /* ===== Интерфейсы: общий выбор ===== */
 .if-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -1969,13 +1975,14 @@ function viewAssist(){
   if(msgs.length||assist.busy){
     h+='<div class="chat" role="log" aria-live="polite">'+msgs.map((m,mi)=>'<div class="msg '+(m.role==='user'?'me':'ai')+'">'+(m.role==='user'?esc(m.content):md(m.content)+'<span class="say-wrap"><button class="say-btn" data-act="say" data-v="'+(S.chat.length-msgs.length+mi)+'" aria-label="Прочитать вслух">'+IC.speaker+'</button><button class="rate-btn" data-act="tts-rate" aria-label="Скорость озвучки">×'+String(S.ttsRate||1).replace('.',',')+'</button></span>')+'</div>'+(m.actions&&m.actions.length?actCard(m, S.chat.length-msgs.length+mi):'')).join('')+(assist.busy?'<div class="msg ai" id="ai-stream">'+esc(assist.stream||'Думаю…')+'</div>':'')+'</div>';
   } else {
-    h+='<div class="sugg">'+['Что у меня сегодня?','С чего начать?','Разгрузи мне неделю'].map(q=>'<button class="chip" data-act="ask-q" data-v="'+esc(q)+'">'+esc(q)+'</button>').join('')+'</div>';
+    h+='<div class="ai-help"><b>Что я умею</b><span>Отвечаю, что у тебя по плану, и сама меняю план: добавляю, переношу, удаляю и отмечаю дела. Изменение можно отменить одной кнопкой.</span><span class="muted">Например: «что у меня завтра?», «перенеси МВД на понедельник», «удали звонок маме», «разгрузи неделю».</span></div>';
+    h+='<div class="sugg wrap">'+['Что у меня сегодня?','С чего начать?','Разгрузи неделю'].map(q=>'<button class="chip" data-act="ask-q" data-v="'+esc(q)+'">'+esc(q)+'</button>').join('')+'</div>';
   }
   if(assist.err) h+='<p role="alert" style="margin:0;color:var(--danger);font-weight:600">'+esc(assist.err)+'</p>';
   h+='<form id="chat-form" class="composer" autocomplete="off"><label for="chat-in" class="srt">Вопрос ассистенту</label><textarea id="chat-in" rows="1" placeholder="Спроси или попроси…">'+esc(assist.draft||'')+'</textarea>'+(assist.busy?'<button class="send" type="button" data-act="ask-stop" aria-label="Остановить">'+IC.x+'</button>':'<button class="send" type="submit" aria-label="Отправить" '+(!cap.sample?'disabled':'')+'>'+IC.arrow+'</button>')+'</form>';
   if(msgs.length&&!assist.busy) h+='<button class="link center" data-act="ask-clear">Новый разговор</button>';
   if(!cap.sample) h+='<p class="muted" style="margin:0">Ассистент сейчас недоступен. Проверь интернет и попробуй ещё раз.</p>';
-  h+='<div class="ios"><button class="ios-r" data-act="meeting"><span>Разобрать встречу</span>'+IC.chev+'</button><button class="ios-r" data-act="evening"><span>Итоги дня</span>'+IC.chev+'</button><button class="ios-r" data-act="plan-month" data-v="неделю"><span>Спланировать неделю</span>'+IC.chev+'</button>'+(!(S.days[today()]&&S.days[today()].nudgeOff)?(()=>{ const [qk,q]=focusQ(); return '<button class="ios-r two" data-act="focus-open" data-k="'+qk+'" data-v="'+esc(q)+'"><span><span>Вопрос дня</span><small>'+esc(q)+'</small></span>'+IC.chev+'</button>'; })():'')+'</div>';
+  h+='<div class="ios"><button class="ios-r" data-act="meeting"><span>Разобрать встречу</span>'+IC.chev+'</button><button class="ios-r" data-act="evening"><span>Итоги дня</span>'+IC.chev+'</button><button class="ios-r" data-act="plan-month" data-v="неделю"><span>Спланировать неделю</span>'+IC.chev+'</button>'+'</div>';
   const fd=LIFE.filter(x=>x[3]==='d'), fl=LIFE.filter(x=>x[3]==='l'); const cnt=a=>a.filter(([k])=>S.life[k]&&arr(S.life[k].facts).length).length;
   h+='<div class="ios"><button class="ios-r two" data-act="tab" data-v="dyn"><span><span>Что я знаю о тебе</span><small>Работа '+cnt(fd)+' из '+fd.length+' · Жизнь '+cnt(fl)+' из '+fl.length+' — чем больше, тем точнее советы</small></span>'+IC.chev+'</button></div>';
   return h+'</div>';
@@ -3359,9 +3366,11 @@ function viewMe2(){
   const sec=ui.meSec==='settings'?'settings':'about';
   if(sec==='settings') return '<div class="stack" style="gap:16px"><div class="topbar"><button class="back" data-act="me-sec" data-v="about">'+IC.back+'<span>Обо мне</span></button></div><h1 tabindex="-1" id="page-h" class="pg-h">Настройки</h1>'+viewProfile().replace(/^<div class="stack" style="gap:16px"><h1>Профиль<\/h1>/,'')+'</div>';
   let h='<div class="stack" style="gap:16px"><div class="me-top"><h1 tabindex="-1" id="page-h" class="pg-h">Обо мне</h1><button class="icon-btn" data-act="me-sec" data-v="settings" aria-label="Настройки">'+IC.gear+'</button></div>';
-  h+='<p class="muted" style="margin:0">Ассистент планирует по этому: знает твои проекты, людей и что важно. Заполнять необязательно — нажми на пункт и расскажи голосом, как есть.</p>';
-  h+='<div class="ios">'+lifeRows(LIFE)+'</div>';
   h+=datesBlock();
+  const MAIN=['prio','work','people','goals'];
+  h+='<p class="muted" style="margin:0">Четыре пункта, чтобы ассистент понимал тебя: что сейчас главное, где работаешь, кто рядом и куда идёшь. Тогда он правильно раскладывает дела и не путает людей. Нажми на пункт и расскажи голосом — 30 секунд.</p>';
+  h+='<div class="ios">'+lifeRows(LIFE.filter(x=>MAIN.includes(x[0])))+'</div>';
+  h+='<details class="me-more"><summary>Ещё пункты — по желанию</summary><div class="ios">'+lifeRows(LIFE.filter(x=>!MAIN.includes(x[0])))+'</div></details>';
   return h+'</div>';
 }
 
