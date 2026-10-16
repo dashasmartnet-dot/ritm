@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261016132445';</script>
-<script src="supabase.js?v=20261016132445"></script>
-<script src="config.js?v=20261016132445"></script>
-<script src="backend.js?v=20261016132445"></script>
+<script>window.RITM_BUILD='20261016132755';</script>
+<script src="supabase.js?v=20261016132755"></script>
+<script src="config.js?v=20261016132755"></script>
+<script src="backend.js?v=20261016132755"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -945,6 +945,9 @@ body{height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:to
 /* подсказка вверху экрана — компактная, не растягивается на весь экран */
 .toast.top{bottom:auto!important;height:auto!important;max-height:40vh}
 .toast{height:auto;align-items:center}
+/* полоса под часами и батареей: контент не просвечивает под статус-баром */
+body::before{content:"";position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:55;pointer-events:none}
+.app{padding-top:max(12px, calc(env(safe-area-inset-top,0px) + 8px))}
 
 /* ===== Интерфейсы: общий выбор ===== */
 .if-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -1265,7 +1268,8 @@ function workActive(){
   return a!=null&&b!=null&&m>=a&&m<b;
 }
 function defaultSphere(){
-  const s = S.spheres.find(x=>x.group===(workActive()?'work':'personal')) || S.spheres[0];
+  const g=workActive()?'work':'personal'; const inG=S.spheres.filter(x=>x.group===g);
+  const s = inG.find(x=>/личн|дом|быт|разн|проч|общ/i.test(x.name)) || inG.find(x=>!/здоров|врач|спорт|тело/i.test(x.name)) || inG[0] || S.spheres[0];
   return s ? s.id : null;
 }
 function isStuck(t){ if(t.done) return false; if((t.postponed||0)>=3) return true; if(t.due && t.due < addDays(today(),-3)) return true; return false; }
@@ -1277,11 +1281,11 @@ function dateCtx(){ const d=new Date(); return 'Сегодня '+today()+' ('+WD
 function ctxBlock(){
   return dateCtx()+'\nСферы (id: название, вкладка):\n'+S.spheres.map(s=>'- '+s.id+': '+s.name+' ('+groupName(s.group)+')').join('\n');
 }
-const TASK_RULES='time — время "HH:MM", если названо конкретное время (встреча, звонок, «напомни в 15:00»), иначе null. kind: main — важное дело; small — мелочь до 15 минут (оплатить, ответить, отправить, записаться); wait — ТОЛЬКО если другой человек должен что-то пользователю и назван по имени (who = кто). Если действие делает сам пользователь (съездить, получить, забрать, позвонить) — это main или small, не wait. priority: 1 высокий, 2 средний, 3 низкий. est — оценка в минутах. Даты вроде «завтра», «в пятницу», «до конца месяца» переведи в YYYY-MM-DD. Если срок не назван — null. Название задачи начинай с глагола. Ничего не склеивай, не теряй и не выдумывай.';
+const TASK_RULES='time — время "HH:MM", если названо конкретное время (встреча, звонок, «напомни в 15:00»), иначе null. «В 3», «в 4», «в 5» без слов «утра/ночи» — это дневное время 15:00, 16:00, 17:00. kind: main — важное дело; small — мелочь до 15 минут (оплатить, ответить, отправить, записаться); wait — ТОЛЬКО если другой человек должен что-то пользователю и назван по имени (who = кто). Если действие делает сам пользователь (съездить, получить, забрать, позвонить) — это main или small, не wait. priority: 1 высокий, 2 средний, 3 низкий. est — оценка в минутах. Даты вроде «завтра», «в пятницу», «до конца месяца» переведи в YYYY-MM-DD. Если срок не назван — null. Название задачи начинай с глагола. Ничего не склеивай, не теряй и не выдумывай.';
 function normTask(x, sphId){
   return { id:uid(), title:String(x.title).slice(0,200), sphere:sphId,
     due: /^\d{4}-\d{2}-\d{2}$/.test(x.due||'')?x.due:null,
-    time: isHM(x.time)?x.time:null,
+    time: isHM(x.time)?((!x.keepTime && +x.time.slice(0,2)>=1 && +x.time.slice(0,2)<=6)?pad(+x.time.slice(0,2)+12)+x.time.slice(2):x.time):null,
     kind: ['main','small','wait'].includes(x.kind)&&!(x.kind==='wait'&&!String(x.who||'').trim())?x.kind:'main',
     who: x.who?String(x.who).slice(0,60):null,
     note: x.note?String(x.note).slice(0,1000):null,
@@ -1291,7 +1295,7 @@ function normTask(x, sphId){
 }
 async function aiTasks(text){
   const prompt = ctxBlock()+'\nСфера по умолчанию: '+(defaultSphere()||'нет')+
-  (workActive()?'\nСейчас рабочий режим: если дело не явно личное (врач, семья, дом, покупки), ставь рабочую сферу.':'')+'\n\nПреврати надиктованный текст в задачи. Почти всегда это ОДНА задача: сформулируй её коротко, 3–8 слов, начиная с глагола, без лишних подробностей (подробности положи в note). Разделяй на несколько задач, только если явно названы разные дела. Если названа дата или день недели — обязательно поставь due. Ответь ТОЛЬКО JSON вида {"tasks":[{"title":"...","note":"подробности или null","sphere":"id сферы из списка","due":"YYYY-MM-DD или null","time":"HH:MM или null","kind":"main|small|wait","who":"имя или null","priority":2,"est":30}]}. '+TASK_RULES+'\n\nТекст:\n'+text.slice(0,12000);
+  (workActive()?'\nСейчас рабочий режим: если дело не явно личное (врач, семья, дом, покупки), ставь рабочую сферу.':'')+'\n\nПреврати надиктованный текст в задачи. Почти всегда это ОДНА задача: сформулируй её коротко, 3–8 слов, начиная с глагола, без лишних подробностей (подробности положи в note). Разделяй на несколько задач, только если явно названы разные дела. Если названа дата или день недели — обязательно поставь due. Ответь ТОЛЬКО JSON вида {"tasks":[{"title":"...","note":"подробности или null","sphere":"id сферы из списка, только если сфера очевидна из смысла (врач → здоровье, клиент/договор/работа → рабочая сфера); если не уверена — null","due":"YYYY-MM-DD или null","time":"HH:MM или null","kind":"main|small|wait","who":"имя или null","priority":2,"est":30}]}. '+TASK_RULES+'\n\nТекст:\n'+text.slice(0,12000);
   const r = await cap.sample.json(prompt,{modelTier:'quick',cache:false});
   return arr(r&&r.tasks).filter(x=>x&&x.title).map(x=>normTask(x, sphere(x.sphere)?x.sphere:defaultSphere()));
 }
@@ -2467,7 +2471,7 @@ async function brainDump(text){
   const inp=$('#cap-in'); if(inp){ inp.value=''; inp.disabled=true; inp.placeholder='Разбираю на дела…'; }
   openSheet('<div class="thinking" role="status"><span class="spin"></span>Разбираю на дела… это до 20 секунд</div>');
   let list=[];
-  try{ list=await aiDump(text); if(!list.length) throw new Error('пусто'); }catch(e){ closeSheet(); if(inp){ inp.disabled=false; inp.placeholder='Дело, вопрос или команда'; } toast(aiError(e)+' Сохранила текст одним делом.'); const p=parseRu(text); const t=normTask({title:p.title.slice(0,90), due:p.due, time:p.time, note:text.slice(0,1000)}, defaultSphere()); S.tasks.push(t); save(); render(); return; }
+  try{ list=await aiDump(text); if(!list.length) throw new Error('пусто'); }catch(e){ closeSheet(); if(inp){ inp.disabled=false; inp.placeholder='Дело, вопрос или команда'; } toast(aiError(e)+' Сохранила текст одним делом.'); const p=parseRu(text); const t=normTask({title:p.title.slice(0,90), due:p.due, time:p.time, keepTime:1, note:text.slice(0,1000)}, defaultSphere()); S.tasks.push(t); save(); render(); return; }
   if(inp){ inp.disabled=false; inp.placeholder='Дело, вопрос или команда'; }
   dump={list, src:text, reply:'', busy:false}; dumpSheet();
 }
@@ -2584,7 +2588,7 @@ async function quickAdd(text){
   let list=[], refine=false;
   if(p.multi && cap.sample){ return brainDump(text); }
   if(p.repeat){
-    const t=normTask({title:p.title.length>90?p.title.slice(0,90)+'…':p.title, time:p.time, due:p.due, kind:normRule(p.repeat).freq==='year'?'small':'main', priority:2}, defaultSphere());
+    const t=normTask({title:p.title.length>90?p.title.slice(0,90)+'…':p.title, time:p.time, due:p.due, keepTime:1, kind:normRule(p.repeat).freq==='year'?'small':'main', priority:2}, defaultSphere());
     const r=makeRecur(t, p.repeat); if(inp) inp.value='';
     ensureRecur(); save(); render(); haptic();
     toast('Повтор: '+t.title+' — '+repText(p.repeat)+(p.time?' в '+p.time:''), ()=>{ S.recur=S.recur.filter(x=>x.id!==r.id); S.tasks=S.tasks.filter(x=>x.recurId!==r.id); save(); render(); });
@@ -2607,12 +2611,12 @@ async function quickAdd(text){
   }
   if(!p.multi){
     // мгновенно: разбор на телефоне, ИИ потом уточнит формулировку и сферу
-    list=[normTask({title:p.title.length>90?p.title.slice(0,90)+'…':p.title, due:p.due, time:p.time, priority:2}, defaultSphere())];
+    list=[normTask({title:p.title.length>90?p.title.slice(0,90)+'…':p.title, due:p.due, time:p.time, keepTime:1, priority:2}, defaultSphere())];
     refine=!!cap.sample;
   } else {
     if(inp){ inp.value=''; inp.disabled=true; inp.placeholder='Разбираю…'; }
     if(cap.sample){ try{ list=await aiTasks(text); }catch(e){ toast(aiError(e)+' Сохранила текст как есть.'); } }
-    if(!list.length) list=[normTask({title:p.title.length>90?p.title.slice(0,90)+'…':p.title, due:p.due, time:p.time, priority:2},defaultSphere())];
+    if(!list.length) list=[normTask({title:p.title.length>90?p.title.slice(0,90)+'…':p.title, due:p.due, time:p.time, keepTime:1, priority:2},defaultSphere())];
   }
   if(inp){ inp.value=''; }
   list.forEach(t=>{ t.source='voice'; if(!t.note && text.length>t.title.length+40) t.note=text.slice(0,1000); });
@@ -2886,11 +2890,11 @@ document.addEventListener('click', async e=>{
     case 'ts-split': if(!ui.splitBusy) splitSteps(); break;
     case 'ctl-open': ctl={text:'',actions:[],reply:'',busy:false,err:''}; ctlSheet(); if(SR && !inFrame){ try{ micToggle('ctl-in'); }catch(_){} } else setTimeout(()=>{ const ta=$('#ctl-in'); if(ta) ta.focus(); },250); break;
     case 'ctl-ex': ctlRun(v); break;
-    case 'ctl-as-task': { const tx=ctl.text; closeSheet(); const p=parseRu(tx); const t=normTask({title:p.title.slice(0,90),due:p.due,time:p.time}, defaultSphere()); dump={list:[t],src:tx,reply:'',busy:false}; dumpSheet(); break; }
+    case 'ctl-as-task': { const tx=ctl.text; closeSheet(); const p=parseRu(tx); const t=normTask({title:p.title.slice(0,90),due:p.due,time:p.time,keepTime:1}, defaultSphere()); dump={list:[t],src:tx,reply:'',busy:false}; dumpSheet(); break; }
     case 'ctl-go': { if(ctl.actions.length||ctl.reply){ ctl={text:'',actions:[],reply:'',busy:false,err:''}; ctlSheet(); break; } const ta=$('#ctl-in'); ctlRun(ta?ta.value:ctl.text); break; }
     case 'ctl-apply': { document.querySelectorAll('[data-ctl-i]').forEach(el=>{ const a=ctl.actions[Number(el.getAttribute('data-ctl-i'))]; if(a) a._off=!el.checked; }); const L=ctl.actions.filter(a=>!a._off); closeSheet(); if(!L.length) break;
       const snap=JSON.stringify(S.tasks), rs=JSON.stringify(S.recur||[]); const n=applyActions(L); toast('Готово: '+plural(n,'изменение','изменения','изменений'), ()=>{ S.tasks=JSON.parse(snap); S.recur=JSON.parse(rs); save(); render(); }); break; }
-    case 'cmd-as-task': { const tx=cmd.text; closeSheet(); const p=parseRu(tx); const t=normTask({title:p.title.slice(0,90),due:p.due,time:p.time}, defaultSphere()); dump={list:[t],src:tx,reply:'',busy:false}; dumpSheet(); break; }
+    case 'cmd-as-task': { const tx=cmd.text; closeSheet(); const p=parseRu(tx); const t=normTask({title:p.title.slice(0,90),due:p.due,time:p.time,keepTime:1}, defaultSphere()); dump={list:[t],src:tx,reply:'',busy:false}; dumpSheet(); break; }
     case 'cmd-apply': { document.querySelectorAll('[data-cmd-i]').forEach(el=>{ const a=cmd.actions[Number(el.getAttribute('data-cmd-i'))]; if(a) a._off=!el.checked; }); const L=cmd.actions.filter(a=>!a._off); closeSheet(); if(!L.length) break;
       const snap=JSON.stringify(S.tasks), rs=JSON.stringify(S.recur||[]); const n=applyActions(L); toast('Готово: '+plural(n,'изменение','изменения','изменений'), ()=>{ S.tasks=JSON.parse(snap); S.recur=JSON.parse(rs); save(); render(); }); break; }
     case 'dump-del': { dumpCollect(); dump.list.splice(Number(b.getAttribute('data-i')),1); dumpSheet(); break; }
@@ -3084,7 +3088,7 @@ function hdrExtras(D){
   return h;
 }
 function chk(x,cls){ return '<button class="check '+(cls||'')+'" data-act="done" data-id="'+esc(x.id)+'" aria-pressed="'+!!x.done+'" aria-label="'+(x.done?'Вернуть':'Сделано')+': '+esc(x.title)+'">'+(x.done?ICON.check:'')+'</button>'; }
-function sphName(x){ const s=sphere(x.sphere); return s?s.name:''; }
+function sphName(x){ return ''; }
 function fmtGap(m){ const h=Math.floor(m/60), mm=m%60; return (h?h+' ч':'')+(h&&mm?' ':'')+(mm?mm+' мин':''); }
 const FLOWC=['#7B8CFF','#FF8A65','#4FC3A1','#F6B93B','#B98BFF','#5CB8E8'];
 function flowColor(x){ const i=Math.max(0,arr(S.spheres).findIndex(s=>s.id===x.sphere)); return FLOWC[i%FLOWC.length]; }
@@ -3346,7 +3350,7 @@ async function splitSteps(){
 /* ---------- ЗАХВАТ: круг-микрофон → шторка ---------- */
 function capSheet(startMic){
   ui.capOpen=true;
-  openSheet('<form id="cap-form" class="cap" autocomplete="off"><h2 id="sheet-h" class="cap-t">Новое дело</h2><label for="cap-in" class="srt">Что сделать</label><textarea id="cap-in" rows="3" enterkeyhint="done" placeholder="Напиши или надиктуй. Можно сразу несколько: завтра в 11 созвон, до пятницы отправить КП…"></textarea><div class="cap-row"><button type="button" class="btn ghost" data-act="close-sheet">Отмена</button><span style="flex:1"></span><button type="submit" class="btn primary go">Добавить</button></div></form>');
+  openSheet('<form id="cap-form" class="cap" autocomplete="off"><h2 id="sheet-h" class="cap-t">Скажи или напиши</h2><label for="cap-in" class="srt">Что сделать</label><textarea id="cap-in" rows="3" enterkeyhint="done" placeholder="Добавить: «завтра в 11 созвон с Олей». Изменить: «перенеси МВД на понедельник», «удали звонок маме», «я сделала договор»"></textarea><div class="cap-row"><button type="button" class="btn ghost" data-act="close-sheet">Отмена</button><span style="flex:1"></span><button type="submit" class="btn primary go">Готово</button></div></form>');
   if(startMic && SR && !inFrame){ try{ micToggle('cap-in'); }catch(_){} } else setTimeout(()=>{ const t=$('#cap-in'); if(t) t.focus(); },200);
 }
 
