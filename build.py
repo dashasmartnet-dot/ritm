@@ -2,7 +2,7 @@
 import re, sys, pathlib
 SRC = pathlib.Path(sys.argv[1]); OUT = pathlib.Path(__file__).parent / 'docs' / 'index.html'
 css = (SRC/'css.part').read_text(); extra = (SRC/'extra.css').read_text(); body = (SRC/'body.part').read_text()
-design = (SRC/'design.css').read_text() if (SRC/'design.css').exists() else ''
+design = ''.join((SRC/f).read_text()+'\n' for f in ['design.css','polish.css','ifaces.css'] if (SRC/f).exists())
 REPL = [
   ('Разбор голосом сейчас недоступен — разреши приложению доступ к Claude.', 'Помощник ИИ сейчас недоступен. Попробуй через минуту.'),
   ('Ассистент сейчас недоступен — войди в аккаунт.', 'Ассистент сейчас недоступен. Проверь интернет и попробуй ещё раз.'),

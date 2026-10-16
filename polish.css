@@ -1,0 +1,86 @@
+/* ===== Polish pass (impeccable · taste · emil) — preview only ===== */
+:root{
+  --muted:#6E645D;              /* было #8A7F78 — 3.6:1, теперь ≈5:1 на фоне */
+  --line:#E7DFD6;
+  --ease-out:cubic-bezier(.23,1,.32,1);
+  --ease-drawer:cubic-bezier(.32,.72,0,1);
+  --done:#34A853;
+}
+html{-webkit-tap-highlight-color:transparent}
+::selection{background:color-mix(in srgb,var(--accent) 22%,transparent)}
+input,textarea{caret-color:var(--accent)}
+:focus-visible{outline:2px solid color-mix(in srgb,var(--accent) 70%,transparent);outline-offset:2px;border-radius:10px}
+body{font-variant-numeric:tabular-nums}
+
+/* --- Шапка: заголовок первым, дата и счётчик под ним (без «бровки» над заголовком) --- */
+.hd{gap:2px}
+.hd h1{order:1;font-size:32px;line-height:1.08;letter-spacing:-.02em}
+.hd-date{order:2;font-size:15px;color:var(--muted);margin-top:4px}
+.hd-line{order:3;font-size:15px!important;color:var(--muted);padding-top:0}
+
+/* --- «Начни с этого»: дело — главное, подпись под ним --- */
+section.now{padding:16px 18px;gap:4px}
+section.now .now-r{order:1}
+section.now .now-l{order:2;color:var(--muted);font-weight:500;font-size:14px;padding-left:44px}
+section.now .now-t{font-size:20px;font-weight:600;letter-spacing:-.01em}
+
+/* --- Группы: iOS-подписи секций, ровные отступы --- */
+.home{gap:22px}
+.grp{gap:8px}
+.grp-h{padding:0 6px}
+.grp-h h3{font-size:14px;font-weight:600;color:var(--muted)}
+.grp-b{border-radius:16px}
+.task.r{padding:12px 0}
+.task.r .task-title{font-size:17px}
+.task.r .t-time{color:var(--ink);opacity:.55;font-weight:500}
+.more{color:var(--accent);font-weight:500}
+
+/* --- Галочка: мягкое «щёлк», зелёная заливка --- */
+.check{transition:transform 160ms var(--ease-out),background-color 200ms ease,border-color 200ms ease}
+.check:active{transform:scale(.88)}
+.check[aria-pressed="true"]{animation:none!important}
+.check[aria-pressed="true"] svg{animation:tick 260ms var(--ease-out) both}
+@keyframes tick{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+.task.r.done .task-title{transition:color 200ms ease}
+
+/* --- Нажатия: всё, что нажимается, чуть «проседает» --- */
+button,.ios-r,.ag-t,.task-main{transition:transform 160ms var(--ease-out),background-color 160ms ease,opacity 160ms ease}
+button:active,.ios-r:active{transform:scale(.97)}
+.dock .tabs button:active{transform:scale(.94)}
+@media (hover:hover) and (pointer:fine){ .ios-r:hover{background:color-mix(in srgb,var(--ink) 4%,transparent)} }
+
+/* --- Нижняя зона: системная панель вкладок, строка ввода над ней, без парящих теней --- */
+.dock{left:0!important;right:0!important;max-width:none!important;margin:0!important;padding:8px 16px calc(4px + env(safe-area-inset-bottom,0px))!important;gap:6px;background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(18px);backdrop-filter:saturate(1.6) blur(18px);border-top:.5px solid var(--line);pointer-events:auto}
+.dock .say-bar{box-shadow:none;border:.5px solid var(--line);background:var(--surface);padding:4px 4px 4px 16px}
+.dock .say-in{color:var(--muted);font-size:16px}
+.dock .say-mic{width:44px;height:44px}
+.dock .tabs{height:52px;padding:0;border:0;border-radius:0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.dock .tabs button{min-height:50px;border-radius:12px;font-size:10.5px;color:#8E847D}
+.dock .tabs button[aria-current="page"]{background:none;color:var(--accent)}
+.dock .tabs button svg{width:24px;height:24px}
+
+/* --- Неделя: сегодня выделено тоном, а не цветной рамкой --- */
+.ag-day{border-radius:16px}
+.ag-day.today{border:0!important;box-shadow:none!important;background:var(--surface)}
+.ag-day.today .ag-h{background:color-mix(in srgb,var(--accent) 8%,var(--surface));border-radius:16px 16px 0 0}
+.ag-day.today .ag-wd{color:var(--accent);font-weight:600}
+.ag-h{min-height:52px}
+.ag-n{font-size:26px!important;font-weight:700;letter-spacing:-.02em}
+.ag-it{min-height:48px}
+.ag-empty{color:var(--muted);font-size:14px;padding:6px 8px}
+.wk-title span{letter-spacing:-.02em}
+
+/* --- Шторки (окно дела, добавление): iOS-кривая, быстрый выход --- */
+.sheet{animation:sheetIn 380ms var(--ease-drawer) both}
+@keyframes sheetIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.toast{animation:toastIn 260ms var(--ease-out) both}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+
+/* --- Ассистент: без декоративных теней --- */
+.talk .orb{box-shadow:none}
+.assist .talk{border:.5px solid var(--line)}
+
+@media (prefers-reduced-motion:reduce){
+  .sheet,.toast,.check[aria-pressed="true"] svg{animation:none!important}
+  button:active,.ios-r:active,.check:active{transform:none}
+}

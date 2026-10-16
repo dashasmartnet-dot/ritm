@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261015225245';</script>
-<script src="supabase.js?v=20261015225245"></script>
-<script src="config.js?v=20261015225245"></script>
-<script src="backend.js?v=20261015225245"></script>
+<script>window.RITM_BUILD='20261016115346';</script>
+<script src="supabase.js?v=20261016115346"></script>
+<script src="config.js?v=20261016115346"></script>
+<script src="backend.js?v=20261016115346"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -849,6 +849,193 @@ h1,h2,h3,.pg-h,.hd h1{font-family:var(--display)!important;font-weight:700!impor
 .od .grp-h h3{color:var(--muted)!important}
 .al-steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px;line-height:1.4}
 
+/* ===== Polish pass (impeccable · taste · emil) — preview only ===== */
+:root{
+  --muted:#6E645D;              /* было #8A7F78 — 3.6:1, теперь ≈5:1 на фоне */
+  --line:#E7DFD6;
+  --ease-out:cubic-bezier(.23,1,.32,1);
+  --ease-drawer:cubic-bezier(.32,.72,0,1);
+  --done:#34A853;
+}
+html{-webkit-tap-highlight-color:transparent}
+::selection{background:color-mix(in srgb,var(--accent) 22%,transparent)}
+input,textarea{caret-color:var(--accent)}
+:focus-visible{outline:2px solid color-mix(in srgb,var(--accent) 70%,transparent);outline-offset:2px;border-radius:10px}
+body{font-variant-numeric:tabular-nums}
+
+/* --- Шапка: заголовок первым, дата и счётчик под ним (без «бровки» над заголовком) --- */
+.hd{gap:2px}
+.hd h1{order:1;font-size:32px;line-height:1.08;letter-spacing:-.02em}
+.hd-date{order:2;font-size:15px;color:var(--muted);margin-top:4px}
+.hd-line{order:3;font-size:15px!important;color:var(--muted);padding-top:0}
+
+/* --- «Начни с этого»: дело — главное, подпись под ним --- */
+section.now{padding:16px 18px;gap:4px}
+section.now .now-r{order:1}
+section.now .now-l{order:2;color:var(--muted);font-weight:500;font-size:14px;padding-left:44px}
+section.now .now-t{font-size:20px;font-weight:600;letter-spacing:-.01em}
+
+/* --- Группы: iOS-подписи секций, ровные отступы --- */
+.home{gap:22px}
+.grp{gap:8px}
+.grp-h{padding:0 6px}
+.grp-h h3{font-size:14px;font-weight:600;color:var(--muted)}
+.grp-b{border-radius:16px}
+.task.r{padding:12px 0}
+.task.r .task-title{font-size:17px}
+.task.r .t-time{color:var(--ink);opacity:.55;font-weight:500}
+.more{color:var(--accent);font-weight:500}
+
+/* --- Галочка: мягкое «щёлк», зелёная заливка --- */
+.check{transition:transform 160ms var(--ease-out),background-color 200ms ease,border-color 200ms ease}
+.check:active{transform:scale(.88)}
+.check[aria-pressed="true"]{animation:none!important}
+.check[aria-pressed="true"] svg{animation:tick 260ms var(--ease-out) both}
+@keyframes tick{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+.task.r.done .task-title{transition:color 200ms ease}
+
+/* --- Нажатия: всё, что нажимается, чуть «проседает» --- */
+button,.ios-r,.ag-t,.task-main{transition:transform 160ms var(--ease-out),background-color 160ms ease,opacity 160ms ease}
+button:active,.ios-r:active{transform:scale(.97)}
+.dock .tabs button:active{transform:scale(.94)}
+@media (hover:hover) and (pointer:fine){ .ios-r:hover{background:color-mix(in srgb,var(--ink) 4%,transparent)} }
+
+/* --- Нижняя зона: системная панель вкладок, строка ввода над ней, без парящих теней --- */
+.dock{left:0!important;right:0!important;max-width:none!important;margin:0!important;padding:8px 16px calc(4px + env(safe-area-inset-bottom,0px))!important;gap:6px;background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(18px);backdrop-filter:saturate(1.6) blur(18px);border-top:.5px solid var(--line);pointer-events:auto}
+.dock .say-bar{box-shadow:none;border:.5px solid var(--line);background:var(--surface);padding:4px 4px 4px 16px}
+.dock .say-in{color:var(--muted);font-size:16px}
+.dock .say-mic{width:44px;height:44px}
+.dock .tabs{height:52px;padding:0;border:0;border-radius:0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.dock .tabs button{min-height:50px;border-radius:12px;font-size:10.5px;color:#8E847D}
+.dock .tabs button[aria-current="page"]{background:none;color:var(--accent)}
+.dock .tabs button svg{width:24px;height:24px}
+
+/* --- Неделя: сегодня выделено тоном, а не цветной рамкой --- */
+.ag-day{border-radius:16px}
+.ag-day.today{border:0!important;box-shadow:none!important;background:var(--surface)}
+.ag-day.today .ag-h{background:color-mix(in srgb,var(--accent) 8%,var(--surface));border-radius:16px 16px 0 0}
+.ag-day.today .ag-wd{color:var(--accent);font-weight:600}
+.ag-h{min-height:52px}
+.ag-n{font-size:26px!important;font-weight:700;letter-spacing:-.02em}
+.ag-it{min-height:48px}
+.ag-empty{color:var(--muted);font-size:14px;padding:6px 8px}
+.wk-title span{letter-spacing:-.02em}
+
+/* --- Шторки (окно дела, добавление): iOS-кривая, быстрый выход --- */
+.sheet{animation:sheetIn 380ms var(--ease-drawer) both}
+@keyframes sheetIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.toast{animation:toastIn 260ms var(--ease-out) both}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+
+/* --- Ассистент: без декоративных теней --- */
+.talk .orb{box-shadow:none}
+.assist .talk{border:.5px solid var(--line)}
+
+@media (prefers-reduced-motion:reduce){
+  .sheet,.toast,.check[aria-pressed="true"] svg{animation:none!important}
+  button:active,.ios-r:active,.check:active{transform:none}
+}
+
+/* ===== Интерфейсы: общий выбор ===== */
+.if-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.if-card{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);text-align:left;color:var(--ink)}
+.if-card[aria-checked="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.if-card b{font-size:15px;margin-top:8px}
+.if-card small{font-size:12.5px;color:var(--muted)}
+.if-sw{display:flex;gap:4px}
+.if-sw i{width:22px;height:22px;border-radius:7px;display:block}
+.if-warm .if-sw i:nth-child(1){background:#F7F3EE;border:1px solid #E7DFD6}.if-warm .if-sw i:nth-child(2){background:#8C4A3C}.if-warm .if-sw i:nth-child(3){background:#2B2522}
+.if-flow .if-sw i:nth-child(1){background:#7B8CFF}.if-flow .if-sw i:nth-child(2){background:#FF8A65}.if-flow .if-sw i:nth-child(3){background:#4FC3A1}
+.if-tiles .if-sw i:nth-child(1){background:#141416}.if-tiles .if-sw i:nth-child(2){background:#D7FF5A}.if-tiles .if-sw i:nth-child(3){background:#E6E1FF}
+.if-clean .if-sw i:nth-child(1){background:#fff;border:1px solid #E5E5EA}.if-clean .if-sw i:nth-child(2){background:#2F7CF6}.if-clean .if-sw i:nth-child(3){background:#F5B301}
+
+/* ===== B · Лента дня ===== */
+:root[data-iface="flow"]{--bg:#FFFFFF;--surface:#F5F5F8;--ink:#16161A;--muted:#6E6E78;--line:#ECECF1;--accent:#FF6B4A;--accent-ink:#fff;--soft:#F1F1F5;--done:#34A853}
+:root[data-iface="flow"] body{background:#fff}
+.iface-flow{gap:14px}
+.fl-hd{display:flex;align-items:baseline;justify-content:space-between;padding:4px 2px 0}
+.fl-hd h1{font-size:30px!important;font-weight:800!important;letter-spacing:-.02em}
+.fl-cnt{font-size:14px;font-weight:600;color:var(--muted)}
+.fl-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.fl-d{height:58px;border:0;border-radius:16px;background:var(--surface);color:#55555E;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0}
+.fl-d span{font-size:11px}.fl-d b{font-size:17px;font-family:var(--display)}
+.fl-d i{width:4px;height:4px;border-radius:2px;background:transparent}.fl-d i.has{background:#4FC3A1}
+.fl-d.on{background:var(--ink);color:#fff}.fl-d.on i.has{background:#fff}
+.fl-d.past{opacity:.6}
+.fl-line{list-style:none;margin:6px 0 0;padding:0;position:relative}
+.fl-line::before{content:"";position:absolute;left:69px;top:10px;bottom:10px;width:2px;background:repeating-linear-gradient(#E3E3EA 0 6px,transparent 6px 12px)}
+.fl-it{display:flex;align-items:center;gap:12px;margin-bottom:14px;position:relative}
+.fl-t{width:44px;text-align:right;font-size:13px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums;flex:none}
+.fl-cap{width:40px;border-radius:20px;display:grid;place-items:center;color:#fff;flex:none;position:relative;z-index:1}
+.fl-body{flex:1;min-width:0;border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column;gap:2px;color:var(--ink)}
+.fl-body small{font-size:12.5px;color:var(--muted)}.fl-body small b{color:var(--accent)}
+.fl-body span{font-size:16px;font-weight:600;line-height:1.25}
+.fl-it.done .fl-cap{opacity:.4}.fl-it.done .fl-body span{text-decoration:line-through;color:#A5A5AE;font-weight:500}
+.fl-it .check.fl-ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--c)!important;background:transparent}
+.fl-it .check.fl-ck[aria-pressed="true"]{background:var(--c)!important;border-color:var(--c)!important}
+.fl-gap{margin:-4px 0 14px 68px;font-size:12.5px;font-weight:600;color:#3FA98A}
+.fl-any{background:var(--surface);border-radius:18px;padding:12px 12px 14px}
+.fl-any-h{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;font-weight:700;color:#55555E;margin:0 2px 8px}
+.fl-chips{display:flex;flex-wrap:wrap;gap:6px}
+.fl-chip{display:flex;align-items:center;gap:6px;background:#fff;border-radius:14px;padding:4px 10px 4px 6px}
+.fl-chip button:not(.check){border:0;background:none;padding:4px 0;font-size:14px;color:var(--ink);text-align:left}
+.fl-chip .check.sm{width:20px;height:20px}
+.fl-chip.late button:not(.check){color:#E2533A}
+.fl-chip.done button:not(.check){text-decoration:line-through;color:#A5A5AE}
+:root[data-iface="flow"] .dock .say-mic{background:var(--accent)}
+
+/* ===== C · Плитки ===== */
+:root[data-iface="tiles"]{--bg:#EDEDF0;--surface:#FFFFFF;--ink:#141416;--muted:#6F6F78;--line:#EDEDF0;--accent:#141416;--accent-ink:#D7FF5A;--soft:#F4F4F6;--done:#2FA84F}
+:root[data-iface="tiles"] body{background:#EDEDF0}
+.iface-tiles{gap:14px}
+.tl-hd h1{font-size:32px!important;font-weight:800!important;letter-spacing:-.025em}
+.tl-sub{font-size:15px;color:var(--muted);margin-top:2px}
+.tl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tl{border:0;border-radius:24px;background:#fff;padding:14px 16px;text-align:left;color:var(--ink);display:flex;flex-direction:column;gap:6px;min-width:0}
+.tl.wide{grid-column:1/3}
+.tl-l{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;font-weight:600;color:var(--muted)}
+.tl-focus{background:#141416;color:#fff;padding:16px 18px}
+.tl-top{display:flex;justify-content:space-between;font-size:13px;color:#B8B8C2}
+.tl-fr{display:flex;align-items:center;gap:12px}
+.tl-focus .check{border-color:#5A5A62!important}
+.tl-ft{border:0;background:none;padding:0;color:#fff;font-size:22px;font-weight:700;text-align:left;font-family:var(--display);line-height:1.2}
+.tl-prog{height:6px;border-radius:3px;background:#2C2C31;overflow:hidden;margin-top:6px}.tl-prog i{display:block;height:100%;background:#D7FF5A}
+.tl-done{background:#D7FF5A;min-height:128px;justify-content:space-between}
+.tl-done .tl-l{color:#3B4A00}.tl-done b{font-size:48px;font-weight:800;font-family:var(--display);letter-spacing:-.04em}.tl-done span{color:#3B4A00;font-size:17px}
+.tl-next{min-height:128px;justify-content:space-between}
+.tl-next small{display:block;font-size:13px;color:var(--muted)}.tl-next span{font-size:15.5px;font-weight:600;line-height:1.25}
+.tl-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:.5px solid #EDEDF0}
+.tl-row:last-child{border-bottom:0}
+.tl-rt{flex:1;min-width:0;border:0;background:none;padding:0;text-align:left;font-size:16px;color:var(--ink)}
+.tl-rt small{color:var(--muted);font-size:13px;margin-right:4px}
+.tl-rs{font-size:12px;color:#9A9AA2;white-space:nowrap}.tl-rs.late{color:#E2533A}
+.tl-row.done .tl-rt{text-decoration:line-through;color:#A5A5AE}
+.tl-small{min-height:84px}.tl-small b{font-size:28px;font-weight:800;font-family:var(--display)}
+.tl-eve{background:#E6E1FF;min-height:84px}.tl-eve .tl-l{color:#4B3FA8}.tl-eve span:last-child{font-size:14.5px;font-weight:600}
+:root[data-iface="tiles"] .dock .say-mic{background:#D7FF5A;color:#141416}
+:root[data-iface="tiles"] .dock .tabs button[aria-current="page"]{color:#141416}
+:root[data-iface="tiles"] .ag-day.today .ag-wd{color:#141416}
+
+/* ===== D · Чистый ===== */
+:root[data-iface="clean"]{--bg:#FFFFFF;--surface:#F7F7FA;--ink:#1D1D1F;--muted:#6E6E73;--line:#E5E5EA;--accent:#2F7CF6;--accent-ink:#fff;--soft:#F2F4F8;--done:#2F7CF6}
+:root[data-iface="clean"] body{background:#fff}
+.iface-clean{gap:18px}
+.cl-t{display:flex;align-items:center;gap:10px}
+.cl-t h1{font-size:30px!important;font-weight:700!important;letter-spacing:-.02em}
+.cl-sub{font-size:14px;color:var(--muted);padding-left:36px;margin-top:2px}
+.cl-sec h3{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--body)!important;font-size:15px!important;font-weight:700!important;color:var(--accent);padding-bottom:6px;border-bottom:1px solid var(--line);margin:0 0 2px}
+.cl-sec h3 .link{font-size:13px}
+.cl-row{display:flex;align-items:flex-start;gap:14px;padding:9px 0}
+.cl-row .check.sq{width:21px;height:21px;border-radius:6px!important;border:1.5px solid #C7C7CC;margin-top:2px}
+.cl-row .check.sq[aria-pressed="true"]{background:var(--accent)!important;border-color:var(--accent)!important}
+.cl-b{flex:1;min-width:0;border:0;background:none;padding:0;text-align:left;color:var(--ink);display:flex;flex-direction:column;gap:1px}
+.cl-b span{font-size:17px;line-height:1.3}
+.cl-b small{font-size:13px;color:var(--muted)}.cl-b small.now{color:var(--accent)}
+.cl-late{font-style:normal;font-size:11.5px;font-weight:600;color:#fff;background:#FF3B30;border-radius:6px;padding:1px 6px;vertical-align:2px}
+.cl-row.done .cl-b span{text-decoration:line-through;color:#AEAEB2}
+:root[data-iface="clean"] .grp-b,:root[data-iface="clean"] .ag-day,:root[data-iface="clean"] section.now{background:var(--surface)}
+
+
 </style>
 <style>html,body{margin:0}body{padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}</style>
 </head>
@@ -1343,6 +1530,7 @@ function render(){
     if(ensureRecur()) save();
     if(ui.tab==='me'){ ui.tab='dyn'; ui.meSec='settings'; }
     const v = ui.tab==='today'?viewHome():ui.tab==='tasks'?viewPlan():ui.tab==='ai'?viewAssist():viewMe2();
+    document.documentElement.dataset.iface=ifaceOf();
     $('#app').innerHTML=v; renderDock(); ctlBtn(); if(pendingFocus){ const el=document.querySelector(pendingFocus); if(el) el.focus(); pendingFocus=null; }
   }catch(err){
     console.error(err);
@@ -2096,6 +2284,7 @@ function viewDyn(){
 function viewProfile(){
   const mods=[['affirm','Настрой дня'],['calendar','Календарь'],['main','Главные дела'],['small','Мелочи'],['wait','Жду ответа'],['habits','Каждый день'],['evening','Итоги дня']];
   let h='<div class="stack" style="gap:16px"><h1>Профиль</h1>';
+  h+='<section class="card block if-sec"><h2 style="font-size:20px">Интерфейс</h2><p class="muted" style="margin:0">Выбери, как выглядит экран «Сегодня». Дела и настройки не меняются — можно переключать сколько угодно.</p>'+ifacePicker()+'</section>';
   h+='<section class="card block"><label class="f" for="pf-name">Имя<input id="pf-name" type="text" value="'+esc(S.name)+'"></label><div class="eyebrow">Стиль</div><div class="seg"><button data-act="skin" data-v="clean" aria-pressed="'+(S.skin==='clean')+'">Clean girl</button><button data-act="skin" data-v="oldmoney" aria-pressed="'+(S.skin==='oldmoney')+'">Old money</button></div></section>';
   h+='<section class="card block"><h2 style="font-size:22px">Начать заново</h2><p class="muted" style="margin:0">Расскажи заново о себе, целях и ритме — ассистент обновит сферы, ритм и привычки. Дела останутся.</p><button class="btn primary" data-act="reonboard">Рассказать о себе заново</button><div id="reset-zone" class="stack" style="gap:8px"><button class="btn ghost" data-act="reset-ask" style="color:var(--warn)">Стереть всё и начать с нуля</button></div></section>';
   h+=connView();
@@ -2664,6 +2853,7 @@ document.addEventListener('click', async e=>{
     case 'day-shift': ui.day=addDays(ui.day||today(), Number(v)); render(); break;
     case 'od-today': { const t0=today(); const ids=[]; S.tasks.forEach(x=>{ if(!x.done&&x.kind!=='wait'&&x.due&&x.due<t0){ ids.push([x.id,x.due]); x.due=t0; } }); save(); render(); haptic(); toast('Перенесла на сегодня: '+ids.length, ()=>{ ids.forEach(([i,d])=>{ const y=findTask(i); if(y) y.due=d; }); save(); render(); }); break; }
     case 'more-main': ui.moreMain=!ui.moreMain; render(); break;
+    case 'iface': S.iface=v; save(); render(); haptic(); toast('Интерфейс: '+(IFACES.find(x=>x[0]===v)||['',''])[1]); break;
     case 'more-small': ui.moreSmall=!ui.moreSmall; render(); break;
     case 'more-done': ui.moreDone=!ui.moreDone; render(); break;
     case 'ts-rep': ui.tsRep=!ui.tsRep; taskSheet(ui.tsId); break;
@@ -2835,7 +3025,122 @@ function row(t, opt){
 function section(title, inner, extra, cls){ return '<section class="grp'+(cls?' '+cls:'')+'"><div class="grp-h"><h3>'+title+'</h3>'+(extra||'')+'</div><div class="grp-b">'+inner+'</div></section>'; }
 
 /* ---------- СЕГОДНЯ ---------- */
+/*IFACES*/
+/* ---------- ИНТЕРФЕЙСЫ «СЕГОДНЯ»: Тёплый · Лента · Плитки · Чистый ---------- */
+const IFACES=[['warm','Тёплый','кремовый, спокойный'],['flow','Лента дня','день по времени'],['tiles','Плитки','блоки, как виджеты'],['clean','Чистый','белый, как Things']];
+function ifaceOf(){ return ['flow','tiles','clean'].includes(S.iface)?S.iface:'warm'; }
+function dayData(){
+  const d=new Date(), t=today(), nowM=d.getHours()*60+d.getMinutes();
+  const open=S.tasks.filter(x=>!x.done&&x.kind!=='wait'&&x.due&&x.due<=t);
+  const overdue=open.filter(x=>x.due<t).sort(rank);
+  const todays=open.filter(x=>x.due===t);
+  const doneT=S.tasks.filter(x=>x.done&&x.doneAt&&dstr(new Date(x.doneAt))===t&&x.kind!=='wait');
+  const dIn=doneT.filter(x=>x.due&&x.due<=t);
+  const timed=todays.concat(dIn.filter(x=>x.due===t)).filter(x=>x.time&&x.due===t).sort((a,b)=>a.time.localeCompare(b.time));
+  const untimed=overdue.concat(todays.filter(x=>!x.time)).concat(dIn.filter(x=>!(x.time&&x.due===t)));
+  const ord=(a,b)=>(a.done?1:0)-(b.done?1:0)||((a.due<t?0:1)-(b.due<t?0:1))||rank(a,b);
+  const mains=untimed.filter(x=>x.kind!=='small').sort(ord), smalls=untimed.filter(x=>x.kind==='small').sort(ord);
+  const waits=S.tasks.filter(x=>!x.done&&x.kind==='wait'&&x.due&&x.due<=addDays(t,1)).sort(rank);
+  const total=todays.length+overdue.length+doneT.length;
+  const openTimed=timed.filter(x=>!x.done);
+  const cur=openTimed.find(x=>toMin(x.time)<=nowM&&toMin(x.time)+(x.est||30)>nowM);
+  const next=openTimed.find(x=>toMin(x.time)>nowM);
+  const focus=cur||next||mains.find(x=>!x.done)||smalls.find(x=>!x.done)||null;
+  return {d,t,nowM,overdue,todays,doneT,timed,mains,smalls,waits,total,cur,next,focus,dn:doneT.length};
+}
+function hdrExtras(D){
+  let h='';
+  if(D.waits.length && S.modules.wait) h+=section('Жду ответа', D.waits.map(x=>row(x)).join(''));
+  if(S.modules.habits && S.habits.length) h+=section('Каждый день', '<div class="habits">'+S.habits.map(hb=>{ const on=!!(S.habitLog[D.t]&&S.habitLog[D.t][hb.id]); return '<button class="hab'+(on?' on':'')+'" data-act="habit" data-id="'+esc(hb.id)+'" aria-pressed="'+on+'"><span class="hab-c">'+(on?ICON.check:'')+'</span>'+esc(hb.name)+'</button>'; }).join('')+'</div>', '<button class="link" data-act="hab-manage">Изменить</button>');
+  if(D.nowM>=18*60 && S.modules.evening && !(S.days[D.t]&&S.days[D.t].closed)) h+='<button class="close-quiet" data-act="evening">Закрыть день'+((D.todays.length+D.overdue.length)?' · перенести остальное':'')+' '+IC.chev+'</button>';
+  return h;
+}
+function chk(x,cls){ return '<button class="check '+(cls||'')+'" data-act="done" data-id="'+esc(x.id)+'" aria-pressed="'+!!x.done+'" aria-label="'+(x.done?'Вернуть':'Сделано')+': '+esc(x.title)+'">'+(x.done?ICON.check:'')+'</button>'; }
+function sphName(x){ const s=sphere(x.sphere); return s?s.name:''; }
+function fmtGap(m){ const h=Math.floor(m/60), mm=m%60; return (h?h+' ч':'')+(h&&mm?' ':'')+(mm?mm+' мин':''); }
+const FLOWC=['#7B8CFF','#FF8A65','#4FC3A1','#F6B93B','#B98BFF','#5CB8E8'];
+function flowColor(x){ const i=Math.max(0,arr(S.spheres).findIndex(s=>s.id===x.sphere)); return FLOWC[i%FLOWC.length]; }
+function flowIcon(x){ const s=(x.title||'').toLowerCase(); if(/созвон|звон|позвон/.test(s)) return 'phone'; if(/встреч|планёрк|планерк|собрани/.test(s)) return 'users'; if(/купи|оплат|магазин/.test(s)) return 'bag'; if(/врач|стомат|мам|пап|здоров|спорт/.test(s)) return 'heart'; return 'doc'; }
+const FI={
+ phone:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>',
+ doc:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>',
+ users:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.6.8 2.7 2.6 3 5.2"/></svg>',
+ bag:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
+ heart:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>',
+ star:'<svg width="26" height="26" viewBox="0 0 24 24" fill="#F5B301" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.3l-5.6 2.9 1.1-6.3L2.9 9.5l6.3-.9z"/></svg>'
+};
+function weekStripHtml(){
+  const st=weekStart(0), t=today();
+  return '<div class="fl-week" role="group" aria-label="Неделя">'+[0,1,2,3,4,5,6].map(i=>{ const d=addDays(st,i); const [y,m,dd]=d.split('-').map(Number); const wd=new Date(y,m-1,dd).getDay(); const has=S.tasks.some(x=>!x.done&&x.due===d); return '<button class="fl-d'+(d===t?' on':'')+(d<t?' past':'')+'" data-act="day-open" data-v="'+d+'"><span>'+WDS[wd]+'</span><b>'+dd+'</b><i'+(has?' class="has"':'')+'></i></button>'; }).join('')+'</div>';
+}
+/* ---- B · Лента дня ---- */
+function viewHomeFlow(){
+  const D=dayData(); const t=D.t;
+  let h='<div class="home iface-flow">';
+  h+='<header class="fl-hd"><h1 tabindex="-1" id="page-h">'+WDS[D.d.getDay()][0].toUpperCase()+WDS[D.d.getDay()].slice(1)+', '+D.d.getDate()+' '+MONTHS[D.d.getMonth()].slice(0,3)+'</h1><span class="fl-cnt">'+(D.total?D.dn+' из '+D.total:'')+'</span></header>';
+  h+=weekStripHtml();
+  if(!D.timed.length && !D.mains.length && !D.smalls.length) h+='<div class="empty-state"><p class="es-t">День свободен</p><p class="muted">Скажи или напиши внизу, что хочешь сделать.</p></div>';
+  if(D.timed.length){
+    h+='<ol class="fl-line">';
+    let prevEnd=null;
+    D.timed.forEach(x=>{ const m=toMin(x.time), e=m+(x.est||30);
+      if(prevEnd!=null && m-prevEnd>=45) h+='<li class="fl-gap">свободно '+fmtGap(m-prevEnd)+'</li>';
+      const isNow=D.cur===x; const c=flowColor(x); const tall=Math.min(96,Math.max(56,(x.est||30)*1.1));
+      h+='<li class="fl-it'+(x.done?' done':'')+'" data-drag="'+esc(x.id)+'"><span class="fl-t">'+esc(x.time)+'</span><span class="fl-cap" style="background:'+c+';height:'+tall+'px">'+FI[flowIcon(x)]+'</span><button class="fl-body" data-act="mv-open" data-id="'+esc(x.id)+'"><small>'+esc(x.time)+'–'+pad(Math.floor(e/60)%24)+':'+pad(e%60)+(isNow?' · <b>сейчас</b>':'')+'</small><span>'+esc(x.title)+'</span></button>'+chk(x,'fl-ck" style="--c:'+c)+'</li>';
+      prevEnd=Math.max(prevEnd||0,e); });
+    h+='</ol>';
+  }
+  const any=D.mains.concat(D.smalls);
+  if(any.length) h+='<section class="fl-any"><div class="fl-any-h">В течение дня · '+any.filter(x=>!x.done).length+(D.overdue.length?'<button class="link" data-act="od-today">просроченное — на сегодня</button>':'')+'</div><div class="fl-chips">'+any.map(x=>'<span class="fl-chip'+(x.done?' done':'')+(x.due<t&&!x.done?' late':'')+'" data-drag="'+esc(x.id)+'">'+chk(x,'sm')+'<button data-act="mv-open" data-id="'+esc(x.id)+'">'+esc(x.title)+'</button></span>').join('')+'</div></section>';
+  h+=hdrExtras(D);
+  return h+'</div>';
+}
+/* ---- C · Плитки ---- */
+function viewHomeTiles(){
+  const D=dayData(); const t=D.t; const f=D.focus;
+  let h='<div class="home iface-tiles">';
+  h+='<header class="tl-hd"><h1 tabindex="-1" id="page-h">'+WD[D.d.getDay()][0].toUpperCase()+WD[D.d.getDay()].slice(1)+'</h1><div class="tl-sub">'+D.d.getDate()+' '+MONTHS[D.d.getMonth()]+' · '+greeting().toLowerCase()+(S.name?', '+esc(S.name):'')+'</div></header>';
+  h+='<div class="tl-grid">';
+  if(f){ const lab=D.cur===f?'Сейчас':(D.next===f?'Дальше · '+relTime(toMin(f.time)-D.nowM):'Начни с этого');
+    let prog=''; if(D.cur===f){ const p=Math.round((D.nowM-toMin(f.time))/(f.est||30)*100); prog='<div class="tl-prog"><i style="width:'+Math.max(4,Math.min(100,p))+'%"></i></div>'; }
+    h+='<section class="tl tl-focus wide"><div class="tl-top"><span>'+esc(lab)+'</span><span>'+(f.time?esc(f.time):esc(sphName(f)))+'</span></div><div class="tl-fr">'+chk(f,'big')+'<button class="tl-ft" data-act="mv-open" data-id="'+esc(f.id)+'">'+esc(f.title)+'</button></div>'+prog+'</section>'; }
+  h+='<section class="tl tl-done"><span class="tl-l">Сделано</span><div><b>'+D.dn+'</b><span> из '+D.total+'</span></div></section>';
+  const nx=D.timed.filter(x=>!x.done&&x!==f&&toMin(x.time)>D.nowM)[0];
+  h+='<button class="tl tl-next" '+(nx?'data-act="mv-open" data-id="'+esc(nx.id)+'"':'data-act="cap-open"')+'><span class="tl-l">Дальше</span><div>'+(nx?'<small>'+esc(nx.time)+'</small><span>'+esc(nx.title)+'</span>':'<span class="muted">по времени дел больше нет</span>')+'</div></button>';
+  const mains=D.mains.filter(x=>x!==f), timedRest=D.timed.filter(x=>x!==f&&x!==nx);
+  const row2=x=>'<div class="tl-row'+(x.done?' done':'')+'" data-drag="'+esc(x.id)+'">'+chk(x)+'<button class="tl-rt" data-act="mv-open" data-id="'+esc(x.id)+'">'+(x.time?'<small>'+esc(x.time)+'</small> ':'')+esc(x.title)+'</button><span class="tl-rs'+(x.due<t&&!x.done?' late':'')+'">'+(x.due<t&&!x.done?'вчера':esc(sphName(x)))+'</span></div>';
+  if(mains.length) h+='<section class="tl wide"><div class="tl-l">Главное'+(D.overdue.length?'<button class="link" data-act="od-today">всё на сегодня</button>':'')+'</div>'+mains.map(row2).join('')+'</section>';
+  if(timedRest.length) h+='<section class="tl wide"><div class="tl-l">По времени</div>'+timedRest.map(row2).join('')+'</section>';
+  const sm=D.smalls.filter(x=>x!==f);
+  h+='<button class="tl tl-small" data-act="more-small"><span class="tl-l">Мелочи</span><b>'+sm.filter(x=>!x.done).length+'</b></button>';
+  const ev=D.timed.filter(x=>!x.done&&toMin(x.time)>=18*60)[0];
+  h+='<button class="tl tl-eve" '+(ev?'data-act="mv-open" data-id="'+esc(ev.id)+'"':'data-act="tab" data-v="tasks"')+'><span class="tl-l">Вечером</span><span>'+(ev?esc(ev.time)+' '+esc(ev.title):'свободно')+'</span></button>';
+  if(ui.moreSmall && sm.length) h+='<section class="tl wide">'+sm.map(row2).join('')+'</section>';
+  h+='</div>'+hdrExtras(D);
+  return h+'</div>';
+}
+/* ---- D · Чистый ---- */
+function viewHomeClean(){
+  const D=dayData(); const t=D.t;
+  const r=x=>'<div class="cl-row'+(x.done?' done':'')+'" data-drag="'+esc(x.id)+'">'+chk(x,'sq')+'<button class="cl-b" data-act="mv-open" data-id="'+esc(x.id)+'"><span>'+esc(x.title)+(x.due<t&&!x.done?' <em class="cl-late">вчера</em>':'')+'</span>'+((x.time&&x.due===t)||sphName(x)?'<small'+(D.cur===x?' class="now"':'')+'>'+[x.time&&x.due===t?x.time+(D.cur===x?' · сейчас':''):'',sphName(x)].filter(Boolean).map(esc).join(' · ')+'</small>':'')+'</button></div>';
+  let h='<div class="home iface-clean">';
+  h+='<header class="cl-hd"><div class="cl-t">'+FI.star+'<h1 tabindex="-1" id="page-h">Сегодня</h1></div><div class="cl-sub">'+WD[D.d.getDay()][0].toUpperCase()+WD[D.d.getDay()].slice(1)+', '+D.d.getDate()+' '+MONTHS[D.d.getMonth()]+(D.total?' · '+D.dn+' из '+D.total:'')+'</div></header>';
+  if(!D.total) h+='<div class="empty-state"><p class="es-t">На сегодня пусто</p><p class="muted">Скажи или напиши внизу, что хочешь сделать.</p></div>';
+  const day=D.timed.filter(x=>toMin(x.time)<18*60), eve=D.timed.filter(x=>toMin(x.time)>=18*60);
+  if(day.length) h+='<section class="cl-sec">'+day.map(r).join('')+'</section>';
+  if(D.mains.length) h+='<section class="cl-sec"><h3>Главное'+(D.overdue.length?'<button class="link" data-act="od-today">всё на сегодня</button>':'')+'</h3>'+D.mains.map(r).join('')+'</section>';
+  if(D.smalls.length) h+='<section class="cl-sec"><h3>Мелочи</h3>'+D.smalls.map(r).join('')+'</section>';
+  if(eve.length) h+='<section class="cl-sec"><h3>Вечером</h3>'+eve.map(r).join('')+'</section>';
+  h+=hdrExtras(D);
+  return h+'</div>';
+}
+function ifacePicker(){
+  const cur=ifaceOf();
+  return '<div class="if-pick" role="radiogroup" aria-label="Интерфейс">'+IFACES.map(([k,n,s])=>'<button class="if-card if-'+k+'" role="radio" aria-checked="'+(cur===k)+'" data-act="iface" data-v="'+k+'"><span class="if-sw" aria-hidden="true"><i></i><i></i><i></i></span><b>'+n+'</b><small>'+s+'</small></button>').join('')+'</div>';
+}
+
 function viewHome(){
+  { const f=ifaceOf(); if(f==='flow') return viewHomeFlow(); if(f==='tiles') return viewHomeTiles(); if(f==='clean') return viewHomeClean(); }
   const d=new Date(); const t=today(); const nowM=d.getHours()*60+d.getMinutes();
   const open=S.tasks.filter(x=>!x.done&&x.kind!=='wait'&&x.due&&x.due<=t);
   const overdue=open.filter(x=>x.due<t).sort(rank);
