@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261016115346';</script>
-<script src="supabase.js?v=20261016115346"></script>
-<script src="config.js?v=20261016115346"></script>
-<script src="backend.js?v=20261016115346"></script>
+<script>window.RITM_BUILD='20261016121116';</script>
+<script src="supabase.js?v=20261016121116"></script>
+<script src="config.js?v=20261016121116"></script>
+<script src="backend.js?v=20261016121116"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -935,6 +935,7 @@ button:active,.ios-r:active{transform:scale(.97)}
   .sheet,.toast,.check[aria-pressed="true"] svg{animation:none!important}
   button:active,.ios-r:active,.check:active{transform:none}
 }
+html,body{overscroll-behavior-y:none}
 
 /* ===== Интерфейсы: общий выбор ===== */
 .if-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -1317,7 +1318,7 @@ function openSheet(html, onMount){
   const sh=$('#layer .sheet'); if(onMount) onMount(sh);
   if(first){ const h=$('#sheet-h'); if(h){ h.setAttribute('tabindex','-1'); h.focus(); } }
 }
-function closeSheet(){ sheetOpen=false; ui.capOpen=false; ui.tsRep=false; const L=$('#layer'); const inL=voice.id&&L&&L.querySelector('#'+voice.id); L.innerHTML=''; if(inL){ try{ if(voice.rec) stopSR(); else if(voice.media){ voice.chunks=[]; voice.media.stop(); } else { voice.id=null; } }catch(_){} } }
+function closeSheet(){ setTimeout(()=>{ try{ unshift(); }catch(_){} }, 80); sheetOpen=false; ui.capOpen=false; ui.tsRep=false; const L=$('#layer'); const inL=voice.id&&L&&L.querySelector('#'+voice.id); L.innerHTML=''; if(inL){ try{ if(voice.rec) stopSR(); else if(voice.media){ voice.chunks=[]; voice.media.stop(); } else { voice.id=null; } }catch(_){} } }
 document.addEventListener('keydown', e=>{ if(e.key==='Escape' && sheetOpen) closeSheet(); });
 
 /* ---------- onboarding (voice-first) ---------- */
@@ -2960,9 +2961,10 @@ document.addEventListener('click', async e=>{
 
 /* iPhone: после открытия из уведомления нижняя панель «слетает» вверх — переставляем её на место */
 /* нижняя панель всегда прижата к низу видимой области (iPhone иногда «поднимает» fixed-элементы) */
+function kbOpen(){ const a=document.activeElement; return !!(a && (a.tagName==='TEXTAREA' || (a.tagName==='INPUT' && !/^(checkbox|radio|button|range|time|date)$/.test(a.type)) || a.isContentEditable)); }
 function pinDock(){
   const d=document.querySelector('#dock .dock'); if(!d) return;
-  const vv=window.visualViewport; if(!vv){ d.style.top=''; d.style.bottom=''; return; }
+  const vv=window.visualViewport; if(!vv || !kbOpen()){ d.style.top=''; d.style.bottom=''; return; }
   const h=d.offsetHeight||0; const top=Math.round(vv.offsetTop+vv.height-h);
   d.style.bottom='auto'; d.style.top=top+'px';
 }
@@ -2970,6 +2972,10 @@ function fixDock(){ pinDock(); requestAnimationFrame(pinDock); [60,250,600,1200]
 if(window.visualViewport){ window.visualViewport.addEventListener('resize', pinDock); window.visualViewport.addEventListener('scroll', pinDock); }
 window.addEventListener('resize', pinDock);
 window.addEventListener('scroll', pinDock, {passive:true});
+/* iPhone: после закрытия клавиатуры страница иногда остаётся «сдвинутой» — возвращаем её на место */
+function unshift(){ if(kbOpen()) return; const y=Math.max(0, Math.min(window.scrollY, document.documentElement.scrollHeight-window.innerHeight)); window.scrollTo(0, y+1); window.scrollTo(0, y); fixDock(); }
+document.addEventListener('focusout', ()=>{ setTimeout(unshift, 60); setTimeout(unshift, 350); });
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) setTimeout(unshift, 100); });
 document.addEventListener('focusout', ()=>{ setTimeout(fixDock,50); });
 document.addEventListener('focusin', ()=>{ setTimeout(fixDock,50); });
 window.addEventListener('pageshow', fixDock);
@@ -3400,11 +3406,11 @@ function startSR(id){
 }
 async function startRecorder(id){
   try{
-    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const stream=await getMic();
     const mime=['audio/mp4','audio/webm;codecs=opus','audio/webm'].find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m))||'';
     const mr=new MediaRecorder(stream, mime?{mimeType:mime}:undefined); voice.chunks=[];
     mr.ondataavailable=e=>{ if(e.data&&e.data.size) voice.chunks.push(e.data); };
-    mr.onstop=async()=>{ stream.getTracks().forEach(t=>t.stop());
+    mr.onstop=async()=>{ micIdle();
       const blob=new Blob(voice.chunks,{type:mr.mimeType||'audio/mp4'});
       const b=document.querySelector('[data-mic-for="'+id+'"]'); if(b){ b.disabled=true; b.innerHTML='<span class="spin"></span>Распознаю…'; }
       try{ const text=await window.RITM_TRANSCRIBE(blob); fieldSet(id,String(text||'').trim()); }catch(e){ toast('Не получилось распознать запись. Попробуй ещё раз.', null, true); }
@@ -3412,6 +3418,18 @@ async function startRecorder(id){
     voice.media=mr; voice.id=id; setMicUI(); mr.start(); if(id==='chat-in'&&talk.on) silenceWatch(stream, mr);
   }catch(e){ micFail(inFrame?'Здесь запись недоступна. Нажми на поле и на микрофон на клавиатуре iPhone.':'Разреши доступ к микрофону: Настройки iPhone → Safari → Микрофон.'); }
 }
+/* один поток микрофона на весь запуск: iPhone спрашивает разрешение один раз, а не при каждом нажатии */
+let micStream=null, micTimer=null;
+async function getMic(){
+  clearTimeout(micTimer);
+  if(micStream && micStream.getAudioTracks().some(t=>t.readyState==='live')) return micStream;
+  micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+  return micStream;
+}
+function micRelease(){ clearTimeout(micTimer); if(micStream){ try{ micStream.getTracks().forEach(t=>t.stop()); }catch(_){} } micStream=null; }
+function micIdle(){ clearTimeout(micTimer); micTimer=setTimeout(micRelease, 10*60*1000); }
+document.addEventListener('visibilitychange',()=>{ if(document.hidden && !voice.id) micRelease(); });
+const isStandalone=(()=>{ try{ return !!(navigator.standalone||matchMedia('(display-mode: standalone)').matches); }catch(_){ return false; } })();
 function silenceWatch(stream, mr){
   try{ const AC=window.AudioContext||window.webkitAudioContext; const ac=new AC(); const an=ac.createAnalyser(); an.fftSize=512; ac.createMediaStreamSource(stream).connect(an); const buf=new Uint8Array(an.fftSize); let spoke=false, quietSince=Date.now(); const t0=Date.now();
     const tick=()=>{ if(mr.state!=='recording'){ ac.close().catch(()=>{}); return; } an.getByteTimeDomainData(buf); let m=0; for(const v of buf) m=Math.max(m,Math.abs(v-128)); const now=Date.now(); if(m>10){ spoke=true; quietSince=now; } if((spoke&&now-quietSince>1500)||(!spoke&&now-t0>8000)){ try{ mr.stop(); }catch(_){} ac.close().catch(()=>{}); return; } requestAnimationFrame(tick); }; tick(); }catch(_){}
@@ -3425,7 +3443,9 @@ function stopSR(){
 function micToggle(id){
   if(voice.id){ const same=voice.id===id; if(voice.rec){ stopSR(); } else if(voice.media){ voice.media.stop(); } if(same) return; }
   const el=document.getElementById(id); voice.base=el?el.value:''; voice.lastId=id;
-  if(SR && !inFrame) startSR(id);
+  const canRec=!inFrame && window.RITM_TRANSCRIBE && navigator.mediaDevices && window.MediaRecorder;
+  if(canRec && (isStandalone || !SR || micStream)) startRecorder(id);
+  else if(SR && !inFrame) startSR(id);
   else if(!inFrame && window.RITM_TRANSCRIBE && navigator.mediaDevices && window.MediaRecorder) startRecorder(id);
   else if(SR) startSR(id);
   else { if(el) el.focus(); toast('Нажми на микрофон на клавиатуре iPhone и говори.', null, true); }
