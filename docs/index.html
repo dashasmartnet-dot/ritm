@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261016135014';</script>
-<script src="supabase.js?v=20261016135014"></script>
-<script src="config.js?v=20261016135014"></script>
-<script src="backend.js?v=20261016135014"></script>
+<script>window.RITM_BUILD='20261019213224';</script>
+<script src="supabase.js?v=20261019213224"></script>
+<script src="config.js?v=20261019213224"></script>
+<script src="backend.js?v=20261019213224"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -954,6 +954,8 @@ body::before{content:"";position:fixed;left:0;right:0;top:0;height:env(safe-area
 .sugg.wrap{flex-wrap:wrap;overflow:visible}
 .ai-help{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-radius:16px;background:var(--surface);border:.5px solid var(--line);font-size:15px}
 .ai-help b{font-size:16px}
+/* запись: кольцо дышит в такт голосу */
+[data-mic-for].rec{box-shadow:0 0 0 calc(4px + var(--lvl,0) * 14px) color-mix(in srgb,var(--accent) 28%,transparent);transition:box-shadow 90ms linear}
 
 /* ===== Интерфейсы: общий выбор ===== */
 .if-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -1301,7 +1303,7 @@ function normTask(x, sphId){
 }
 async function aiTasks(text){
   const prompt = ctxBlock()+'\nСфера по умолчанию: '+(defaultSphere()||'нет')+
-  (workActive()?'\nСейчас рабочий режим: если дело не явно личное (врач, семья, дом, покупки), ставь рабочую сферу.':'')+'\n\nПреврати надиктованный текст в задачи. Почти всегда это ОДНА задача: сформулируй её коротко, 3–8 слов, начиная с глагола, без лишних подробностей (подробности положи в note). Разделяй на несколько задач, только если явно названы разные дела. Если названа дата или день недели — обязательно поставь due. Ответь ТОЛЬКО JSON вида {"tasks":[{"title":"...","note":"подробности или null","sphere":"id сферы из списка, только если сфера очевидна из смысла (врач → здоровье, клиент/договор/работа → рабочая сфера); если не уверена — null","due":"YYYY-MM-DD или null","time":"HH:MM или null","kind":"main|small|wait","who":"имя или null","priority":2,"est":30}]}. '+TASK_RULES+'\n\nТекст:\n'+text.slice(0,12000);
+  (workActive()?'\nСейчас рабочий режим: если дело не явно личное (врач, семья, дом, покупки), ставь рабочую сферу.':'')+'\n\nПреврати надиктованный текст в задачи. Каждое отдельное действие или встреча — ОТДЕЛЬНАЯ задача, даже если всё сказано одной фразой без запятых («завтра в 11 созвон с Олей позвонить маме в пятницу отправить КП» — это 3 задачи). Не склеивай разные дела в одно. Каждой задаче — свою дату и время из того места фразы, где они названы. Название — коротко, 3–8 слов, с глагола; подробности — в note. Если названа дата или день недели — обязательно поставь due. Ответь ТОЛЬКО JSON вида {"tasks":[{"title":"...","note":"подробности или null","sphere":"id сферы из списка, только если сфера очевидна из смысла (врач → здоровье, клиент/договор/работа → рабочая сфера); если не уверена — null","due":"YYYY-MM-DD или null","time":"HH:MM или null","kind":"main|small|wait","who":"имя или null","priority":2,"est":30}]}. '+TASK_RULES+'\n\nТекст:\n'+text.slice(0,12000);
   const r = await cap.sample.json(prompt,{modelTier:'quick',cache:false});
   return arr(r&&r.tasks).filter(x=>x&&x.title).map(x=>normTask(x, sphere(x.sphere)?x.sphere:defaultSphere()));
 }
@@ -1337,7 +1339,7 @@ function openSheet(html, onMount){
   const sh=$('#layer .sheet'); if(onMount) onMount(sh);
   if(first){ const h=$('#sheet-h'); if(h){ h.setAttribute('tabindex','-1'); h.focus(); } }
 }
-function closeSheet(){ setTimeout(()=>{ try{ unshift(); }catch(_){} }, 80); sheetOpen=false; ui.capOpen=false; ui.tsRep=false; const L=$('#layer'); const inL=voice.id&&L&&L.querySelector('#'+voice.id); L.innerHTML=''; if(inL){ try{ if(voice.rec) stopSR(); else if(voice.media){ voice.chunks=[]; voice.media.stop(); } else { voice.id=null; } }catch(_){} } }
+function closeSheet(){ setTimeout(()=>{ try{ unshift(); }catch(_){} }, 80); sheetOpen=false; ui.capOpen=false; ui.tsRep=false; const L=$('#layer'); const inL=voice.id&&L&&L.querySelector('#'+voice.id); L.innerHTML=''; if(inL){ try{ if(voice.rec) stopSR(); else if(voice.media){ voice.cancel=true; voice.media.stop(); } else { voice.id=null; } }catch(_){} } }
 document.addEventListener('keydown', e=>{ if(e.key==='Escape' && sheetOpen) closeSheet(); });
 
 /* ---------- onboarding (voice-first) ---------- */
@@ -1971,7 +1973,7 @@ function viewAssist(){
   let h='<div class="stack assist" style="gap:16px"><h1 tabindex="-1" id="page-h">Ассистент</h1>';
   const ph={listen:'Слушаю…',think:'Думаю…',speak:'Отвечаю…'}[talk.phase]||'';
   h+='<section class="talk'+(talk.on?' on '+talk.phase:'')+'" aria-live="polite"><button class="orb" data-act="talk" aria-label="'+(talk.on?'Закончить разговор':'Поговорить голосом')+'"><span class="orb-in">'+(talk.on&&talk.phase!=='listen'?(talk.phase==='speak'?IC.speaker:'<span class="dots"><i></i><i></i><i></i></span>'):IC.mic)+'</span></button>'
-    +'<div class="talk-t">'+(talk.on?'<b>'+ph+'</b><span class="muted">'+(talk.phase==='speak'?'Нажми, чтобы перебить':talk.phase==='listen'?'Говори, замолчишь — отвечу':'Секунду')+'</span><span class="row" style="gap:14px"><button class="link" data-act="talk-end">Закончить</button><button class="link" data-act="tts-rate">Скорость ×'+String(S.ttsRate||1).replace('.',',')+'</button></span>':'<b>Поговорить</b><span class="muted">Говори как с человеком. Замолчишь — отвечу голосом и снова слушаю.</span>')+'</div></section>';
+    +'<div class="talk-t">'+(talk.on?'<b>'+ph+'</b><span class="muted">'+(talk.phase==='speak'?'Нажми, чтобы перебить':talk.phase==='listen'?'Говори. Замолчишь или нажмёшь — отвечу':'Секунду')+'</span><span class="row" style="gap:14px"><button class="link" data-act="talk-end">Закончить</button><button class="link" data-act="tts-rate">Скорость ×'+String(S.ttsRate||1).replace('.',',')+'</button></span>':'<b>Поговорить</b><span class="muted">Говори как с человеком. Замолчишь — отвечу голосом и снова слушаю.</span>')+'</div></section>';
   if(msgs.length||assist.busy){
     h+='<div class="chat" role="log" aria-live="polite">'+msgs.map((m,mi)=>'<div class="msg '+(m.role==='user'?'me':'ai')+'">'+(m.role==='user'?esc(m.content):md(m.content)+'<span class="say-wrap"><button class="say-btn" data-act="say" data-v="'+(S.chat.length-msgs.length+mi)+'" aria-label="Прочитать вслух">'+IC.speaker+'</button><button class="rate-btn" data-act="tts-rate" aria-label="Скорость озвучки">×'+String(S.ttsRate||1).replace('.',',')+'</button></span>')+'</div>'+(m.actions&&m.actions.length?actCard(m, S.chat.length-msgs.length+mi):'')).join('')+(assist.busy?'<div class="msg ai" id="ai-stream">'+esc(assist.stream||'Думаю…')+'</div>':'')+'</div>';
   } else {
@@ -1992,8 +1994,8 @@ let talk={on:false,phase:'idle',miss:0};
 function talkSet(p){ talk.phase=p; if(ui.tab==='ai'){ const el=document.querySelector('.talk'); if(el){ const tmp=document.createElement('div'); tmp.innerHTML=viewAssist(); const n=tmp.querySelector('.talk'); if(n) el.replaceWith(n); } } }
 function talkStart(){ unlockTTS(); talk.on=true; talk.miss=0; talkListen(); }
 function talkListen(){ if(!talk.on) return; if(ui.tab!=='ai'||sheetOpen){ talkEnd(); return; } talkSet('listen'); const el=document.getElementById('chat-in'); if(el) el.value=''; try{ if(voice.id==='chat-in') return; if(voice.id){ if(voice.rec) stopSR(); else voice.id=null; } micToggle('chat-in'); }catch(_){ talkEnd(); } }
-function talkEnd(){ talk.on=false; stopSpeak(); if(voice.id==='chat-in'){ try{ if(voice.rec) stopSR(); else if(voice.media) voice.media.stop(); }catch(_){} } talkSet('idle'); }
-function talkTap(){ if(!talk.on){ talkStart(); return; } if(talk.phase==='speak'){ stopSpeak(); talkListen(); return; } talkEnd(); }
+function talkEnd(){ talk.on=false; stopSpeak(); if(voice.id==='chat-in'){ try{ if(voice.rec) stopSR(); else if(voice.media){ voice.cancel=true; voice.media.stop(); } }catch(_){} } talkSet('idle'); }
+function talkTap(){ if(!talk.on){ talkStart(); return; } if(talk.phase==='speak'){ stopSpeak(); talkListen(); return; } if(talk.phase==='listen' && voice.id==='chat-in' && voice.media && voice.media.state==='recording'){ try{ voice.media.stop(); }catch(_){} return; } talkEnd(); }
 let assist={busy:false,stream:'',err:'',draft:'',ctl:null};
 /* ---------- озвучка ---------- */
 const TTS=window.speechSynthesis; let ttsOn=false, ttsVoice=null;
@@ -2410,7 +2412,11 @@ function parseRu(src, now){
   let title=s.replace(/\s+([,.!?;])/g,'$1').replace(/\s+/g,' ').trim().replace(/^[,.;\s]+/,'').replace(/^(надо|нужно|мне нужно|мне надо|не забыть|напомни(?:ть)?(?: мне)?|запиши|добавь)\s+/i,'').replace(/[,.;\s]+$/,'');
   if(title) title=title.charAt(0).toUpperCase()+title.slice(1);
   const words=title.split(' ').filter(Boolean).length;
-  const multi=/[;\n]|\s(?:потом|а также|и ещё|и еще|ещё надо|еще надо)\s/i.test(' '+src+' ') || words>14;
+  const low=' '+String(src).toLowerCase()+' ';
+  const verbs=(low.match(/[а-яё]{3,}(?:ть|ти|чь)(?:ся)?(?=[\s,.!?;])/g)||[]).filter(w=>!/^(быть|есть|мочь|хотеть|надо|нужно|стать|забыть|опять|пять|десять|девять|шесть|часть|сеть|путь|ть)$/.test(w)).length;
+  const events=(low.match(/\s(?:созвон|встреч|звонок|визит|при[её]м|запись|планерк|планёрк|совещан|собеседован)[а-яё]*/g)||[]).length;
+  const whens=(low.match(/\s(?:в|к)\s\d{1,2}(?:[:.]\d{2})?\s|\s(?:завтра|послезавтра|сегодня|понедельник|вторник|сред[уа]|четверг|пятниц[уа]|суббот[уа]|воскресень[ея])\s/g)||[]).length;
+  const multi=/[;\n]|\s(?:потом|а также|и ещё|и еще|ещё надо|еще надо|а ещё|а еще|плюс|также|затем|после этого)\s/i.test(low) || (verbs+events)>=2 || whens>=2 || words>14;
   return { title: title||String(src).trim(), due, time, repeat, yrPending, multi:multi&&!repeat?multi:(multi&&words>14), found: !!(due||time||repeat) };
 }
 function futureDate(now, d, mo){ let y=now.getFullYear(); let s=y+'-'+pad(mo)+'-'+pad(d); if(s<dstr(now)) s=(y+1)+'-'+pad(mo)+'-'+pad(d); return s; }
@@ -3356,9 +3362,9 @@ async function splitSteps(){
 
 /* ---------- ЗАХВАТ: круг-микрофон → шторка ---------- */
 function capSheet(startMic){
-  ui.capOpen=true; if(SR && !inFrame) micWarm();
+  ui.capOpen=true;
   openSheet('<form id="cap-form" class="cap" autocomplete="off"><h2 id="sheet-h" class="cap-t">Скажи или напиши</h2><label for="cap-in" class="srt">Что сделать</label><textarea id="cap-in" rows="3" enterkeyhint="done" placeholder="Добавить: «завтра в 11 созвон с Олей». Изменить: «перенеси МВД на понедельник», «удали звонок маме», «я сделала договор»"></textarea><div class="cap-row"><button type="button" class="btn ghost" data-act="close-sheet">Отмена</button><span style="flex:1"></span><button type="submit" class="btn primary go">Готово</button></div></form>');
-  if(startMic && SR && !inFrame){ try{ micToggle('cap-in'); }catch(_){} } else setTimeout(()=>{ const t=$('#cap-in'); if(t) t.focus(); },200);
+  if(startMic && !inFrame && (SR || window.MediaRecorder)){ try{ micToggle('cap-in'); }catch(_){} } else setTimeout(()=>{ const t=$('#cap-in'); if(t) t.focus(); },200);
 }
 
 /* ---------- Я ---------- */
@@ -3443,35 +3449,61 @@ function startSR(id){
   voice.rec=rec; voice.id=id; setMicUI();
   try{ rec.start(); }catch(e){ micFail('Не получилось включить микрофон.'); }
 }
+const IS_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+/* Whisper иногда «слышит» в тишине фразы из субтитров — выбрасываем их */
+const HALLU=/субтитр|dimatorzok|продолжение следует|спасибо за просмотр|подписывайтесь|редактор|корректор|аплодисмент|музыка\]|\[музыка|смех\]/i;
+function cleanStt(t){ t=String(t||'').trim(); if(!t||HALLU.test(t)) return ''; return t; }
 async function startRecorder(id){
+  let stream;
+  try{ stream=await getMic(); }
+  catch(e){ try{ console.warn('mic',e&&e.name,e&&e.message); }catch(_){} micFail(inFrame?'Здесь запись недоступна. Нажми на поле и на микрофон на клавиатуре iPhone.':'Микрофон выключен для Ритма. Открой Настройки iPhone → Приложения → Safari → Микрофон → «Разрешить», потом закрой и открой Ритм.'); return; }
   try{
-    const stream=await getMic();
     const mime=['audio/mp4','audio/webm;codecs=opus','audio/webm'].find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m))||'';
     const mr=new MediaRecorder(stream, mime?{mimeType:mime}:undefined); voice.chunks=[];
+    const quiet=id==='chat-in'?1500:2500;
+    const watch=levelWatch(mr, quiet, id==='chat-in'?8000:10000, ['dump-reply','ob-story','m-text','life-in'].includes(id)?300000:120000);
     mr.ondataavailable=e=>{ if(e.data&&e.data.size) voice.chunks.push(e.data); };
-    mr.onstop=async()=>{ micIdle();
+    mr.onstop=async()=>{
+      const b=document.querySelector('[data-mic-for="'+id+'"]');
+      if(voice.cancel){ voice.cancel=false; voice.chunks=[]; voiceDone(); return; }
+      if(!watch.spoke){ voice.chunks=[]; if(!(id==='chat-in'&&talk.on)) toast('Не услышала. Нажми на микрофон и говори.'); voiceDone(); return; }
       const blob=new Blob(voice.chunks,{type:mr.mimeType||'audio/mp4'});
-      const b=document.querySelector('[data-mic-for="'+id+'"]'); if(b){ b.disabled=true; b.innerHTML='<span class="spin"></span>Распознаю…'; }
-      try{ const text=await window.RITM_TRANSCRIBE(blob); fieldSet(id,String(text||'').trim()); }catch(e){ toast('Не получилось распознать запись. Попробуй ещё раз.', null, true); }
+      if(b){ b.disabled=true; b.innerHTML='<span class="spin"></span>'; b.setAttribute('aria-label','Распознаю'); }
+      try{ const text=cleanStt(await window.RITM_TRANSCRIBE(blob)); if(text) fieldSet(id,text); else if(!(id==='chat-in'&&talk.on)) toast('Не разобрала слова. Скажи ещё раз чуть громче.'); }
+      catch(e){ toast('Не получилось распознать запись. Проверь интернет и попробуй ещё раз.', null, true); }
       if(b){ b.disabled=false; delete b.dataset.st; } voiceDone(); };
-    voice.media=mr; voice.id=id; setMicUI(); mr.start(); if(id==='chat-in'&&talk.on) silenceWatch(stream, mr);
-  }catch(e){ try{ console.warn('mic',e&&e.name,e&&e.message); }catch(_){} micFail(inFrame?'Здесь запись недоступна. Нажми на поле и на микрофон на клавиатуре iPhone.':'Микрофон выключен для Ритма. Открой Настройки iPhone → Приложения → Safari → Микрофон → «Разрешить», потом закрой и открой Ритм.'); }
+    voice.media=mr; voice.rec=null; voice.id=id; setMicUI(); mr.start(1000);
+  }catch(e){ try{ console.warn('rec',e&&e.name,e&&e.message); }catch(_){} micFail('Не получилось включить запись. Закрой и открой Ритм.'); }
 }
 /* один поток микрофона на весь запуск: iPhone спрашивает разрешение один раз, а не при каждом нажатии */
-let micStream=null, micTimer=null;
+let micStream=null, micAC=null, micAn=null, micSrcFor=null;
 async function getMic(){
-  clearTimeout(micTimer);
   if(micStream && micStream.getAudioTracks().some(t=>t.readyState==='live')) return micStream;
-  micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+  micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
   return micStream;
 }
-function micRelease(){ clearTimeout(micTimer); if(micStream){ try{ micStream.getTracks().forEach(t=>t.stop()); }catch(_){} } micStream=null; }
-function micIdle(){ clearTimeout(micTimer); micTimer=setTimeout(micRelease, 10*60*1000); }
-document.addEventListener('visibilitychange',()=>{ if(document.hidden && !voice.id) micRelease(); });
+function micRelease(){ if(micStream){ try{ micStream.getTracks().forEach(t=>t.stop()); }catch(_){} } micStream=null; }
 const isStandalone=(()=>{ try{ return !!(navigator.standalone||matchMedia('(display-mode: standalone)').matches); }catch(_){ return false; } })();
-function silenceWatch(stream, mr){
-  try{ const AC=window.AudioContext||window.webkitAudioContext; const ac=new AC(); const an=ac.createAnalyser(); an.fftSize=512; ac.createMediaStreamSource(stream).connect(an); const buf=new Uint8Array(an.fftSize); let spoke=false, quietSince=Date.now(); const t0=Date.now();
-    const tick=()=>{ if(mr.state!=='recording'){ ac.close().catch(()=>{}); return; } an.getByteTimeDomainData(buf); let m=0; for(const v of buf) m=Math.max(m,Math.abs(v-128)); const now=Date.now(); if(m>10){ spoke=true; quietSince=now; } if((spoke&&now-quietSince>1500)||(!spoke&&now-t0>8000)){ try{ mr.stop(); }catch(_){} ac.close().catch(()=>{}); return; } requestAnimationFrame(tick); }; tick(); }catch(_){}
+/* уровень звука: один AudioContext на запуск (у iPhone их число ограничено) */
+function levelWatch(mr, quietMs, noSpeechMs, maxMs){
+  const st={spoke:false};
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC) { st.spoke=true; return st; }
+    if(!micAC){ micAC=new AC(); }
+    if(micAC.state==='suspended') micAC.resume().catch(()=>{});
+    if(micSrcFor!==micStream){ micAn=micAC.createAnalyser(); micAn.fftSize=512; micAC.createMediaStreamSource(micStream).connect(micAn); micSrcFor=micStream; }
+    const buf=new Uint8Array(micAn.fftSize); const t0=Date.now(); let quietSince=t0, live=false;
+    const iv=setInterval(()=>{ if(mr.state!=='recording'){ clearInterval(iv); return; }
+      const now=Date.now(); let m=0;
+      if(micAC.state==='running'){ micAn.getByteTimeDomainData(buf); for(const v of buf) m=Math.max(m,Math.abs(v-128)); if(m>0) live=true; }
+      if(m>9){ st.spoke=true; quietSince=now; }
+      const b=document.querySelector('[data-mic-for="'+voice.id+'"]'); if(b) b.style.setProperty('--lvl', Math.min(1,m/60).toFixed(2));
+      if(!live && now-t0>1500){ st.spoke=true; st.blind=true; }   // анализ звука недоступен — останавливаем только по кнопке или по максимуму
+      const stop=(!st.blind && st.spoke && now-quietSince>quietMs) || (!st.blind && !st.spoke && now-t0>noSpeechMs) || now-t0>maxMs;
+      if(stop){ clearInterval(iv); try{ mr.stop(); }catch(_){} }
+    }, 80);
+  }catch(_){ st.spoke=true; }
+  return st;
 }
 function stopSR(){
   const rec=voice.rec; voice.rec=null;
@@ -3488,13 +3520,15 @@ function micWarm(){
   micGrant=navigator.mediaDevices.getUserMedia({audio:true}).then(st=>{ try{ st.getTracks().forEach(t=>t.stop()); }catch(_){} micOk=true; return true; }).catch(e=>{ micGrant=null; return false; });
   return micGrant;
 }
+window.__ritmMic=()=>({ac:micAC&&micAC.state, live:!!(micStream&&micStream.getAudioTracks().some(t=>t.readyState==='live'))});
+function acWarm(){ try{ const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return; if(!micAC) micAC=new AC(); if(micAC.state==='suspended') micAC.resume().catch(()=>{}); }catch(_){} }
 function micToggle(id){
-  if(!voice.id && SR && !inFrame && !S.micRec && !micOk && navigator.mediaDevices){ micWarm().then(()=>{ micOk=true; micToggle(id); }); return; }
+  acWarm();
   if(voice.id){ const same=voice.id===id; if(voice.rec){ stopSR(); } else if(voice.media){ voice.media.stop(); } if(same) return; }
   const el=document.getElementById(id); voice.base=el?el.value:''; voice.lastId=id;
   const canRec=!inFrame && window.RITM_TRANSCRIBE && navigator.mediaDevices && window.MediaRecorder;
-  if(SR && !inFrame && !S.micRec) startSR(id);
-  else if(canRec) startRecorder(id);
+  if(canRec && (IS_IOS || isStandalone || !SR || S.micRec)) startRecorder(id);
+  else if(SR && !inFrame) startSR(id);
   else if(!inFrame && window.RITM_TRANSCRIBE && navigator.mediaDevices && window.MediaRecorder) startRecorder(id);
   else if(SR) startSR(id);
   else { if(el) el.focus(); toast('Нажми на микрофон на клавиатуре iPhone и говори.', null, true); }
