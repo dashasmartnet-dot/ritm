@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261019220910';</script>
-<script src="supabase.js?v=20261019220910"></script>
-<script src="config.js?v=20261019220910"></script>
-<script src="backend.js?v=20261019220910"></script>
+<script>window.RITM_BUILD='20261019221307';</script>
+<script src="supabase.js?v=20261019221307"></script>
+<script src="config.js?v=20261019221307"></script>
+<script src="backend.js?v=20261019221307"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -1313,10 +1313,16 @@ function segWhen(list, text){
       const ws=String(x.title||'').split(/\s+/).map(stem).filter(w=>w.length>=4);
       let best=-1; for(const w of ws){ const k=low.indexOf(w); if(k>=0 && (best<0||k<best)) best=k; } return best; });
     const idx=list.map((x,i)=>i).filter(i=>pos[i]>=0).sort((a,b)=>pos[a]-pos[b]);
+    let prevDue=null;
     idx.forEach((i,j)=>{ const end=j+1<idx.length?pos[idx[j+1]]:low.length; const seg=String(text).slice(pos[i],end); const x=list[i];
-      if(!x.src || !parseRu(x.src).due && !parseRu(x.src).time){ x.src=seg; } });
-  }catch(_){}
-  list.forEach(fixWhen); return list;
+      if(!x.src || !parseRu(x.src).due && !parseRu(x.src).time){ x.src=seg; }
+      // «…, потом заехать в МВД» — тот же день, что и предыдущее дело
+      const before=low.slice(Math.max(0,pos[i]-14),pos[i]);
+      const pr=parseRu(x.src); if(!pr.due && prevDue && /(потом|затем|после этого|после|а ещё|а еще|и ещё|и еще)\s*$/.test(before.trim()+' ')){ x.due=prevDue; x._inh=1; }
+      fixWhen(x); if(x._inh && !pr.due) x.due=prevDue;
+      prevDue=x.due||prevDue; });
+  }catch(_){ list.forEach(fixWhen); }
+  return list;
 }
 async function aiTasks(text){
   const prompt = ctxBlock()+'\nСфера по умолчанию: '+(defaultSphere()||'нет')+
@@ -2415,7 +2421,7 @@ function parseRu(src, now){
     const d=Number(m[1]), mo=Number(m[2]); if(d>=1&&d<=31&&mo>=1&&mo<=12){ due=m[3]?(String(m[3]).length===2?'20'+m[3]:m[3])+'-'+pad(mo)+'-'+pad(d):futureDate(now,d,mo); cut(m[0]); }
   }
   // время
-  if((m=s.match(/\s(?:в|к|на)\s(\d{1,2})[:.](\d{2})\s/i))||(m=s.match(/\s(\d{1,2}):(\d{2})\s/))){ const h=Number(m[1]),mi=Number(m[2]); if(h<24&&mi<60){ time=pad(h)+':'+pad(mi); cut(m[0]); } }
+  if((m=s.match(/\s(?:в|к|на)\s(\d{1,2})[:.](\d{2})\s/i))||(m=s.match(/\s(\d{1,2}):(\d{2})\s/))||(m=s.match(/\s(?:в|к)\s(\d{1,2})\s([0-5]\d)\s(?!мин|час|раз|дн|недел|числ|этаж|кабинет|чел)/i))){ const h=Number(m[1]),mi=Number(m[2]); if(h<24&&mi<60){ time=pad(h)+':'+pad(mi); cut(m[0]); } }
   if(!time && (m=s.match(/\s(?:в|к)\s(\d{1,2}|[а-яё]+)\s?(?:час(?:а|ов)?\s?)?(утра|дня|вечера|ночи)?\s/i))){
     let h=/^\d+$/.test(m[1])?Number(m[1]):RU_NUM[m[1].toLowerCase()];
     if(h!=null && h<24){ const p=(m[2]||'').toLowerCase(); if((p==='дня'||p==='вечера')&&h<12) h+=12; if(p==='ночи'&&h===12) h=0;
