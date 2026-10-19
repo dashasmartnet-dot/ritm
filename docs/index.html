@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261019220552';</script>
-<script src="supabase.js?v=20261019220552"></script>
-<script src="config.js?v=20261019220552"></script>
-<script src="backend.js?v=20261019220552"></script>
+<script>window.RITM_BUILD='20261019220910';</script>
+<script src="supabase.js?v=20261019220910"></script>
+<script src="config.js?v=20261019220910"></script>
+<script src="backend.js?v=20261019220910"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -1303,11 +1303,26 @@ function normTask(x, sphId){
 }
 /* дату и время считает программа по кусочку фразы этого дела — ИИ только делит на дела */
 function fixWhen(x){ try{ const src=String(x.src||'').trim(); if(!src) return; const p=parseRu(src); if(p.due){ x.due=p.due; } if(p.time){ x.time=p.time; x.keepTime=1; } if(p.due&&!p.time&&x.time&&!/\d|утр|вечер|днём|днем|обед/i.test(src)) x.time=null; }catch(_){} }
+/* ищем, где в исходной фразе начинается каждое дело, и берём кусок до начала следующего — там его дата и время */
+function segWhen(list, text){
+  try{
+    const low=String(text||'').toLowerCase().replace(/ё/g,'е');
+    const stem=w=>w.replace(/ё/g,'е').toLowerCase().replace(/[^а-яa-z0-9]/g,'').slice(0,5);
+    const pos=list.map(x=>{ const src=String(x.src||'').toLowerCase().replace(/ё/g,'е').trim();
+      if(src){ const k=low.indexOf(src.slice(0,Math.min(18,src.length))); if(k>=0) return k; }
+      const ws=String(x.title||'').split(/\s+/).map(stem).filter(w=>w.length>=4);
+      let best=-1; for(const w of ws){ const k=low.indexOf(w); if(k>=0 && (best<0||k<best)) best=k; } return best; });
+    const idx=list.map((x,i)=>i).filter(i=>pos[i]>=0).sort((a,b)=>pos[a]-pos[b]);
+    idx.forEach((i,j)=>{ const end=j+1<idx.length?pos[idx[j+1]]:low.length; const seg=String(text).slice(pos[i],end); const x=list[i];
+      if(!x.src || !parseRu(x.src).due && !parseRu(x.src).time){ x.src=seg; } });
+  }catch(_){}
+  list.forEach(fixWhen); return list;
+}
 async function aiTasks(text){
   const prompt = ctxBlock()+'\nСфера по умолчанию: '+(defaultSphere()||'нет')+
   (workActive()?'\nСейчас рабочий режим: если дело не явно личное (врач, семья, дом, покупки), ставь рабочую сферу.':'')+'\n\nПреврати надиктованный текст в задачи. Каждое отдельное действие или встреча — ОТДЕЛЬНАЯ задача, даже если всё сказано одной фразой без запятых («завтра в 11 созвон с Олей позвонить маме в пятницу отправить КП» — это 3 задачи). Не склеивай разные дела в одно. Каждой задаче — свою дату и время из того места фразы, где они названы. Название — коротко, 3–8 слов, с глагола; подробности — в note. Если названа дата или день недели — обязательно поставь due. Ответь ТОЛЬКО JSON вида {"tasks":[{"title":"...","src":"дословный кусок исходного текста про это дело, вместе со словами о дате и времени","note":"подробности или null","sphere":"id сферы из списка, только если сфера очевидна из смысла (врач → здоровье, клиент/договор/работа → рабочая сфера); если не уверена — null","due":"YYYY-MM-DD или null","time":"HH:MM или null","kind":"main|small|wait","who":"имя или null","priority":2,"est":30}]}. '+TASK_RULES+'\n\nТекст:\n'+text.slice(0,12000);
   const r = await cap.sample.json(prompt,{modelTier:'quick',cache:false});
-  return arr(r&&r.tasks).filter(x=>x&&x.title).map(x=>{ fixWhen(x); return normTask(x, sphere(x.sphere)?x.sphere:defaultSphere()); });
+  return segWhen(arr(r&&r.tasks).filter(x=>x&&x.title), text).map(x=>normTask(x, sphere(x.sphere)?x.sphere:defaultSphere()));
 }
 function aiError(e){
   const c=e&&e.code;
@@ -2438,7 +2453,7 @@ async function aiDump(text){
   'Ответь ТОЛЬКО JSON {"tasks":[{"title":"...","src":"дословный кусок исходного текста про это дело, вместе со словами о дате и времени","note":"- шаг\\n- шаг или null","sphere":"id сферы","due":"YYYY-MM-DD или null","time":"HH:MM или null","kind":"main|small|wait","who":"имя или null","priority":2,"est":30,"repeat":null,"ask":"вопрос или null"}]}. '+TASK_RULES+
   '\n\nТекст:\n'+text.slice(0,12000);
   const r = await cap.sample.json(prompt,{modelTier:'default',cache:false});
-  return arr(r&&r.tasks).filter(x=>x&&x.title).map(x=>{ fixWhen(x); const t=normTask(x, sphere(x.sphere)?x.sphere:defaultSphere()); t.ask=x.ask&&String(x.ask).trim()!=='null'?String(x.ask).slice(0,200):null; t.repeat=normRule(x.repeat); return t; });
+  return segWhen(arr(r&&r.tasks).filter(x=>x&&x.title), text).map(x=>{ const t=normTask(x, sphere(x.sphere)?x.sphere:defaultSphere()); t.ask=x.ask&&String(x.ask).trim()!=='null'?String(x.ask).slice(0,200):null; t.repeat=normRule(x.repeat); return t; });
 }
 let dump={list:[], src:'', reply:'', busy:false};
 function dumpDateChips(i,t){
