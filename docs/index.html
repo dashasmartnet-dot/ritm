@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261019222023';</script>
-<script src="supabase.js?v=20261019222023"></script>
-<script src="config.js?v=20261019222023"></script>
-<script src="backend.js?v=20261019222023"></script>
+<script>window.RITM_BUILD='20261019225626';</script>
+<script src="supabase.js?v=20261019225626"></script>
+<script src="config.js?v=20261019225626"></script>
+<script src="backend.js?v=20261019225626"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -1131,6 +1131,12 @@ const AFFIRM = {
 
 const arr = v => Array.isArray(v)?v:[];
 const obj = v => (v && typeof v==='object' && !Array.isArray(v))?v:{};
+/* старые дела вида «Поставь задачу на 9 утра пить таблетку» → «Пить таблетку», 09:00 */
+const CMD_TITLE=/^(?:пожалуйста\s+)?(?:поставь|поставить|создай|создать|добавь|добавить|запиши|записать|заведи|внеси|напомни|напомнить)\s+(?:мне\s+)?(?:задачу|задачку|дело|напоминание)?/i;
+function fixCmdTitles(o){
+  const fx=x=>{ if(!x||!x.title||!CMD_TITLE.test(x.title)) return; const p=parseRu(x.title); if(p.title && p.title.length>=3){ x.title=p.title; } if(!x.time && p.time) x.time=p.time; };
+  arr(o.tasks).forEach(fx); arr(o.recur).forEach(fx);
+}
 function merge(saved){
   const d=DEFAULT(); const s=obj(saved);
   const o=Object.assign(d, s);
@@ -1148,6 +1154,7 @@ function merge(saved){
   o.chat=arr(s.chat).filter(m=>m&&m.content&&(m.role==='user'||m.role==='assistant')).slice(-20);
   o.tasks=o.tasks.filter(t=>t&&t.id&&t.title);
   if(!['clean','oldmoney'].includes(o.skin)) o.skin='clean';
+  try{ fixCmdTitles(o); }catch(_){}
   return o;
 }
 function cacheLocal(){ try{ localStorage.setItem('ritm-cache', JSON.stringify(S)); }catch(e){} }
@@ -1291,6 +1298,7 @@ function ctxBlock(){
 }
 const TASK_RULES='time — время "HH:MM", если названо конкретное время (встреча, звонок, «напомни в 15:00»), иначе null. «В 3», «в 4», «в 5» без слов «утра/ночи» — это дневное время 15:00, 16:00, 17:00. kind: main — важное дело; small — мелочь до 15 минут (оплатить, ответить, отправить, записаться); wait — ТОЛЬКО если другой человек должен что-то пользователю и назван по имени (who = кто). Если действие делает сам пользователь (съездить, получить, забрать, позвонить) — это main или small, не wait. priority: 1 высокий, 2 средний, 3 низкий. est — оценка в минутах. Даты вроде «завтра», «в пятницу», «до конца месяца» переведи в YYYY-MM-DD. Если срок не назван — null. Название задачи начинай с глагола. Ничего не склеивай, не теряй и не выдумывай.';
 function normTask(x, sphId){
+  if(CMD_TITLE.test(String(x.title||''))){ try{ const p=parseRu(String(x.title)); if(p.title) x.title=p.title; if(!x.time&&p.time){ x.time=p.time; x.keepTime=1; } }catch(_){} }
   return { id:uid(), title:String(x.title).slice(0,200), sphere:sphId,
     due: /^\d{4}-\d{2}-\d{2}$/.test(x.due||'')?x.due:null,
     time: isHM(x.time)?((!x.keepTime && +x.time.slice(0,2)>=1 && +x.time.slice(0,2)<=6)?pad(+x.time.slice(0,2)+12)+x.time.slice(2):x.time):null,
@@ -1326,7 +1334,7 @@ function segWhen(list, text){
 }
 async function aiTasks(text){
   const prompt = ctxBlock()+'\nСфера по умолчанию: '+(defaultSphere()||'нет')+
-  (workActive()?'\nСейчас рабочий режим: если дело не явно личное (врач, семья, дом, покупки), ставь рабочую сферу.':'')+'\n\nПреврати надиктованный текст в задачи. Каждое отдельное действие или встреча — ОТДЕЛЬНАЯ задача, даже если всё сказано одной фразой без запятых («завтра в 11 созвон с Олей позвонить маме в пятницу отправить КП» — это 3 задачи). Не склеивай разные дела в одно. Каждой задаче — свою дату и время из того места фразы, где они названы. Название — коротко, 3–8 слов, с глагола; подробности — в note. Если названа дата или день недели — обязательно поставь due. Ответь ТОЛЬКО JSON вида {"tasks":[{"title":"...","src":"дословный кусок исходного текста про это дело, вместе со словами о дате и времени","note":"подробности или null","sphere":"id сферы из списка, только если сфера очевидна из смысла (врач → здоровье, клиент/договор/работа → рабочая сфера); если не уверена — null","due":"YYYY-MM-DD или null","time":"HH:MM или null","kind":"main|small|wait","who":"имя или null","priority":2,"est":30}]}. '+TASK_RULES+'\n\nТекст:\n'+text.slice(0,12000);
+  (workActive()?'\nСейчас рабочий режим: если дело не явно личное (врач, семья, дом, покупки), ставь рабочую сферу.':'')+'\n\nПреврати надиктованный текст в задачи. Каждое отдельное действие или встреча — ОТДЕЛЬНАЯ задача, даже если всё сказано одной фразой без запятых («завтра в 11 созвон с Олей позвонить маме в пятницу отправить КП» — это 3 задачи). Не склеивай разные дела в одно. Каждой задаче — свою дату и время из того места фразы, где они названы. Название — коротко, 3–8 слов, с глагола; подробности — в note. Слова-команды («поставь задачу», «добавь дело», «запиши», «напомни мне») — это не часть названия: «поставь задачу на 9 утра пить таблетку каждый день» → title «Выпить таблетку», time 09:00, repeat каждый день. Если названа дата или день недели — обязательно поставь due. Ответь ТОЛЬКО JSON вида {"tasks":[{"title":"...","src":"дословный кусок исходного текста про это дело, вместе со словами о дате и времени","note":"подробности или null","sphere":"id сферы из списка, только если сфера очевидна из смысла (врач → здоровье, клиент/договор/работа → рабочая сфера); если не уверена — null","due":"YYYY-MM-DD или null","time":"HH:MM или null","kind":"main|small|wait","who":"имя или null","priority":2,"est":30}]}. '+TASK_RULES+'\n\nТекст:\n'+text.slice(0,12000);
   const r = await cap.sample.json(prompt,{modelTier:'quick',cache:false});
   return segWhen(arr(r&&r.tasks).filter(x=>x&&x.title), text).map(x=>normTask(x, sphere(x.sphere)?x.sphere:defaultSphere()));
 }
@@ -2379,6 +2387,9 @@ function parseRu(src, now){
   let s=' '+String(src||'').replace(/([,!?;])/g,' $1 ').replace(/\.(?!\d)/g,' . ').replace(/\s+/g,' ').trim()+' ';
   const T=dstr(now); let due=null, time=null, repeat=null, yrPending=false;
   const cut=re=>{ s=s.replace(re,' '); };
+  // «поставь задачу …», «добавь дело …», «запиши …» — это команда, а не часть названия
+  s=s.replace(/^\s(?:пожалуйста\s|слушай\s|так\s)*(?:поставь|поставить|создай|создать|добавь|добавить|запиши|записать|заведи|внеси|сделай|сделать|напомни|напомнить)\s(?:мне\s|пожалуйста\s)*(?:новую\s|новое\s|ещё\s|еще\s)?(?:задачу|задачку|задача|дело|напоминание|напоминалку|в\sсписок|в\sзадачи|в\sплан)?\s?(?:что\s|о\sтом,?\sчто\s|чтобы\s)?/i,' ');
+  s=s.replace(/^\s(?:мне\s)?(?:надо|нужно|не\sзабыть)\s/i,' ');
   // повтор: каждый день, по будням, по выходным, каждый понедельник, по вторникам и четвергам
   { let mm;
     if((mm=s.match(/\s(каждый\sдень|ежедневно|каждое\sутро|каждый\sвечер)\s/i))){ repeat=[0,1,2,3,4,5,6]; cut(mm[0]); }
@@ -2422,6 +2433,7 @@ function parseRu(src, now){
   }
   // время
   if((m=s.match(/\s(?:в|к|на)\s(\d{1,2})[:.](\d{2})\s/i))||(m=s.match(/\s(\d{1,2}):(\d{2})\s/))||(m=s.match(/\s(?:в|к)\s(\d{1,2})\s([0-5]\d)\s(?!мин|час|раз|дн|недел|числ|этаж|кабинет|чел)/i))){ const h=Number(m[1]),mi=Number(m[2]); if(h<24&&mi<60){ time=pad(h)+':'+pad(mi); cut(m[0]); } }
+  if(!time && (m=s.match(/\s(?:на|к|в)\s(\d{1,2})\s?(?:час(?:а|ов)?\s?)?(утра|вечера|ночи)\s/i))){ let h=Number(m[1]); const p=m[2].toLowerCase(); if(p==='вечера'&&h<12) h+=12; if(p==='ночи'&&h===12) h=0; if(h<24){ time=pad(h)+':00'; cut(m[0]); } }
   if(!time && (m=s.match(/\s(?:в|к)\s(\d{1,2}|[а-яё]+)\s?(?:час(?:а|ов)?\s?)?(утра|дня|вечера|ночи)?\s/i))){
     let h=/^\d+$/.test(m[1])?Number(m[1]):RU_NUM[m[1].toLowerCase()];
     if(h!=null && h<24){ const p=(m[2]||'').toLowerCase(); if((p==='дня'||p==='вечера')&&h<12) h+=12; if(p==='ночи'&&h===12) h=0;
@@ -2433,6 +2445,7 @@ function parseRu(src, now){
   if(rmon && !repeat){ const d0=due||T; repeat={freq:'month',every:rmon,dom:rdom||Number(d0.slice(8))}; if(!due||due.slice(8)!==pad(repeat.dom)) due=nextRepDay(repeat,T); }
   else if(ryr && !repeat){ if(due){ repeat={freq:'year',md:due.slice(5),before:rbf}; due=nextRepDay(repeat,T); } else yrPending=true; }
   let title=s.replace(/\s+([,.!?;])/g,'$1').replace(/\s+/g,' ').trim().replace(/^[,.;\s]+/,'').replace(/^(надо|нужно|мне нужно|мне надо|не забыть|напомни(?:ть)?(?: мне)?|запиши|добавь)\s+/i,'').replace(/[,.;\s]+$/,'');
+  if(title) title=title.replace(/^встречу(?=\s|$)/i,'Встреча').replace(/^созвона(?=\s|$)/i,'Созвон');
   if(title) title=title.charAt(0).toUpperCase()+title.slice(1);
   const words=title.split(' ').filter(Boolean).length;
   const low=' '+String(src).toLowerCase()+' ';
@@ -2451,7 +2464,7 @@ async function aiDump(text){
   'Правила:\n'+
   '1. Отдельное дело = отдельное обязательство или результат (сделать что-то одно, ответить конкретному человеку, отправить, позвонить). Если человеку нужно что-то сообщить другому человеку — это отдельное дело «Ответить/Написать <кому> про <что>».\n'+
   '2. Шаги и детали ОДНОГО дела не дроби на дела — положи их в note: короткие пункты, каждый с новой строки через «- ». Сохрани все детали, причины и имена из речи (кто, почему, что именно).\n'+
-  '3. title — 3–8 слов, начинается с глагола, понятно без описания.\n'+
+  '3. title — 3–8 слов, начинается с глагола, понятно без описания. Слова-команды («поставь задачу», «добавь», «запиши», «напомни мне») в название не входят.\n'+
   '4. Дата и время — только если названы. Не названо — due null. Не выдумывай сроки.\n'+
   '5a. Если дело регулярное: по дням недели («каждый понедельник», «по будням») — repeat: массив дней недели (0 вс, 1 пн … 6 сб); раз в месяц/квартал/полгода — repeat: {"freq":"month","every":1,"dom":число}; раз в год (дни рождения, годовщины, страховки, налоги) — repeat: {"freq":"year","md":"MM-DD","before":3}. Иначе null.\n'+
   '5. Если для дела важно уточнить срок или смысл — добавь короткий вопрос в ask этого дела (например «Когда сделать?» или «Ответить Георгию письменно или созвоном?»). Иначе ask null.\n'+
