@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261019225626';</script>
-<script src="supabase.js?v=20261019225626"></script>
-<script src="config.js?v=20261019225626"></script>
-<script src="backend.js?v=20261019225626"></script>
+<script>window.RITM_BUILD='20261019230710';</script>
+<script src="supabase.js?v=20261019230710"></script>
+<script src="config.js?v=20261019230710"></script>
+<script src="backend.js?v=20261019230710"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -1132,7 +1132,7 @@ const AFFIRM = {
 const arr = v => Array.isArray(v)?v:[];
 const obj = v => (v && typeof v==='object' && !Array.isArray(v))?v:{};
 /* старые дела вида «Поставь задачу на 9 утра пить таблетку» → «Пить таблетку», 09:00 */
-const CMD_TITLE=/^(?:пожалуйста\s+)?(?:поставь|поставить|создай|создать|добавь|добавить|запиши|записать|заведи|внеси|напомни|напомнить)\s+(?:мне\s+)?(?:задачу|задачку|дело|напоминание)?/i;
+const CMD_TITLE=/(^|\s)(?:поставь|поставить|создай|создать|добавь|добавить|запиши|записать|заведи|внеси|напомни|напомнить)(\s|$)|^(?:заметку|заметка|пометку|задачу)\s|напоминанием/i;
 function fixCmdTitles(o){
   const fx=x=>{ if(!x||!x.title||!CMD_TITLE.test(x.title)) return; const p=parseRu(x.title); if(p.title && p.title.length>=3){ x.title=p.title; } if(!x.time && p.time) x.time=p.time; };
   arr(o.tasks).forEach(fx); arr(o.recur).forEach(fx);
@@ -2100,6 +2100,7 @@ function parseActions(text){
   return {text, actions};
 }
 function actLabel(a){
+  if(a.op==='delrecur'){ const r=findRecur(a.id); return '✕ Удалить совсем: '+(r?r.title:'дело')+' — все дни'+(r&&r.time?', '+r.time:''); }
   const t=a.id&&findTask(a.id); const nm=t?t.title+(a.op!=='add'&&a.op!=='move'?' ('+(t.due?dayLabel(t.due)+(t.time?', '+t.time:''):'без даты')+')':''):(a.title||'');
   const when=(a.due?dayLabel(a.due):'')+(a.time?' в '+a.time:'');
   if(a.op==='add') return '＋ '+nm+(when?' — '+when:'');
@@ -2114,6 +2115,7 @@ function applyActions(list){
   let n=0; const added=[];
   list.forEach(a=>{
     const due=/^\d{4}-\d{2}-\d{2}$/.test(a.due||'')?a.due:null, time=isHM(a.time)?a.time:null;
+    if(a.op==='delrecur'){ const r=findRecur(a.id); if(r){ S.recur=arr(S.recur).filter(x=>x.id!==r.id); S.tasks=S.tasks.filter(x=>!(x.recurId===r.id&&!x.done)); n++; } return; }
     if(a.op==='habit'){ if(!S.habits.some(h=>h.name.toLowerCase()===String(a.title).toLowerCase())){ S.habits.push({id:'h-'+uid(),name:String(a.title).slice(0,80)}); n++; } return; }
     if(a.op==='add'){ const t=normTask({title:a.title,note:a.note,due,time,kind:a.kind||'main'}, defaultSphere()); t.source='assistant'; S.tasks.push(t); added.push(t); n++; return; }
     const t=findTask(a.id); if(!t) return;
@@ -2388,8 +2390,12 @@ function parseRu(src, now){
   const T=dstr(now); let due=null, time=null, repeat=null, yrPending=false;
   const cut=re=>{ s=s.replace(re,' '); };
   // «поставь задачу …», «добавь дело …», «запиши …» — это команда, а не часть названия
-  s=s.replace(/^\s(?:пожалуйста\s|слушай\s|так\s)*(?:поставь|поставить|создай|создать|добавь|добавить|запиши|записать|заведи|внеси|сделай|сделать|напомни|напомнить)\s(?:мне\s|пожалуйста\s)*(?:новую\s|новое\s|ещё\s|еще\s)?(?:задачу|задачку|задача|дело|напоминание|напоминалку|в\sсписок|в\sзадачи|в\sплан)?\s?(?:что\s|о\sтом,?\sчто\s|чтобы\s)?/i,' ');
+  s=s.replace(/^\s(?:пожалуйста\s|слушай\s|так\s)*(?:поставь|поставить|создай|создать|добавь|добавить|запиши|записать|заведи|внеси|сделай|сделать|напомни|напомнить)\s(?:мне\s|пожалуйста\s)*(?:новую\s|новое\s|ещё\s|еще\s)?(?:задачу|задачку|задача|заметку|заметка|пометку|дело|напоминание|напоминалку|будильник|в\sсписок|в\sзадачи|в\sплан)?\s?(?:что\s|о\sтом,?\sчто\s|чтобы\s)?/i,' ');
   s=s.replace(/^\s(?:мне\s)?(?:надо|нужно|не\sзабыть)\s/i,' ');
+  s=s.replace(/^\s(?:заметку|заметка|пометку|задачу|задача|напоминание)\s(?:на\s(?=[а-яё]))?/i,' ');
+  s=s.replace(/^\s(\d{1,2})\s(утра|вечера|ночи)\s/i,' в $1 $2 ');
+  // «…, поставь задачу напоминанием», «добавь заметку» — посреди фразы тоже команда
+  s=s.replace(/\s(?:поставь|поставить|создай|создать|добавь|добавить|запиши|записать|сделай|заведи)\s(?:мне\s)?(?:это\s)?(?:задачу|задачку|заметку|заметка|пометку|напоминание|напоминалку|будильник|дело)(?:\s(?:напоминанием|с\sнапоминанием|на\sкаждый\sдень))?(?=\s)/gi,' ').replace(/\s(?:с\s)?напоминанием(?=\s)/gi,' ');
   // повтор: каждый день, по будням, по выходным, каждый понедельник, по вторникам и четвергам
   { let mm;
     if((mm=s.match(/\s(каждый\sдень|ежедневно|каждое\sутро|каждый\sвечер)\s/i))){ repeat=[0,1,2,3,4,5,6]; cut(mm[0]); }
@@ -2445,6 +2451,8 @@ function parseRu(src, now){
   if(rmon && !repeat){ const d0=due||T; repeat={freq:'month',every:rmon,dom:rdom||Number(d0.slice(8))}; if(!due||due.slice(8)!==pad(repeat.dom)) due=nextRepDay(repeat,T); }
   else if(ryr && !repeat){ if(due){ repeat={freq:'year',md:due.slice(5),before:rbf}; due=nextRepDay(repeat,T); } else yrPending=true; }
   let title=s.replace(/\s+([,.!?;])/g,'$1').replace(/\s+/g,' ').trim().replace(/^[,.;\s]+/,'').replace(/^(надо|нужно|мне нужно|мне надо|не забыть|напомни(?:ть)?(?: мне)?|запиши|добавь)\s+/i,'').replace(/[,.;\s]+$/,'');
+  if(title && /^(таблетк|витамин|лекарств)[а-яё]*$/i.test(title)) title='Выпить '+({'таблетка':'таблетку'}[title.toLowerCase()]||title.toLowerCase());
+  if(title) title=title.replace(/^(?:на|в|к|и|а|что|чтобы)\s+(?=[а-яё]+(?:ть|ти|чь)(?:ся)?(?:\s|$))/i,'');
   if(title) title=title.replace(/^встречу(?=\s|$)/i,'Встреча').replace(/^созвона(?=\s|$)/i,'Созвон');
   if(title) title=title.charAt(0).toUpperCase()+title.slice(1);
   const words=title.split(' ').filter(Boolean).length;
@@ -2542,6 +2550,14 @@ function cmdSheet(){
 }
 /* ---------- «Управление»: голосом меняю план ---------- */
 let ctl={text:'',actions:[],reply:'',busy:false,err:''};
+const ALL_RE=/(^|[^а-яё])(все|всё|всех|каждую|каждый|каждое|целиком|полностью)([^а-яё]|$)/i;
+/* много дней одного повторяющегося дела → одна строка «удалить повтор целиком» */
+function groupRecur(list, text){
+  const by={}; list.forEach(a=>{ if(a.op!=='delete') return; const t=findTask(a.id); if(t&&t.recurId){ (by[t.recurId]=by[t.recurId]||[]).push(a); } });
+  let out=list.slice();
+  Object.keys(by).forEach(rid=>{ const g=by[rid]; if(g.length>=2 || ALL_RE.test(text||'')){ const n=S.tasks.filter(x=>x.recurId===rid&&!x.done).length; out=out.filter(a=>!g.includes(a)); out.unshift({op:'delrecur', id:rid, n}); } });
+  return out;
+}
 function dedupeActs(list){
   // если одно и то же действие попало на несколько дел с одинаковым названием — отмечаем только ближайшее
   const seen={}; const T=today();
@@ -2558,10 +2574,15 @@ function ctlSheet(){
   else {
     if(ctl.err) h+='<p role="alert" style="margin:0;color:var(--warn);font-weight:600">'+esc(ctl.err)+'</p>'+(ctl.text?'<button class="btn block-btn" data-act="ctl-as-task">Это новое дело — добавить</button>':'');
     if(ctl.reply) h+='<div class="msg ai" style="max-width:100%">'+md(ctl.reply)+'</div>';
-    if(ctl.actions.length) h+='<div class="act-card"><div class="eyebrow">Сделаю так</div><ul class="act-list cmd-list">'+ctl.actions.map((a,i)=>'<li><label class="row" style="gap:10px;align-items:center"><input type="checkbox" data-ctl-i="'+i+'" '+(a._off?'':'checked')+' style="width:22px;height:22px;flex:none"><span>'+esc(actLabel(a))+'</span></label></li>').join('')+'</ul><button class="btn primary block-btn" data-act="ctl-apply">Сделать</button></div>';
+    if(ctl.actions.length) h+='<div class="act-card"><div class="row between" style="align-items:center"><div class="eyebrow">Сделаю так</div>'+(ctl.actions.length>1?'<label class="row" style="gap:8px;align-items:center;font-weight:600;font-size:15px"><input type="checkbox" id="ctl-all" '+(ctl.actions.every(a=>!a._off)?'checked':'')+' style="width:22px;height:22px">Выбрать все</label>':'')+'</div><ul class="act-list cmd-list">'+ctl.actions.map((a,i)=>'<li><label class="row" style="gap:10px;align-items:center"><input type="checkbox" data-ctl-i="'+i+'" '+(a._off?'':'checked')+' style="width:22px;height:22px;flex:none"><span>'+esc(actLabel(a))+'</span></label></li>').join('')+'</ul><button class="btn primary block-btn" data-act="ctl-apply">Сделать</button></div>';
   }
   h+=ctl.busy?'':'<button class="btn'+(ctl.actions.length?'':' primary')+' block-btn" data-act="ctl-go">'+(ctl.actions.length||ctl.reply?'Новая команда':'Выполнить')+'</button>';
-  openSheet(h, sh=>{ const ta=sh.querySelector('#ctl-in'); if(ta){ ta.oninput=()=>{ ctl.text=ta.value; }; } });
+  openSheet(h, sh=>{ const ta=sh.querySelector('#ctl-in'); if(ta){ ta.oninput=()=>{ ctl.text=ta.value; }; }
+    const all=sh.querySelector('#ctl-all'); const boxes=[...sh.querySelectorAll('[data-ctl-i]')];
+    if(all){ all.onchange=()=>{ boxes.forEach(b=>{ b.checked=all.checked; }); }; boxes.forEach(b=>{ b.onchange=()=>{ all.checked=boxes.every(x=>x.checked); }; }); }
+    // результат — сверху: прокручиваем к списку изменений
+    const card=sh.querySelector('.act-card'); if(card && ctl.actions.length) setTimeout(()=>{ try{ card.scrollIntoView({block:'start'}); }catch(_){} },60);
+  });
 }
 async function ctlRun(text){
   text=String(text||'').trim(); if(!text){ const ta=$('#ctl-in'); if(ta) ta.focus(); return; }
@@ -2571,16 +2592,16 @@ async function ctlRun(text){
       const T=today();
       const list=S.tasks.filter(x=>!x.done||(x.doneAt&&x.doneAt>Date.now()-7*86400000)).slice(-200).map(x=>'#'+x.id+' '+(x.done?'[сделано] ':'')+x.title+' ['+((sphere(x.sphere)||{}).name||'—')+(x.due?', '+x.due+(x.time?' '+x.time:''):', без даты')+(x.recurId?', повтор':'')+']').join('\n');
       const ev=Object.keys(calDays).filter(d=>d>=T&&d<=addDays(T,7)).sort().map(d=>(calDays[d].events||[]).map(e=>'- '+d+' '+e.time+' '+e.title).join('\n')).filter(Boolean).join('\n');
-      const r=await cap.sample.json(dateCtx()+'\nДела человека:\n'+(list||'—')+'\nВстречи в календаре (7 дней):\n'+(ev||'—')+'\n\nЧеловек сказал голосом: «'+text.slice(0,3000)+'»\n\nЕсли это команда — верни действия над делами. Если просят добавить что-то в «каждый день» / ежедневные привычки — op "habit" с title.  Ищи дела по смыслу, а не дословно. Если под описание подходит несколько дел — верни действие только для одного, ближайшего по дате, если человек не сказал «все». «Несрочное» — дела не с высокой важностью и без времени. Если это вопрос — ответь коротко в reply (по-русски, 1–5 строк) и actions пустой. Можно и то и другое. Ответь ТОЛЬКО JSON {"reply":"текст или пусто","actions":[{"op":"add|move|done|delete|repeat","id":"… (для существующих)","title":"… (для add)","due":"YYYY-MM-DD|null","time":"HH:MM|null",days":[1,3],"rule":{"freq":"week|month|year","days":[1,3],"dom":10,"every":1,"md":"MM-DD","before":3}}]} (для повтора — либо days для дней недели, либо rule для месяца/года)',{modelTier:'default',cache:false});
+      const r=await cap.sample.json(dateCtx()+'\nДела человека:\n'+(list||'—')+'\nВстречи в календаре (7 дней):\n'+(ev||'—')+'\n\nЧеловек сказал голосом: «'+text.slice(0,3000)+'»\n\nЕсли это команда — верни действия над делами. Если просят добавить что-то в «каждый день» / ежедневные привычки — op "habit" с title.  Ищи дела по смыслу, а не дословно. Если человек говорит «все», «всё», «каждую», «целиком» — верни действие для КАЖДОГО подходящего дела (например, «удали все заметки про таблетки» — все дела, где есть таблетки). Иначе, если под описание подходит несколько дел — верни действие только для одного, ближайшего по дате. «Несрочное» — дела не с высокой важностью и без времени. Если это вопрос — ответь коротко в reply (по-русски, 1–5 строк) и actions пустой. Можно и то и другое. Ответь ТОЛЬКО JSON {"reply":"текст или пусто","actions":[{"op":"add|move|done|delete|repeat","id":"… (для существующих)","title":"… (для add)","due":"YYYY-MM-DD|null","time":"HH:MM|null",days":[1,3],"rule":{"freq":"week|month|year","days":[1,3],"dom":10,"every":1,"md":"MM-DD","before":3}}]} (для повтора — либо days для дней недели, либо rule для месяца/года)',{modelTier:'default',cache:false});
       ctl.reply=String(r&&r.reply||'').trim();
       ctl.actions=arr(r&&r.actions).map(a=>Object.assign({},a,{id:a.id?String(a.id).replace(/^#/,''):undefined})).filter(a=>['add','move','done','delete','repeat','habit'].includes(a.op)&&(a.op==='add'||a.op==='habit'?!!a.title:!!findTask(a.id))).slice(0,40);
-      dedupeActs(ctl.actions); if(ctl.actions.some(a=>a._off)) ctl.reply=(ctl.reply?ctl.reply+'\n':'')+'Нашла несколько дел с таким названием — отметила ближайшее. Поставь галочку, если нужно и другое.';
+      ctl.actions=groupRecur(ctl.actions, text); if(!ALL_RE.test(text)) dedupeActs(ctl.actions); if(ctl.actions.some(a=>a._off)) ctl.reply=(ctl.reply?ctl.reply+'\n':'')+'Нашла несколько дел с таким названием — отметила ближайшее. Поставь галочку, если нужно и другое.';
       if(!ctl.reply && !ctl.actions.length) ctl.err='Не нашла, что поменять. Скажи точнее, какое дело.';
     }catch(e){ ctl.err=aiError(e); }
   }
   if(!ctl.actions.length && !ctl.reply && CMD_RE.test(text)){
     const verb=(text.match(CMD_RE)||[])[1]||''; const op=/удал|убер|вычерк|сотри|отмен/i.test(verb)?'delete':/перен|сдвин|передвин|отлож/i.test(verb)?null:'done';
-    if(op){ const m=localMatch(text); if(m.length){ const top=m[0].sc; ctl.actions=dedupeActs(m.filter(o=>o.sc===top).slice(0,3).map(o=>({op,id:o.x.id}))); ctl.err=''; } }
+    if(op){ const m=localMatch(text); if(m.length){ const top=m[0].sc; const all=ALL_RE.test(text); let L=m.filter(o=>o.sc===top).slice(0,all?60:3).map(o=>({op,id:o.x.id})); L=groupRecur(L,text); ctl.actions=all?L:dedupeActs(L); ctl.err=''; } }
   }
   if(!cap.sample && !ctl.actions.length) ctl.err='Ассистент сейчас недоступен. Удалить и перенести можно зажав дело.';
   ctl.busy=false; if(sheetOpen) ctlSheet();
