@@ -30,10 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-<script>window.RITM_BUILD='20261019213224';</script>
-<script src="supabase.js?v=20261019213224"></script>
-<script src="config.js?v=20261019213224"></script>
-<script src="backend.js?v=20261019213224"></script>
+<script>window.RITM_BUILD='20261019220552';</script>
+<script src="supabase.js?v=20261019220552"></script>
+<script src="config.js?v=20261019220552"></script>
+<script src="backend.js?v=20261019220552"></script>
 <style>
 /* Layout: one narrow column like a paper planner; bottom tab bar; sheets slide up for editing. */
 :root{
@@ -1301,11 +1301,13 @@ function normTask(x, sphId){
     est: Math.max(5,Math.min(480,Number(x.est)||30)),
     done:false, created:Date.now(), postponed:0, source:'voice' };
 }
+/* дату и время считает программа по кусочку фразы этого дела — ИИ только делит на дела */
+function fixWhen(x){ try{ const src=String(x.src||'').trim(); if(!src) return; const p=parseRu(src); if(p.due){ x.due=p.due; } if(p.time){ x.time=p.time; x.keepTime=1; } if(p.due&&!p.time&&x.time&&!/\d|утр|вечер|днём|днем|обед/i.test(src)) x.time=null; }catch(_){} }
 async function aiTasks(text){
   const prompt = ctxBlock()+'\nСфера по умолчанию: '+(defaultSphere()||'нет')+
-  (workActive()?'\nСейчас рабочий режим: если дело не явно личное (врач, семья, дом, покупки), ставь рабочую сферу.':'')+'\n\nПреврати надиктованный текст в задачи. Каждое отдельное действие или встреча — ОТДЕЛЬНАЯ задача, даже если всё сказано одной фразой без запятых («завтра в 11 созвон с Олей позвонить маме в пятницу отправить КП» — это 3 задачи). Не склеивай разные дела в одно. Каждой задаче — свою дату и время из того места фразы, где они названы. Название — коротко, 3–8 слов, с глагола; подробности — в note. Если названа дата или день недели — обязательно поставь due. Ответь ТОЛЬКО JSON вида {"tasks":[{"title":"...","note":"подробности или null","sphere":"id сферы из списка, только если сфера очевидна из смысла (врач → здоровье, клиент/договор/работа → рабочая сфера); если не уверена — null","due":"YYYY-MM-DD или null","time":"HH:MM или null","kind":"main|small|wait","who":"имя или null","priority":2,"est":30}]}. '+TASK_RULES+'\n\nТекст:\n'+text.slice(0,12000);
+  (workActive()?'\nСейчас рабочий режим: если дело не явно личное (врач, семья, дом, покупки), ставь рабочую сферу.':'')+'\n\nПреврати надиктованный текст в задачи. Каждое отдельное действие или встреча — ОТДЕЛЬНАЯ задача, даже если всё сказано одной фразой без запятых («завтра в 11 созвон с Олей позвонить маме в пятницу отправить КП» — это 3 задачи). Не склеивай разные дела в одно. Каждой задаче — свою дату и время из того места фразы, где они названы. Название — коротко, 3–8 слов, с глагола; подробности — в note. Если названа дата или день недели — обязательно поставь due. Ответь ТОЛЬКО JSON вида {"tasks":[{"title":"...","src":"дословный кусок исходного текста про это дело, вместе со словами о дате и времени","note":"подробности или null","sphere":"id сферы из списка, только если сфера очевидна из смысла (врач → здоровье, клиент/договор/работа → рабочая сфера); если не уверена — null","due":"YYYY-MM-DD или null","time":"HH:MM или null","kind":"main|small|wait","who":"имя или null","priority":2,"est":30}]}. '+TASK_RULES+'\n\nТекст:\n'+text.slice(0,12000);
   const r = await cap.sample.json(prompt,{modelTier:'quick',cache:false});
-  return arr(r&&r.tasks).filter(x=>x&&x.title).map(x=>normTask(x, sphere(x.sphere)?x.sphere:defaultSphere()));
+  return arr(r&&r.tasks).filter(x=>x&&x.title).map(x=>{ fixWhen(x); return normTask(x, sphere(x.sphere)?x.sphere:defaultSphere()); });
 }
 function aiError(e){
   const c=e&&e.code;
@@ -2433,10 +2435,10 @@ async function aiDump(text){
   '5a. Если дело регулярное: по дням недели («каждый понедельник», «по будням») — repeat: массив дней недели (0 вс, 1 пн … 6 сб); раз в месяц/квартал/полгода — repeat: {"freq":"month","every":1,"dom":число}; раз в год (дни рождения, годовщины, страховки, налоги) — repeat: {"freq":"year","md":"MM-DD","before":3}. Иначе null.\n'+
   '5. Если для дела важно уточнить срок или смысл — добавь короткий вопрос в ask этого дела (например «Когда сделать?» или «Ответить Георгию письменно или созвоном?»). Иначе ask null.\n'+
   '6. Убери слова-паразиты и оговорки, не теряй смысл.\n'+
-  'Ответь ТОЛЬКО JSON {"tasks":[{"title":"...","note":"- шаг\\n- шаг или null","sphere":"id сферы","due":"YYYY-MM-DD или null","time":"HH:MM или null","kind":"main|small|wait","who":"имя или null","priority":2,"est":30,"repeat":null,"ask":"вопрос или null"}]}. '+TASK_RULES+
+  'Ответь ТОЛЬКО JSON {"tasks":[{"title":"...","src":"дословный кусок исходного текста про это дело, вместе со словами о дате и времени","note":"- шаг\\n- шаг или null","sphere":"id сферы","due":"YYYY-MM-DD или null","time":"HH:MM или null","kind":"main|small|wait","who":"имя или null","priority":2,"est":30,"repeat":null,"ask":"вопрос или null"}]}. '+TASK_RULES+
   '\n\nТекст:\n'+text.slice(0,12000);
   const r = await cap.sample.json(prompt,{modelTier:'default',cache:false});
-  return arr(r&&r.tasks).filter(x=>x&&x.title).map(x=>{ const t=normTask(x, sphere(x.sphere)?x.sphere:defaultSphere()); t.ask=x.ask&&String(x.ask).trim()!=='null'?String(x.ask).slice(0,200):null; t.repeat=normRule(x.repeat); return t; });
+  return arr(r&&r.tasks).filter(x=>x&&x.title).map(x=>{ fixWhen(x); const t=normTask(x, sphere(x.sphere)?x.sphere:defaultSphere()); t.ask=x.ask&&String(x.ask).trim()!=='null'?String(x.ask).slice(0,200):null; t.repeat=normRule(x.repeat); return t; });
 }
 let dump={list:[], src:'', reply:'', busy:false};
 function dumpDateChips(i,t){

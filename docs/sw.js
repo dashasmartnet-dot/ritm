@@ -1,5 +1,5 @@
 /* Ритм: сначала сеть, при отсутствии сети — сохранённая оболочка. */
-const C='ritm-v20';
+const C='ritm-v21';
 const SHELL=['./','index.html','backend.js','config.js','manifest.webmanifest','icons/icon-180.png'];
 self.addEventListener('install',e=>{ e.waitUntil(caches.open(C).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting())); });
 self.addEventListener('activate',e=>{ e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim())); });
